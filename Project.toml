@@ -3,6 +3,10 @@ uuid = "d762b40b-22be-4ced-aa28-a3ac0c9c0493"
 authors = ["Nils Kintscher"]
 version = "0.1.0"
 
+[deps]
+AbstractAlgebra = "c3fe647b-3220-5bb0-a1ea-a7954cac585d"
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+
 [compat]
 julia = "1"
 

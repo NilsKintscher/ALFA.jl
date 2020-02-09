@@ -2,5 +2,5 @@ using alfa
 using Test
 
 @testset "alfa.jl" begin
-    # Write your own tests here.
+    @test alfa.func(3) == 7
 end
