@@ -3,7 +3,8 @@ module alfa
 using LinearAlgebra
 import AbstractAlgebra
 
-include("utils.jl")
+include("abstractalgebra_wrapper.jl")
+include("lattice.jl")
 
 """
     func(x)

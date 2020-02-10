@@ -1,6 +1,9 @@
-using alfa
-using Test
+using SafeTestsets
 
-@testset "alfa.jl" begin
-    @test alfa.func(3) == 7
+@safetestset "AbstractAlgebra Wrapper" begin
+    include("abstractalgebra_test.jl")
+end
+
+@safetestset "Lattice" begin
+    include("lattice_test.jl")
 end
