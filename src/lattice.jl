@@ -8,11 +8,12 @@ end
 
 function Lattice(mat = nothing)
     if mat == nothing
-        new(Matrix{Float64}(I, 2, 2))
-    else
-        mat = convert(Matrix{Float64}, mat)
-        Lattice(mat)
+        mat = Matrix{Float64}(I, 2, 2)
+    elseif isa(mat, Vector{T} where {T<:Real}) # if vector convert 1×1 matrix.
+        mat = reshape(mat, 1, 1)
     end
+    mat = convert(Matrix{Float64}, mat)
+    Lattice(mat)
 end
 
 Base.size(L::Lattice) = size(L.A)
@@ -33,6 +34,11 @@ function Base.getproperty(L::Lattice, sym::Symbol)
 end
 
 
+"""
+    lcm(A::Matrix,B::Matrix)
+
+Returns the least common multiple of A and B, i.e. a sub-lattice C (C ⊂ A and C ⊂ B) with |det(C)| as small as possible.
+"""
 function Base.lcm(A::Matrix, B::Matrix, rmax = 50)
     M0 = A \ B
     for r in range(1, stop = rmax)

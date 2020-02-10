@@ -1,12 +1,15 @@
 struct Crystal
     L::Lattice
-    Domain::Vector{Vector{Int}}
-    Codomain::Vector{Vector{Int}}
-    function Crystal(L::Lattice, Domain::Vector{Vector{Int}}, Codomain::Vector{Vector{Int}})
+    Domain::Matrix{Int} # m × dim
+    Codomain::Matrix{Int} # m × dim
+    function Crystal(L::Lattice, Domain::Matrix{Int}, Codomain::Matrix{Int})
+        @assert L.dim == size(Domain, 2)
+        @assert L.dim == size(Codomain, 2)
         if pointer(Domain) == pointer(Codomain)
-            Codomain = deepcopy(Codomain) ## Or maybe dont do that and exploit it. Don't know yet.
+             ## Or maybe dont do that and exploit it. Don't know yet.
+            Codomain = deepcopy(Codomain)
         end
-        new(L,Domain,Codomain)
+        new(L, Domain, Codomain)
     end
 end
 
@@ -14,13 +17,24 @@ function Crystal(L = nothing, Domain = nothing, Codomain = nothing)
     if L == nothing
         L = Lattice()
     elseif typeof(L) != Lattice
-        L = Lattice(L) # try to call the constructor of Lattice
+        L = Lattice(L)
     end
+
     if Domain == nothing
-        Domain = [[0, 0]]
+        Domain = zeros(Int, 1, L.dim)
+    elseif typeof(Domain) == Vector{Int} # turn Vector into Matrix with 1 Column
+        Domain = reshape(Domain, length(Domain), 1)
     end
+
     if Codomain == nothing
         Codomain = Domain
+    elseif typeof(Codomain) == Vector{Int} # turn Vector into Matrix with 1 Column
+        Codomain = reshape(Codomain, length(Codomain), 1)
     end
-    return Crystal(L, Domain, Codomain)
+
+    return Crystal(
+        L,
+        convert(Matrix{Int}, Domain),
+        convert(Matrix{Int}, Codomain),
+    )
 end

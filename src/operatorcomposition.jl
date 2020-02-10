@@ -4,7 +4,7 @@ struct OperatorComposition
     OpDict::Dict{Symbol,CrystalOperator}
     # list of OperatorCompositions possible..? with reduce()
     function OperatorComposition(f::Expr, OpDict::Dict{Symbol,CrystalOperator})
-        new(f,OpDict)
+        new(f, OpDict)
     end
 end
 

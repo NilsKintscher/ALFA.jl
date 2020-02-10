@@ -2,7 +2,7 @@ struct CrystalOperator
     C::Crystal ## dimension L.dim dictates size of Multiplier.pos and dim of structure elements.
     M::SortedSet{Multiplier}# Array{Multiplier,1}
     function CrystalOperator(C::Crystal, M::SortedSet{Multiplier})
-        new(C,M)
+        new(C, M)
     end
 end
 
