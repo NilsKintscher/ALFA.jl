@@ -1,13 +1,17 @@
 struct Lattice <: AbstractMatrix{Float64}
     A::Matrix{Float64}
-    function Lattice(mat = nothing)
-        if mat == nothing
-            new(Matrix{Float64}(I, 2, 2))
-        else
-            mat = convert(Matrix{Float64}, mat)
-            @assert !isapprox(det(mat), 0)
-            new(mat)
-        end
+    function Lattice(A::Matrix{Float64})
+        @assert !isapprox(det(A), 0)
+        new(A)
+    end
+end
+
+function Lattice(mat = nothing)
+    if mat == nothing
+        new(Matrix{Float64}(I, 2, 2))
+    else
+        mat = convert(Matrix{Float64}, mat)
+        Lattice(mat)
     end
 end
 
