@@ -2,7 +2,7 @@ struct CrystalOperator
     C::Crystal ## dimension L.dim dictates size of Multiplier.pos and dim of structure elements.
     M::SortedSet{Multiplier}# Array{Multiplier,1}
     function CrystalOperator(C::Crystal, M::SortedSet{Multiplier})
-        _sanitycheck(C,M)
+        _sanitycheck(C, M)
         new(C, M)
     end
 end
@@ -12,7 +12,7 @@ function CrystalOperator(C = nothing, M = nothing)
         C = Crystal()
     end
     if M == nothing
-        M = SortedSet(Vector{Multiplier}())
+        M = SortedSet{Multiplier}()
     end
     return CrystalOperator(C, M)
 end
@@ -36,4 +36,15 @@ function Base.push!(S::CrystalOperator, m::Multiplier)
     _sanitycheck(S.C, m)
     push!(S.M, m)
     return S
+end
+
+
+function Base.show(io::IO, mime::MIME"text/plain", s::SortedSet{Multiplier})
+    show(io, mime, collect(s))
+end
+
+function Base.show(io::IO, mime::MIME"text/plain", o::CrystalOperator)
+    show(io, mime, o.C)
+    print(io, "\nMultiplier: ")
+    show(io, mime, o.M)
 end

@@ -34,23 +34,29 @@ function Crystal(L = nothing, Domain = nothing, Codomain = nothing)
         Codomain = reshape(Codomain, length(Codomain), 1)
     end
 
-    return Crystal(
-        L,
-        convert(Matrix, Domain),
-        convert(Matrix, Codomain),
-    )
+    return Crystal(L, convert(Matrix, Domain), convert(Matrix, Codomain))
 end
 
 
 function Base.getproperty(C::Crystal, sym::Symbol)
     if sym == :size_domain
-        size(C.Domain,1)
+        size(C.Domain, 1)
     elseif sym == :size_codomain
-        size(C.Codomain,1)
+        size(C.Codomain, 1)
     elseif sym ∈ [:A, :dim, :n, :iA, :dA] # some properties from lattice
-        getproperty(getfield(C,:L), sym)
+        getproperty(getfield(C, :L), sym)
     else
         # fallback to getfield
         getfield(C, sym)
     end
+end
+
+
+function Base.show(io::IO, mime::MIME"text/plain", C::Crystal)
+    print(io, "Lattice Basis: ")
+    show(io, mime, C.L)
+    print(io, "\nDomain: ")
+    show(io, mime, C.Domain)
+    print(io, "\nCodomain: ")
+    show(io, mime, C.Codomain)
 end

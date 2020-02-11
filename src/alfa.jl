@@ -10,5 +10,6 @@ include("crystal.jl")
 include("multiplier.jl")
 include("crystaloperator.jl")
 include("operatorcomposition.jl")
+include("gallery.jl")
 
 end # module

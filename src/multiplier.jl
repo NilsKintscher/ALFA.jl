@@ -26,16 +26,23 @@ end
 function Base.getproperty(m::Multiplier, sym::Symbol)
     if sym == :n || sym == :dim
         length(m.pos)
-    elseif sym ==:size_domain
-        size(m.mat,2)
-    elseif sym ==:size_codomain
-        size(m.mat,1)
+    elseif sym == :size_domain
+        size(m.mat, 2)
+    elseif sym == :size_codomain
+        size(m.mat, 1)
     else
         # fallback to getfield
         getfield(m, sym)
     end
 end
 
-function Base.size(m::Multiplier,y...)
-    return size(m.mat,y...)
+function Base.size(m::Multiplier, y...)
+    return size(m.mat, y...)
+end
+
+function Base.show(io::IO, mime::MIME"text/plain", m::Multiplier)
+    print(io, "Position: ")
+    show(io, mime, m.pos)
+    print(io, "\nMultiplier: ")
+    show(io, mime, m.mat)
 end

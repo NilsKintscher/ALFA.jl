@@ -23,7 +23,7 @@ Base.setindex!(L::Lattice, y...) = setindex!(L.A, y...)
 
 function Base.getproperty(L::Lattice, sym::Symbol)
     if sym == :n || sym == :dim
-        size(L.A,1)
+        size(L.A, 1)
     elseif sym == :iA
         inv(L.A)
     elseif sym == :dA
@@ -33,7 +33,6 @@ function Base.getproperty(L::Lattice, sym::Symbol)
         getfield(L, sym)
     end
 end
-
 
 """
     lcm(A::Matrix,B::Matrix)
