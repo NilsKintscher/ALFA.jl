@@ -7,6 +7,7 @@ struct Lattice <: AbstractMatrix{Real}
     end
 end
 
+
 function Lattice(mat = nothing)
     if mat == nothing
         mat = Matrix{Float64}(I, 2, 2)

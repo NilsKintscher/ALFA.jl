@@ -20,6 +20,9 @@ using Test
     @test size(m113,1) == 3
     @test size(m113,2) == 2
 
+    @test m113.size_domain == 2
+    @test m113.size_codomain == 3
+
     #lexicographically ordered. testing isless and isequal
     @test isless(m113, m113) == false
     @test isequal(m113, m113) == true

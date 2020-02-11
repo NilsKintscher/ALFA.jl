@@ -26,6 +26,10 @@ end
 function Base.getproperty(m::Multiplier, sym::Symbol)
     if sym == :n || sym == :dim
         length(m.pos)
+    elseif sym ==:size_domain
+        size(m.mat,2)
+    elseif sym ==:size_codomain
+        size(m.mat,1)
     else
         # fallback to getfield
         getfield(m, sym)
