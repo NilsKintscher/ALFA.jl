@@ -1,7 +1,8 @@
-struct Lattice <: AbstractMatrix{Float64}
-    A::Matrix{Float64}
-    function Lattice(A::Matrix{Float64})
-        @assert !isapprox(det(A), 0)
+struct Lattice <: AbstractMatrix{Real}
+    A::Matrix
+    function Lattice(A::Matrix)
+        @assert typeof(A) <: Matrix{<:Real} "Matrix entries must be of type Real"
+        @assert !isapprox(det(A), 0) "Basis must be nonsingular"
         new(A)
     end
 end
@@ -12,7 +13,6 @@ function Lattice(mat = nothing)
     elseif isa(mat, Vector{T} where {T<:Real}) # if vector convert 1×1 matrix.
         mat = reshape(mat, 1, 1)
     end
-    mat = convert(Matrix{Float64}, mat)
     Lattice(mat)
 end
 
@@ -22,7 +22,7 @@ Base.setindex!(L::Lattice, y...) = setindex!(L.A, y...)
 
 function Base.getproperty(L::Lattice, sym::Symbol)
     if sym == :n || sym == :dim
-        size(L.A)[1]
+        size(L.A,1)
     elseif sym == :iA
         inv(L.A)
     elseif sym == :dA

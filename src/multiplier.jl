@@ -1,7 +1,7 @@
 struct Multiplier #<: AbstractArray{Int,1}
     pos::Vector{Int}
-    mat::Matrix{Complex}
-    function Multiplier(pos::Vector{Int}, mat::Matrix{Complex})
+    mat::Matrix
+    function Multiplier(pos::Vector{Int}, mat::Matrix{T}) where {T<:Number}
         new(pos, mat)
     end
 end
@@ -17,8 +17,21 @@ function Multiplier(pos = nothing, mat = nothing)
     end
     if mat == nothing
         mat = Matrix{Complex}(I, 0, 0)
-    elseif typeof(mat) == Vector{Int}
+    elseif typeof(mat) <: Vector
         mat = reshape(mat, length(mat), 1)
     end
-    return Multiplier(convert(Array{Int,1}, pos), convert(Matrix{Complex}, mat))
+    return Multiplier(convert(Array{Int,1}, pos), convert(Matrix, mat))
+end
+
+function Base.getproperty(m::Multiplier, sym::Symbol)
+    if sym == :n || sym == :dim
+        length(m.pos)
+    else
+        # fallback to getfield
+        getfield(m, sym)
+    end
+end
+
+function Base.size(m::Multiplier,y...)
+    return size(m.mat,y...)
 end

@@ -3,8 +3,8 @@ struct Crystal
     Domain::Matrix{Int} # m × dim
     Codomain::Matrix{Int} # m × dim
     function Crystal(L::Lattice, Domain::Matrix{Int}, Codomain::Matrix{Int})
-        @assert L.dim == size(Domain, 2)
-        @assert L.dim == size(Codomain, 2)
+        @assert L.dim == size(Domain, 2) "size(Domain,2)=$(size(Domain,2)) must be equal to Lattice dimensionality L.dim=$(L.dim)"
+        @assert L.dim == size(Codomain, 2) "size(Codomain,2)=$(size(Codomain,2)) must be equal to Lattice dimensionality L.dim=$(L.dim)"
         if pointer(Domain) == pointer(Codomain)
              ## Or maybe dont do that and exploit it. Don't know yet.
             Codomain = deepcopy(Codomain)

@@ -6,7 +6,7 @@ using Test
 
     C = alfa.Crystal()
     @test isa(C, alfa.Crystal) == true
-    C = alfa.Crystal([1], nothing, [1; 2])
+    C = alfa.Crystal([1], [1; 2], [1; 2])
     @test isa(C, alfa.Crystal) == true
     C = alfa.Crystal(nothing, nothing, nothing)
     @test isa(C, alfa.Crystal) == true
