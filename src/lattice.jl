@@ -154,31 +154,31 @@ end
 
 
 @recipe function f(
-    L::Lattice;
+    L::Lattice,
     xmin = -3,
     xmax = 3,
     draw_basis = true,
-    color = :gray,
 )
-    color --> :green
+    #color --> :gray
     @series begin
         xy = hcat([(L.A * [i i; xmin * 1.1 xmax * 1.1])' for i = xmin:xmax]...)
         x = xy[:, 1:2:end]
         y = xy[:, 2:2:end]
-        #color --> :gray
         label --> ""
+        color --> :gray
         x, y
     end
     @series begin
         xy = hcat([(L.A * [xmin * 1.1 xmax * 1.1; i i])' for i = xmin:xmax]...)
         x = xy[:, 1:2:end]
         y = xy[:, 2:2:end]
-        color --> :black
-        primary := false #label --> ""
+        primary := false #
+        color --> :green
+        label --> ""
         x, y
     end
     @series begin
-        color --> :black
+        color := :black
         arrow := true
         primary := false
         linewidth --> 2
