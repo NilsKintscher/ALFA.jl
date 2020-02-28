@@ -60,3 +60,50 @@ function Base.show(io::IO, mime::MIME"text/plain", C::Crystal)
     print(io, "\nCodomain: ")
     show(io, mime, C.Codomain)
 end
+
+function normalize!(C::Crystal)
+    ShiftIntoUnitCell!(C.Domain, C.L)
+    ShiftIntoUnitCell!(C.Codomain, C.L)
+end
+
+function normalize(C::Crystal)
+    dn, ds, dp = ShiftIntoUnitCell(C.Domain, C.L)
+    cn, ds, dp = ShiftIntoUnitCell(C.Codomain, C.L)
+    return Crystal(C.L, dn, cn)
+end
+
+function wrtLattice(C::Crystal, A::Matrix)
+    t = ElementsInQuotientSpace(C.A, A, fractional=false)
+    newDomain = vcat(transpose([x + y for x in eachslice(t, dims = 1) for y in eachslice(
+        C.Domain,
+        dims = 1,
+    )])...)
+    newCodomain = vcat(transpose([x + y for x in eachslice(t, dims = 1) for y in eachslice(
+        C.Codomain,
+        dims = 1,
+    )])...)
+    return Crystal(A, newDomain, newCodomain)
+end
+
+function wrtLattice(C::Crystal, L::Lattice)
+    return wrtLattice(C, L.A)
+end
+
+# function Plots.plot(C::Crystal; xmin=-2, xmax=2, draw_basis=true)
+#     Plots.plot()
+#     plot!(C, xmin=xmin, xmax=max, draw_basis=draw_basis)
+# end
+#
+# function Plots.plot!(C::Crystal; xmin=-2, xmax=2, ymin=-2, ymax=2, draw_basis=true)
+#     plot!(C.L, xmin=xmin, xmax=max, draw_basis=draw_basis) ## TODO: handle kwargs in a better,simpler way
+#     pos_fractional = Iterators.product(Iterators.repeated(xmin:xmax,C.dim)...) # fractional positions
+#     plot!(C, pos_fractional)
+# end
+#
+# function Plots.plot!(C::Crystal, pos_fractional; xmin=-2, xmax=2, ymin=-2, ymax=2, draw_basis=true)
+#     pos_cartesian = [C.L.A*[x...] for x in pos_frac]
+#     for x in pos_cartesian
+#         scatter!([x+y for y in C.Domain])
+#     end
+#
+# end

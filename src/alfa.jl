@@ -3,6 +3,8 @@ module alfa
 using LinearAlgebra
 import AbstractAlgebra
 import DataStructures: SortedSet
+using RecipesBase
+
 
 include("abstractalgebra_wrapper.jl")
 include("lattice.jl")

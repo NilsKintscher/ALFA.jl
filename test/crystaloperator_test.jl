@@ -43,6 +43,11 @@ import DataStructures: SortedSet
     mymults3 = SortedSet{alfa.Multiplier}([m13, m_wrong_matsize2])
     @test_throws AssertionError alfa.CrystalOperator(C, mymults3)
 
+    @test isa(alfa.gallery(), alfa.CrystalOperator)
     O = alfa.gallery("Laplacian2D")
     @test isa(O, alfa.CrystalOperator)
+    ## do stuff with O.
+
+
+    
 end
