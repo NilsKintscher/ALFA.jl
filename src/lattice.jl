@@ -90,7 +90,7 @@ function ShiftIntoUnitCell!(s::Matrix, A::Matrix)
     y = transpose(A \ transpose(s))
     map!(
         x -> isapprox(x, round(x), rtol = alfa_rtol, atol = alfa_atol) ?
-            round(x) : floor(x),
+             round(x) : floor(x),
         y,
         y,
     ) # remove non-integral part ∈(0,1)
@@ -154,14 +154,15 @@ end
 
 
 @recipe function f(L::Lattice; xmin = -3, xmax = 3, draw_basis = true)
-    color --> :green
+    linecolor --> :gray
+    linewidth = get(plotattributes, :linewidth, 0.5)
     @series begin
         xy = hcat([(L.A * [i i; xmin * 1.1 xmax * 1.1])' for i = xmin:xmax]...)
         x = xy[:, 1:2:end]
         y = xy[:, 2:2:end]
-        label --> ""
+        label := ""
         primary := false
-        color --> :red
+        linewidth := linewidth
         x, y
     end
     @series begin
@@ -169,16 +170,16 @@ end
         x = xy[:, 1:2:end]
         y = xy[:, 2:2:end]
         primary := false #
-        #color --> :orange
-        label --> ""
+        linewidth := linewidth
+        label := ""
         x, y
     end
     if draw_basis
         @series begin
             color := :black
             arrow := true
-            primary := false
-            linewidth --> 2
+            label --> ""
+            linewidth := 2*linewidth
             [0 0; L.A[:, 1]'], [0 0; L.A[:, 2]']
         end
     end
