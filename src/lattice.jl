@@ -153,7 +153,7 @@ function myplot!(L::Lattice; xmin = -3, xmax = 3, draw_basis = true)
 end
 
 
-@recipe function f(L::Lattice, xmin = -3, xmax = 3, draw_basis = true)
+@recipe function f(L::Lattice; xmin = -3, xmax = 3, draw_basis = true)
     #color --> :gray
     @series begin
         xy = hcat([(L.A * [i i; xmin * 1.1 xmax * 1.1])' for i = xmin:xmax]...)
