@@ -120,41 +120,8 @@ function ShiftIntoUnitCell!(s::Matrix, A::Lattice)
 end
 
 
-
-# function Plots.plot(L::Lattice; xmin=-3, xmax=3, draw_basis=true)
-#     Plots.plot()
-#     plot!(L, xmin, xmax, draw_basis)
-# end
-using Plots
-
-function myplot!(L::Lattice; xmin = -3, xmax = 3, draw_basis = true)
-    if L.dim == 2
-        xy = hcat([(L.A * [i i; xmin * 1.1 xmax * 1.1])' for i = xmin:xmax]...)
-        x = xy[:, 1:2:end]
-        y = xy[:, 2:2:end]
-        plot!(x, y, color = :gray, label = "")
-
-        xy = hcat([(L.A * [xmin * 1.1 xmax * 1.1; i i])' for i = xmin:xmax]...)
-        x = xy[:, 1:2:end]
-        y = xy[:, 2:2:end]
-        plot!(x, y, color = :gray, label = "")
-
-        if draw_basis
-            plot!(
-                [0 0; L.A[:, 1]'],
-                [0 0; L.A[:, 2]'],
-                color = :black,
-                arrow = true,
-                linewidth = 2,
-                label = "",
-            )
-        end
-    end
-end
-
-
 @recipe function f(L::Lattice; xmin = -3, xmax = 3, draw_basis = true)
-    linecolor --> :gray
+    seriescolor --> :gray
     linewidth = get(plotattributes, :linewidth, 0.5)
     @series begin
         xy = hcat([(L.A * [i i; xmin * 1.1 xmax * 1.1])' for i = xmin:xmax]...)
@@ -175,12 +142,14 @@ end
         x, y
     end
     if draw_basis
+        color := :black
+        arrow := true
+        label --> ""
+        linewidth := 2 * linewidth
         @series begin
-            color := :black
-            arrow := true
-            label --> ""
-            linewidth := 2*linewidth
-            [0 0; L.A[:, 1]'], [0 0; L.A[:, 2]']
+            x = [0 0; L.A[1, :]']
+            y = [0 0; L.A[2, :]']
+            x, y
         end
     end
 end

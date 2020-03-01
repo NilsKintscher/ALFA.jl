@@ -4,7 +4,7 @@ using LinearAlgebra
 import AbstractAlgebra
 import DataStructures: SortedSet
 using RecipesBase
-
+using ColorSchemes
 
 include("abstractalgebra_wrapper.jl")
 include("lattice.jl")

@@ -73,7 +73,7 @@ function normalize(C::Crystal)
 end
 
 function wrtLattice(C::Crystal, A::Matrix)
-    t = ElementsInQuotientSpace(C.A, A, fractional=false)
+    t = ElementsInQuotientSpace(C.A, A, fractional = false)
     newDomain = vcat(transpose([x + y for x in eachslice(t, dims = 1) for y in eachslice(
         C.Domain,
         dims = 1,
@@ -89,21 +89,70 @@ function wrtLattice(C::Crystal, L::Lattice)
     return wrtLattice(C, L.A)
 end
 
-# function Plots.plot(C::Crystal; xmin=-2, xmax=2, draw_basis=true)
-#     Plots.plot()
-#     plot!(C, xmin=xmin, xmax=max, draw_basis=draw_basis)
-# end
 #
-# function Plots.plot!(C::Crystal; xmin=-2, xmax=2, ymin=-2, ymax=2, draw_basis=true)
-#     plot!(C.L, xmin=xmin, xmax=max, draw_basis=draw_basis) ## TODO: handle kwargs in a better,simpler way
-#     pos_fractional = Iterators.product(Iterators.repeated(xmin:xmax,C.dim)...) # fractional positions
-#     plot!(C, pos_fractional)
-# end
-#
-# function Plots.plot!(C::Crystal, pos_fractional; xmin=-2, xmax=2, ymin=-2, ymax=2, draw_basis=true)
-#     pos_cartesian = [C.L.A*[x...] for x in pos_frac]
-#     for x in pos_cartesian
-#         scatter!([x+y for y in C.Domain])
-#     end
-#
-# end
+@recipe function f(
+    C::Crystal;
+    xmin = -3,
+    xmax = 3,
+    draw_basis = true,
+    plot_domain = true,
+    plot_codomain = true,
+    plot_lattice = true,
+)
+    if plot_lattice
+        @series begin
+            C.L
+        end
+    end
+    pos_fractional = Iterators.product(Iterators.repeated(xmin:xmax, C.dim)...) # fractional positions
+
+    if plot_codomain
+        @series begin  #codomain
+            markercolor --> :white
+            label := ""
+            markershape --> :pentagon
+            markeralpha := 1
+            markerstrokealpha := 1
+            markersize --> 10
+            markerstrokewidth --> 1
+            markerstrokecolor --> :black
+            domain := false
+            C, pos_fractional#, domain=false
+        end
+    end
+    if plot_domain
+        @series begin #domain
+            markercolor --> :salmon
+            markerstrokealpha := 0
+            label := ""
+            markershape --> :diamond
+            domain := true
+            C, pos_fractional#, domain=true
+        end
+    end
+
+end
+
+@recipe function f(C::Crystal, pos_fractional; domain = true)
+    # #TODO:  check this:
+    # domain --> true
+    # codomain --> !domain
+    # #
+
+    seriestype --> scatter
+    markercolor --> :orange
+    label := ""
+    markershape --> :dtriangle
+    if domain
+        s = C.Domain
+    else
+        s = C.Codomain
+    end
+
+    xy = C.L.A * reshape(collect(Iterators.flatten(pos_fractional)), 2, :)
+    for pos in eachslice(s, dims = 1)
+        @series begin
+            xy[1, :] .+ pos[1], xy[2, :] .+ pos[2]
+        end
+    end
+end

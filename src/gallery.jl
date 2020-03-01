@@ -13,8 +13,8 @@ function gallery(s = nothing)
         push!(L, Multiplier([0 0], [-4]))
         push!(L, Multiplier([0 -1], [1]))
         push!(L, Multiplier([0 1], [1]))
-        push!(L, Multiplier([1 -1], [1]))
-        push!(L, Multiplier([1 1], [1]))
+        push!(L, Multiplier([-4 0], [1]))
+        push!(L, Multiplier([-1 1], [1]))
         return L
     end
 end
