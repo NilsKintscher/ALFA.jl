@@ -64,13 +64,15 @@ end
 
 
 
-
-function ElementsInQuotientSpace(A::Matrix, B::Matrix; fractional::Bool = false)
+function ElementsInQuotientSpace(A::Matrix, B::Matrix; return_diag_hnf::Bool=false, return_fractional::Bool = false)
     M = A \ B
     Mr = round.(M)
     @assert isapprox(M, Mr, rtol = alfa_rtol, atol = alfa_atol) "A must be a sublattice of B, i.e. A\\B must be integral."
     H = hnf(Mr)
     dH = diag(H)
+    if return_diag_hnf
+        return dH
+    end
     m = prod(dH)
     J = Iterators.product([0:x-1 for x in dH]...)
     if fractional
@@ -117,39 +119,4 @@ end
 
 function ShiftIntoUnitCell!(s::Matrix, A::Lattice)
     return ShiftIntoUnitCell!(s, A.A)
-end
-
-
-@recipe function f(L::Lattice; xmin = -3, xmax = 3, draw_basis = true)
-    seriescolor --> :gray
-    linewidth = get(plotattributes, :linewidth, 0.5)
-    @series begin
-        xy = hcat([(L.A * [i i; xmin * 1.1 xmax * 1.1])' for i = xmin:xmax]...)
-        x = xy[:, 1:2:end]
-        y = xy[:, 2:2:end]
-        label := ""
-        primary := false
-        linewidth := linewidth
-        x, y
-    end
-    @series begin
-        xy = hcat([(L.A * [xmin * 1.1 xmax * 1.1; i i])' for i = xmin:xmax]...)
-        x = xy[:, 1:2:end]
-        y = xy[:, 2:2:end]
-        primary := false #
-        linewidth := linewidth
-        label := ""
-        x, y
-    end
-    if draw_basis
-        color := :black
-        arrow := true
-        label --> ""
-        linewidth := 2 * linewidth
-        @series begin
-            x = [0 0; L.A[1, :]']
-            y = [0 0; L.A[2, :]']
-            x, y
-        end
-    end
 end

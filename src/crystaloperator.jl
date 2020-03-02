@@ -63,46 +63,67 @@ function normalize(S::CrystalOperator)
     (cn, cs, cp) = ShiftIntoUnitCell(S.C.Codomain, S.C.L)
 
     # ...
+    m_old = collect(S.M)
+    y_old = vcat(transpose([x.pos for x in S.M])...)
+
+
 
 end
 
+
 function wrtLattice(S::CrystalOperator, A::Matrix)
     #### TODO: Test this function, when Plot function exists. Need to construct test cases with alfa.py.
+
     t = ElementsInQuotientSpace(S.C.A, A, fractional = true)
-    newDomain = vcat(transpose([x + y for x in eachslice(t, dims = 1) for y in eachslice(
-        S.C.Domain,
-        dims = 1,
-    )])...)
-    newCodomain = vcat(transpose([x + y for x in eachslice(t, dims = 1) for y in eachslice(
-        S.C.Codomain,
-        dims = 1,
-    )])...)
+    #t = [0 0; 1 0; 0 1; 1 1]
+    #println("t: ", t)
+    newDomain = vcat(transpose([
+        x + y for x in eachslice(t, dims = 1)
+        for y in eachslice(S.C.Domain, dims = 1)
+    ])...)
+    newCodomain = vcat(transpose([
+        x + y for x in eachslice(t, dims = 1)
+        for y in eachslice(S.C.Codomain, dims = 1)
+    ])...)
 
     m_old = collect(S.M)
     y_old = vcat(transpose([x.pos for x in S.M])...)
     Ay_old = transpose(S.C.L.A * transpose(y_old))
     # find all unique combinations of floor(A\S.C.L.A*(y_old[i] + t[j] - t[k]))
+    #SS0 = SortedSet{Array{Int,1}}()
+    SS0 = SortedDict{Array{Int,1},Array{Tuple{Int,Int},1}}()
+    ### TODO: MOST TIME SPEND IN FOLLOWING for loop.
+    ### IT can explicitly computed using
+    # dH = alfa.ElementsInQuotientSpace(S.C.A, A, return_diag_hnf=true)
+    # and
+    # collect(Iterators.product([-x+1:x-1 for x in dH]...)) # <-- all combinations of ti-tj
+    # need a formula to obtain i and j from this thing.
+    @time for (it_ti, ti) in enumerate(eachslice(t, dims = 1))
+        for (it_tj, tj) in enumerate(eachslice(t, dims = 1))
+            push!(
+                get!(SS0, ti - tj, Array{Tuple{Int64,Int64},1}()),
+                (it_ti, it_tj),
+            )
+        end
+    end
     SS = SortedSet{Array{Int,1}}()
-    for j in Iterators.product(
-        eachslice(y_old, dims = 1),
-        eachslice(t, dims = 1),
-        eachslice(t, dims = 1),
-    )
-        y = A \ (S.C.L.A * (j[1] + j[2] - j[3]))
+    for j in Iterators.product(eachslice(y_old, dims = 1), keys(SS0))
+        y = A \ (S.C.L.A * (j[1] + j[2]))
         map!(
             x -> isapprox(x, round(x), rtol = alfa_rtol, atol = alfa_atol) ?
-                 round(x) : floor(x),
+                round(x) : floor(x),
             y,
             y,
         )
         push!(SS, y)
     end
     y_new = vcat(transpose(collect(SS))...)
-
+    #println("y_new", y_new)
     Ay_new = transpose(A * transpose(y_new)) # convert to cartesian coordinate of original lattice.
-
+    #Ay_new = y_new
     # get coordinate of new lattice
-    print(Ay_new)
+    #println("Ay_new: ", Ay_new)
+    #println("Ay_old:", Ay_old)
     # assign multipliers.
 
     brs = S.C.size_codomain #block row size
@@ -111,171 +132,44 @@ function wrtLattice(S::CrystalOperator, A::Matrix)
     Cnew = Crystal(A, newDomain, newCodomain)
     op = CrystalOperator(Cnew)
     for (it_y, y) in enumerate(eachslice(Ay_new, dims = 1))
-        mm = zeros(
-            typeof(first(S.M).mat[1, 1]),
-            Cnew.size_codomain,
-            Cnew.size_domain,
-        ) # init new matrix.
-        mmIsNonZero = false
-        display(mm)
-        for (it_ti, ti) in enumerate(eachslice(t, dims = 1))
-            for (it_tj, tj) in enumerate(eachslice(t, dims = 1))
-                y_test = y - ti + tj
-                for (it_yk, yk) in enumerate(eachslice(Ay_old, dims = 1))
-                    if isapprox(yk, y_test, rtol = alfa_rtol, atol = alfa_atol)
-                        matblock = m_old[it_yk].mat
-                        display(matblock)
-                        mm[
-                           (it_ti-1)*brs+1:it_ti*brs,
-                           (it_tj-1)*bcs+1:it_tj*bcs,
-                        ] = matblock
-                        mmIsNonZero = true
-                        break
-                    else
-                        break
-                    end
+        #println("y_new: ",y)
+        mm = nothing
 
+        for (tdiff, ss_ij) in SS0
+
+            #for (it_ti, ti) in enumerate(eachslice(t, dims = 1))
+            #for (it_tj, tj) in enumerate(eachslice(t, dims = 1))
+            #y_test = y - ti + tj
+            y_test = y - tdiff
+            #println("y_test  $y_test , it (i,j) = ($it_ti, $it_tj)")
+            for (it_yk, yk) in enumerate(eachslice(Ay_old, dims = 1))
+                #print("yk $yk")
+                if isapprox(yk, y_test, rtol = alfa_rtol, atol = alfa_atol)
+                    #println("#####################TRUE : yk:   $yk")
+                    matblock = m_old[it_yk].mat
+                    #println("matblock: $matblock")
+                    if mm == nothing
+                        mm = zeros(
+                            typeof(first(S.M).mat[1, 1]),
+                            Cnew.size_codomain,
+                            Cnew.size_domain,
+                        ) # init new matrix.
+                    end
+                    for (it_ti, it_tj) in ss_ij
+                        mm[
+                            (it_ti-1)*brs+1:it_ti*brs,
+                            (it_tj-1)*bcs+1:it_tj*bcs,
+                        ] = matblock
+                    end
+                    break
                 end
+
+                #end
             end
         end
-        if mmIsNonZero
+        if mm != nothing
             push!(op, Multiplier(y_new[it_y, :], mm))
         end
     end
     return op
-end
-
-
-
-@recipe function f(S::CrystalOperator; threshhold = 1e-15)
-    m = collect(S.M)
-    x = vcat(transpose([x.pos for x in S.M])...)
-    # extrema of positions
-    (xmin, xmax) = extrema(x)
-     # extrema of matrix entries
-    mmin = min([min(real(mu.mat)...) for mu in m]...)
-    mmax = max([max(real(mu.mat)...) for mu in m]...)
-    @series begin # plot lattice
-        xmin --> xmin
-        xmax --> xmax+1
-        S.C.L
-    end
-
-
-    @series begin #
-        plot_lattice := false
-        plot_domain := false
-        plot_codomain := true
-
-        xmin --> 0
-        xmax --> 0
-        S.C # codomain
-    end
-    @series begin
-        plot_lattice := false
-        plot_domain := true
-        plot_codomain := false
-        xmin --> xmin
-        xmax --> xmax
-        S.C
-    end
-
-    ### colorbar
-    @series begin
-        label --> ""
-        c := :viridis
-        line_z := mmin:mmax
-        [], []
-    end
-
-    for m in S.M #  pos != 0.
-        coord_cartesian = S.C.L.A * m.pos
-        for (it_d, sd) in enumerate(eachslice(S.C.Domain, dims = 1))
-            for (it_c, sc) in enumerate(eachslice(S.C.Codomain, dims = 1))
-                val = real(m.mat[it_d, it_c])
-                if abs(val) > threshhold
-
-                    if norm(m.pos) ≈ 0
-
-                    else
-                        linecolor := get(
-                            ColorSchemes.viridis,
-                            -(mmin - val) / (mmax - mmin),
-                        ) # linear interpolation
-                        label := ""
-
-                        # # draw arrow.
-                        p0 = coord_cartesian + sd
-                        println("p0")
-                        println(p0)
-                        p2 = sc
-                        println("p2")
-                        println(p2)
-                        d = -p0 + p2
-                        println("d")
-                        println(d)
-
-                        mid = p0 .+ d ./ 2
-                        println("mid")
-                        println(mid)
-                        nd = [-d[2], d[1]]
-                        p1 = mid + 0.3 * [-d[2], d[1]]#/norm(d)*r
-                        println("p1")
-                        println(p1)
-                        B(t) = (1 - t)^2 * p0 + 2 * (1 - t) * t * p1 + t^2 * p2
-                        ## shorten by 10pt
-
-                        #
-                        vv = vcat([B(t) for t in range(
-                            0,
-                            stop = 1,
-                            step = 0.01,
-                        )]'...)
-                        @series begin
-                            #arrow := true
-                            linewidth := 2
-                            vv[:, 1], vv[:, 2]
-                        end
-                    end
-                end
-            end
-        end
-
-    end
-
-
-    for m in S.M #  pos != 0.
-        coord_cartesian = S.C.L.A * m.pos
-        for (it_d, sd) in enumerate(eachslice(S.C.Domain, dims = 1))
-            for (it_c, sc) in enumerate(eachslice(S.C.Codomain, dims = 1))
-                val = real(m.mat[it_d, it_c])
-                if abs(val) > threshhold
-                    if norm(m.pos) ≈ 0
-                        println(val)
-                        println(mmin)
-                        println(mmax)
-                        print(-(mmin - val) / (mmax - mmin))
-                        @series begin
-                            seriestype --> scatter
-                            markercolor := get(
-                                ColorSchemes.viridis,
-                                -(mmin - val) / (mmax - mmin),
-                            ) # linear interpolation
-                            #markercolor := get(ColorSchemes.viridis,0.5) # linear interpolation
-                            #clim := -5:-4
-                            label := ""
-                            markershape --> :pentagon
-                            markeralpha := 1
-                            markersize --> 20 # 10
-                            markerstrokewidth --> 0
-                            #marker_z = -4:-4
-                            pos = coord_cartesian + sd
-                            [pos[1]], [pos[2]]
-                        end
-                    end
-                end
-            end
-        end
-
-    end
 end

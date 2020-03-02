@@ -2,7 +2,7 @@ module alfa
 
 using LinearAlgebra
 import AbstractAlgebra
-import DataStructures: SortedSet
+import DataStructures: SortedSet, SortedDict
 using RecipesBase
 using ColorSchemes
 
@@ -13,5 +13,6 @@ include("multiplier.jl")
 include("crystaloperator.jl")
 include("operatorcomposition.jl")
 include("gallery.jl")
+include("plotrecipes.jl")
 
 end # module
