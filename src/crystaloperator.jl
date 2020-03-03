@@ -59,24 +59,76 @@ function Base.show(io::IO, mime::MIME"text/plain", o::CrystalOperator)
 end
 
 function normalize(S::CrystalOperator)
+
     (dn, ds, dp) = ShiftIntoUnitCell(S.C.Domain, S.C.L)
     (cn, cs, cp) = ShiftIntoUnitCell(S.C.Codomain, S.C.L)
 
-    # ...
+
     m_old = collect(S.M)
     y_old = vcat(transpose([x.pos for x in S.M])...)
+    # find all combinations of the shifts -ds+cs
+    SS0 = SortedDict{Array{Int,1},Array{Tuple{Int,Int,Int},1}}() # find more efficient way.
+    for (k, yk) in enumerate(eachslice(y_old, dims = 1))
+        for (i, csi) in enumerate(eachslice(cs, dims = 1))
+            for (j, dsj) in enumerate(eachslice(ds, dims = 1))
+                push!(
+                    get!(SS0, yk + dsj - csi, Array{Tuple{Int64,Int64},1}()),
+                    (k, i, j),
+                )
+            end
+        end
+    end
 
+    Cnew = Crystal(S.C.L.A, dn, cn)
+    op = CrystalOperator(Cnew)
+    #
+    for (y_new, idxset) in SS0
+        mat = nothing  # allocate new matrix.
+        for (k, i, j) in idxset
+            if m_old[k].mat[cp[i], cp[j]] != 0
+                if mat == nothing
+                    mat = 0 * similar(m_old[1].mat)
+                end
+                mat[i, j] = m_old[k].mat[cp[i], cp[j]]
+            end
+        end
 
-
+        if mat != nothing
+            push!(op, Multiplier(y_new, mat))
+        end
+    end
+    return op
 end
 
 
 function wrtLattice(S::CrystalOperator, A::Matrix)
     #### TODO: Test this function, when Plot function exists. Need to construct test cases with alfa.py.
 
-    t = ElementsInQuotientSpace(S.C.A, A, return_fractional = true)
-    #t = [0 0; 1 0; 0 1; 1 1]
-    #println("t: ", t)
+    t, dH = ElementsInQuotientSpace(
+        S.C.A,
+        A,
+        return_fractional = true,
+        return_diag_hnf = true,
+    )
+    tiMinustj_all = collect(Iterators.product([-x+1:x-1 for x in dH]...)) # all possible combinations of t[i]-t[j]
+
+    # helper functions for t and index calculation of t
+    function RangeOfTi(tiMinustj)
+        # get all possible combinations of ti, such that tiMinustj = ti - tj with ti and tj in t
+        return Iterators.product([
+            max(0, kh[1]):min((kh[2] - 1), (kh[2] - 1) + kh[1])
+            for kh in zip(tiMinustj, dH)
+        ]...)
+    end
+    dHprod = [prod(dH[1:i-1]) for i in eachindex(dH)]
+    function lookup_idxij(ti, tiMinustj)
+        # given t[i] and t[i]-t[j], returns the tuple (i,j).
+        tj = ti .- tiMinustj
+        return sum(x * y for (x, y) in zip(ti, dHprod)) + 1,
+        sum(x * y for (x, y) in zip(tj, dHprod)) + 1
+    end
+    #
+
     newDomain = vcat(transpose([
         x + y for x in eachslice(t, dims = 1)
         for y in eachslice(S.C.Domain, dims = 1)
@@ -93,17 +145,8 @@ function wrtLattice(S::CrystalOperator, A::Matrix)
     #SS0 = SortedSet{Array{Int,1}}()
 
     #
-    dH = alfa.ElementsInQuotientSpace(S.C.A, A, return_diag_hnf=true)
-    dHprod = [prod(dH[1:i-1]) for i in eachindex(dH)]
-    tiMinustj_all = collect(Iterators.product([-x+1:x-1 for x in dH]...))
+    #dH = alfa.ElementsInQuotientSpace(S.C.A, A, return_diag_hnf=true)
 
-    function RangeOfTi(tiMinustj)
-        return Iterators.product([max(0,kh[1]):min((kh[2]-1),(kh[2]-1)+kh[1]) for kh in zip(tiMinustj, dH)]...)
-    end
-    function lookup_idxij(ti, tiMinustj)
-        tj = ti .- tiMinustj
-        return sum(x*y for (x,y) in zip(ti,dHprod))+1, sum(x*y for (x,y) in zip(tj,dHprod))+1
-    end
     #
     # SS0 = SortedDict{Array{Int,1},Array{Tuple{Int,Int},1}}()
     # ### TODO: MOST TIME SPEND IN FOLLOWING for loop.
@@ -147,11 +190,11 @@ function wrtLattice(S::CrystalOperator, A::Matrix)
 
     Cnew = Crystal(A, newDomain, newCodomain)
     op = CrystalOperator(Cnew)
-    @time for (it_y, y) in enumerate(eachslice(Ay_new, dims = 1))
+    for (it_y, y) in enumerate(eachslice(Ay_new, dims = 1))
         #println("y_new: ",y)
         mm = nothing
         for tiMinustj in tiMinustj_all
-        #for (tdiff, ss_ij) in SS0
+            #for (tdiff, ss_ij) in SS0
 
             #for (it_ti, ti) in enumerate(eachslice(t, dims = 1))
             #for (it_tj, tj) in enumerate(eachslice(t, dims = 1))
@@ -167,13 +210,16 @@ function wrtLattice(S::CrystalOperator, A::Matrix)
                     #println("matblock: $matblock")
                     if mm == nothing
                         mm = zeros(
-                            typeof(first(S.M).mat[1, 1]),
+                            eltype(first(S.M).mat),
                             Cnew.size_codomain,
                             Cnew.size_domain,
                         ) # init new matrix.
                     end
                     #for (it_ti, it_tj) in ss_ij
-                    for (it_ti, it_tj) in [lookup_idxij(x, tiMinustj) for x in RangeOfTi(tiMinustj)]
+                    for (it_ti, it_tj) in [
+                        lookup_idxij(x, tiMinustj)
+                        for x in RangeOfTi(tiMinustj)
+                    ]
                         mm[
                             (it_ti-1)*brs+1:it_ti*brs,
                             (it_tj-1)*bcs+1:it_tj*bcs,

@@ -162,7 +162,7 @@ end
 
     for m in S.M #  pos != 0.
         coord_cartesian = S.C.L.A * m.pos
-        println("mat: $(m.mat)")
+        #println("mat: $(m.mat)")
         for (it_d, sd) in enumerate(eachslice(S.C.Domain, dims = 1))
             for (it_c, sc) in enumerate(eachslice(S.C.Codomain, dims = 1))
                 val = real(m.mat[it_c, it_d])
@@ -179,23 +179,23 @@ end
                         label := ""
 
                         # # draw arrow.
-                        println("coord_cartesian: $coord_cartesian , sd: $sd")
-                        println("p0")
-                        println(p0)
+                        #println("coord_cartesian: $coord_cartesian , sd: $sd")
+                        #println("p0")
+                        #println(p0)
                         p2 = sc
-                        println("p2")
-                        println(p2)
+                        #println("p2")
+                        #println(p2)
                         d = -p0 + p2
-                        println("d")
-                        println(d)
+                        #println("d")
+                        #println(d)
 
                         mid = p0 .+ d ./ 2
-                        println("mid")
-                        println(mid)
+                        #println("mid")
+                        #println(mid)
                         nd = [-d[2], d[1]]
                         p1 = mid + 0.3 * [-d[2], d[1]]#/norm(d)*r
-                        println("p1")
-                        println(p1)
+                        #println("p1")
+                        #println(p1)
                         B(t) = (1 - t)^2 * p0 + 2 * (1 - t) * t * p1 + t^2 * p2
                         ## shorten by 10pt
 
@@ -240,7 +240,7 @@ end
                         label := ""
                         markershape --> :pentagon
                         markeralpha := 1
-                        markersize --> 15 # 10
+                        markersize --> 5 # 10
                         markerstrokewidth --> 0
                         #marker_z = -4:-4
                         pos = coord_cartesian + sd

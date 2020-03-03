@@ -11,7 +11,7 @@ using Test
     @test convert(Matrix{Int}, AZZ) == A
 
     #functions test
-    H = [2 0 61884; 0 1 12575; 0 0 70274]
+    H = [1 0 21406; 0 2 33146; 0 0 70274]
     @test H == alfa.hnf(A)
     S = [1 0 0; 0 2 0; 0 0 70274]
     U = [1 0 0; 244 3647 -3572; 218 3258 -3191]

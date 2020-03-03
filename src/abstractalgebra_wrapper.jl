@@ -26,8 +26,9 @@ end
 
 #Hermite normal form wrapper
 function hnf(mat::Matrix)
+    # computes the H = mat*U, s.t. H is in HNF and U is unimodular.
     mat = convert(AbstractAlgebra.Generic.Mat{BigInt}, mat)
-    H = AbstractAlgebra.hnf(mat) # H = upper triangular
+    H = AbstractAlgebra.hnf(transpose(mat)) # H = upper triangular
     H = convert(Matrix{Int}, H)
     return H
 end

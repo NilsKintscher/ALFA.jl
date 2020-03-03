@@ -70,13 +70,8 @@ function ElementsInQuotientSpace(A::Matrix{T}, B::Matrix; return_diag_hnf::Bool=
     @assert isapprox(M, Mr, rtol = alfa_rtol, atol = alfa_atol) "A must be a sublattice of B, i.e. A\\B must be integral."
     H = hnf(Mr)
     dH = diag(H)
-    if return_diag_hnf
-        return dH
-    end
     m = prod(dH)
-    print(dH)
     J = Iterators.product([0:x-1 for x in dH]...)
-
 
     if return_fractional
         s = Matrix{Int}(undef, length(J), length(dH))
@@ -90,7 +85,11 @@ function ElementsInQuotientSpace(A::Matrix{T}, B::Matrix; return_diag_hnf::Bool=
             s[i,:] .= A*[x...]
         end
     end
-    return s
+    if return_diag_hnf
+        return s,dH
+    else
+        return s
+    end
 end
 
 function ElementsInQuotientSpace(A::Lattice, B::Lattice)
@@ -98,6 +97,8 @@ function ElementsInQuotientSpace(A::Lattice, B::Lattice)
 end
 
 function ShiftIntoUnitCell!(s::Matrix, A::Matrix)
+    # shift s into the unit cell and sort lexicographically.
+    # Thus: A\snew[i] ∈ [0,1)
     y = transpose(A \ transpose(s))
     map!(
         x -> isapprox(x, round(x), rtol = alfa_rtol, atol = alfa_atol) ?
