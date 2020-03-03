@@ -64,7 +64,7 @@ end
 
 
 
-function ElementsInQuotientSpace(A::Matrix, B::Matrix; return_diag_hnf::Bool=false, return_fractional::Bool = false)
+function ElementsInQuotientSpace(A::Matrix{T}, B::Matrix; return_diag_hnf::Bool=false, return_fractional::Bool = false) where T
     M = A \ B
     Mr = round.(M)
     @assert isapprox(M, Mr, rtol = alfa_rtol, atol = alfa_atol) "A must be a sublattice of B, i.e. A\\B must be integral."
@@ -74,13 +74,22 @@ function ElementsInQuotientSpace(A::Matrix, B::Matrix; return_diag_hnf::Bool=fal
         return dH
     end
     m = prod(dH)
+    print(dH)
     J = Iterators.product([0:x-1 for x in dH]...)
-    if fractional
-        s = [[i for i in x] for x in J] # TODO: There should be a better way to do this.
+
+
+    if return_fractional
+        s = Matrix{Int}(undef, length(J), length(dH))
+        for (i,x) in enumerate(J)
+            s[i,:] .= x
+        end
     else
-        s = [A * [i for i in x] for x in J]
+        #
+        s = Matrix{T}(undef, length(J), length(dH))
+        for (i,x) in enumerate(J)
+            s[i,:] .= A*[x...]
+        end
     end
-    s = vcat(transpose(s)...)
     return s
 end
 

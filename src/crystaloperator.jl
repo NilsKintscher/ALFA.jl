@@ -74,7 +74,7 @@ end
 function wrtLattice(S::CrystalOperator, A::Matrix)
     #### TODO: Test this function, when Plot function exists. Need to construct test cases with alfa.py.
 
-    t = ElementsInQuotientSpace(S.C.A, A, fractional = true)
+    t = ElementsInQuotientSpace(S.C.A, A, return_fractional = true)
     #t = [0 0; 1 0; 0 1; 1 1]
     #println("t: ", t)
     newDomain = vcat(transpose([
@@ -91,24 +91,40 @@ function wrtLattice(S::CrystalOperator, A::Matrix)
     Ay_old = transpose(S.C.L.A * transpose(y_old))
     # find all unique combinations of floor(A\S.C.L.A*(y_old[i] + t[j] - t[k]))
     #SS0 = SortedSet{Array{Int,1}}()
-    SS0 = SortedDict{Array{Int,1},Array{Tuple{Int,Int},1}}()
-    ### TODO: MOST TIME SPEND IN FOLLOWING for loop.
-    ### IT can explicitly computed using
-    # dH = alfa.ElementsInQuotientSpace(S.C.A, A, return_diag_hnf=true)
-    # and
-    # collect(Iterators.product([-x+1:x-1 for x in dH]...)) # <-- all combinations of ti-tj
-    # need a formula to obtain i and j from this thing.
-    @time for (it_ti, ti) in enumerate(eachslice(t, dims = 1))
-        for (it_tj, tj) in enumerate(eachslice(t, dims = 1))
-            push!(
-                get!(SS0, ti - tj, Array{Tuple{Int64,Int64},1}()),
-                (it_ti, it_tj),
-            )
-        end
+
+    #
+    dH = alfa.ElementsInQuotientSpace(S.C.A, A, return_diag_hnf=true)
+    dHprod = [prod(dH[1:i-1]) for i in eachindex(dH)]
+    tiMinustj_all = collect(Iterators.product([-x+1:x-1 for x in dH]...))
+
+    function RangeOfTi(tiMinustj)
+        return Iterators.product([max(0,kh[1]):min((kh[2]-1),(kh[2]-1)+kh[1]) for kh in zip(tiMinustj, dH)]...)
     end
+    function lookup_idxij(ti, tiMinustj)
+        tj = ti .- tiMinustj
+        return sum(x*y for (x,y) in zip(ti,dHprod))+1, sum(x*y for (x,y) in zip(tj,dHprod))+1
+    end
+    #
+    # SS0 = SortedDict{Array{Int,1},Array{Tuple{Int,Int},1}}()
+    # ### TODO: MOST TIME SPEND IN FOLLOWING for loop.
+    # ### IT can explicitly computed using
+    # # dH = alfa.ElementsInQuotientSpace(S.C.A, A, return_diag_hnf=true)
+    # # and
+    # # collect(Iterators.product([-x+1:x-1 for x in dH]...)) # <-- all combinations of ti-tj
+    # # need a formula to obtain i and j from this thing.
+    # for (it_ti, ti) in enumerate(eachslice(t, dims = 1))
+    #     for (it_tj, tj) in enumerate(eachslice(t, dims = 1))
+    #         push!(
+    #             get!(SS0, ti - tj, Array{Tuple{Int64,Int64},1}()),
+    #             (it_ti, it_tj),
+    #         )
+    #     end
+    # end
+    #return SS0, dH
+
     SS = SortedSet{Array{Int,1}}()
-    for j in Iterators.product(eachslice(y_old, dims = 1), keys(SS0))
-        y = A \ (S.C.L.A * (j[1] + j[2]))
+    for j in Iterators.product(eachslice(y_old, dims = 1), tiMinustj_all)
+        y = A \ (S.C.L.A * (j[1] .+ j[2]))
         map!(
             x -> isapprox(x, round(x), rtol = alfa_rtol, atol = alfa_atol) ?
                 round(x) : floor(x),
@@ -131,16 +147,17 @@ function wrtLattice(S::CrystalOperator, A::Matrix)
 
     Cnew = Crystal(A, newDomain, newCodomain)
     op = CrystalOperator(Cnew)
-    for (it_y, y) in enumerate(eachslice(Ay_new, dims = 1))
+    @time for (it_y, y) in enumerate(eachslice(Ay_new, dims = 1))
         #println("y_new: ",y)
         mm = nothing
-
-        for (tdiff, ss_ij) in SS0
+        for tiMinustj in tiMinustj_all
+        #for (tdiff, ss_ij) in SS0
 
             #for (it_ti, ti) in enumerate(eachslice(t, dims = 1))
             #for (it_tj, tj) in enumerate(eachslice(t, dims = 1))
             #y_test = y - ti + tj
-            y_test = y - tdiff
+            #y_test = y - tdiff
+            y_test = y .- tiMinustj
             #println("y_test  $y_test , it (i,j) = ($it_ti, $it_tj)")
             for (it_yk, yk) in enumerate(eachslice(Ay_old, dims = 1))
                 #print("yk $yk")
@@ -155,7 +172,8 @@ function wrtLattice(S::CrystalOperator, A::Matrix)
                             Cnew.size_domain,
                         ) # init new matrix.
                     end
-                    for (it_ti, it_tj) in ss_ij
+                    #for (it_ti, it_tj) in ss_ij
+                    for (it_ti, it_tj) in [lookup_idxij(x, tiMinustj) for x in RangeOfTi(tiMinustj)]
                         mm[
                             (it_ti-1)*brs+1:it_ti*brs,
                             (it_tj-1)*bcs+1:it_tj*bcs,
