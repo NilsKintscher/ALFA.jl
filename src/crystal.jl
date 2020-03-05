@@ -6,7 +6,7 @@ struct Crystal{N}
         L::Lattice{N},
         Domain::Vector{SVector{N,Float64}},
         Codomain::Vector{SVector{N,Float64}},
-    ) where N#
+    ) where {N}#
         new{N}(L, Domain, Codomain)
     end
 end
@@ -21,31 +21,33 @@ function Crystal(L = nothing, Domain = nothing, Codomain = nothing)
     N = typeof(L).parameters[1] # dimension
 
     if Domain == nothing # put a point at the origin.
-        Domain = [zeros(SVector{N, Float64})]
-    elseif typeof(Domain) <: Vector{Vector{T}} where T<:Real || Domain isa Vector{Array} #  turn Vector of Vector into Vector of SVector
-        Domain = [SVector{N, Float64}(x) for x in Domain]
+        Domain = [zeros(SVector{N,Float64})]
+    elseif typeof(Domain) <: Vector{Vector{T}} where {T<:Real} ||
+           Domain isa Vector{Array} #  turn Vector of Vector into Vector of SVector
+        Domain = [SVector{N,Float64}(x) for x in Domain]
     elseif Domain isa Vector{<:Number} # turn vector into vector of SVector.
         if N == 1
-            Domain = [SVector{N, Float64}(x) for x in Domain]
+            Domain = [SVector{N,Float64}(x) for x in Domain]
         else
-            Domain = [SVector{N, Float64}(Domain)]
+            Domain = [SVector{N,Float64}(Domain)]
         end
     elseif Domain isa Matrix{<:Number} # turn a matrix rowwise into a vector of SVector.
-        Domain = [SVector{N, Float64}(x) for x in eachrow(Domain)]
+        Domain = [SVector{N,Float64}(x) for x in eachrow(Domain)]
     end
 
     if Codomain == nothing # put a point at the origin.
         Codomain = Domain
-    elseif typeof(Codomain) <: Vector{Vector{T}} where T<:Real || Codomain isa Vector{Array}# turn Vector into Matrix with 1 Column
-        Codomain = [SVector{N, Float64}(x) for x in Codomain]
+    elseif typeof(Codomain) <: Vector{Vector{T}} where {T<:Real} ||
+           Codomain isa Vector{Array}# turn Vector into Matrix with 1 Column
+        Codomain = [SVector{N,Float64}(x) for x in Codomain]
     elseif Codomain isa Vector{<:Number} # turn vector into vector of SVector.
         if N == 1
-            Codomain = [SVector{N, Float64}(x) for x in Codomain]
+            Codomain = [SVector{N,Float64}(x) for x in Codomain]
         else
-            Codomain = [SVector{N, Float64}(Codomain)]
+            Codomain = [SVector{N,Float64}(Codomain)]
         end
     elseif Codomain isa Matrix{<:Number} # turn a matrix rowwise into a vector of SVector.
-        Codomain = [SVector{N, Float64}(x) for x in eachrow(Codomain)]
+        Codomain = [SVector{N,Float64}(x) for x in eachrow(Codomain)]
     end
     return Crystal{N}(L, Domain, Codomain)
 end
@@ -85,16 +87,10 @@ function normalize(C::Crystal)
     return Crystal(C.L, dn, cn)
 end
 
-function wrtLattice(C::Crystal, A::Matrix)
-    t = ElementsInQuotientSpace(C.A, A, fractional = false)
-    newDomain = vcat(transpose([
-        x + y for x in eachslice(t, dims = 1)
-        for y in eachslice(C.Domain, dims = 1)
-    ])...)
-    newCodomain = vcat(transpose([
-        x + y for x in eachslice(t, dims = 1)
-        for y in eachslice(C.Codomain, dims = 1)
-    ])...)
+function wrtLattice(C::Crystal, A) # A::Matrix
+    t = ElementsInQuotientSpace(C.A, A, return_fractional = false)
+    newDomain = [x + y for x in t for y in C.Domain]
+    newCodomain = [x + y for x in t for y in C.Codomain]
     return Crystal(A, newDomain, newCodomain)
 end
 
