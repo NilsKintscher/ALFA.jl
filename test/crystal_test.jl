@@ -2,9 +2,9 @@ using alfa
 using Test
 
 @testset "crystal.jl" begin
-    @test_throws AssertionError alfa.Crystal([1 0; 0 1], [1 2 3])
-    @test_throws AssertionError alfa.Crystal([1 0; 0 1], [1 2], [1 2 3])
-    @test_throws AssertionError alfa.Crystal([1 0; 0 1], [1 2 + 1im])
+    @test_throws Exception alfa.Crystal([1 0; 0 1], [1 2 3])
+    @test_throws Exception alfa.Crystal([1 0; 0 1], [1 2], [1 2 3])
+    @test_throws Exception alfa.Crystal([1 0; 0 1], [1 2 + 1im])
 
     C = alfa.Crystal()
     @test isa(C, alfa.Crystal) == true

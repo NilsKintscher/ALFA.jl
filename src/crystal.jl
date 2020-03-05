@@ -1,48 +1,61 @@
-struct Crystal
-    L::Lattice
-    Domain::Matrix # m × dim
-    Codomain::Matrix # m × dim
-    function Crystal(L::Lattice, Domain::Matrix, Codomain::Matrix)
-        @assert L.dim == size(Domain, 2) "size(Domain,2)=$(size(Domain,2)) must be equal to Lattice dimensionality L.dim=$(L.dim)"
-        @assert L.dim == size(Codomain, 2) "size(Codomain,2)=$(size(Codomain,2)) must be equal to Lattice dimensionality L.dim=$(L.dim)"
-        @assert typeof(Domain) <: Matrix{<:Real} "Domain must be of type <: Matrix{<:Real}"
-        @assert typeof(Codomain) <: Matrix{<:Real} "Codomain must be of type <: Matrix{<:Real}"
-        if pointer(Domain) == pointer(Codomain)
-             ## Or maybe dont do that and exploit it. Don't know yet.
-            Codomain = deepcopy(Codomain)
-        end
-        new(L, Domain, Codomain)
+struct Crystal{N}
+    L::Lattice{N}
+    Domain::Vector{SVector{N,Float64}}   #Matrix # m × dim
+    Codomain::Vector{SVector{N,Float64}} # m × dim
+    function Crystal{N}(
+        L::Lattice{N},
+        Domain::Vector{SVector{N,Float64}},
+        Codomain::Vector{SVector{N,Float64}},
+    ) where N#
+        new{N}(L, Domain, Codomain)
     end
 end
 
 function Crystal(L = nothing, Domain = nothing, Codomain = nothing)
     if L == nothing
         L = Lattice()
-    elseif typeof(L) != Lattice
+    elseif !isa(L, Lattice) #typeof(L) != Lattice
         L = Lattice(L)
     end
 
-    if Domain == nothing
-        Domain = zeros(Int, 1, L.dim)
-    elseif typeof(Domain) <: Vector # turn Vector into Matrix with 1 Column
-        Domain = reshape(Domain, length(Domain), 1)
+    N = typeof(L).parameters[1] # dimension
+
+    if Domain == nothing # put a point at the origin.
+        Domain = [zeros(SVector{N, Float64})]
+    elseif typeof(Domain) <: Vector{Vector} #  turn Vector of Vector into Vector of SVector
+        Domain = [SVector{N, Float64}(x) for x in Domain]
+    elseif Domain isa Vector{<:Number} # turn vector into vector of SVector.
+        if N == 1
+            Domain = [SVector{N, Float64}(x) for x in Domain]
+        else
+            Domain = [SVector{N, Float64}(Domain)]
+        end
+    elseif Domain isa Matrix{<:Number} # turn a matrix rowwise into a vector of SVector.
+        Domain = [SVector{N, Float64}(x) for x in eachrow(Domain)]
     end
 
-    if Codomain == nothing
+    if Codomain == nothing # put a point at the origin.
         Codomain = Domain
-    elseif typeof(Codomain) <: Vector # turn Vector into Matrix with 1 Column
-        Codomain = reshape(Codomain, length(Codomain), 1)
+    elseif typeof(Codomain) <: Vector{Vector} # turn Vector into Matrix with 1 Column
+        Codomain = [SVector{N, Float64}(x) for x in Codomain]
+    elseif Codomain isa Vector{<:Number} # turn vector into vector of SVector.
+        if N == 1
+            Codomain = [SVector{N, Float64}(x) for x in Codomain]
+        else
+            Codomain = [SVector{N, Float64}(Codomain)]
+        end
+    elseif Codomain isa Matrix{<:Number} # turn a matrix rowwise into a vector of SVector.
+        Codomain = [SVector{N, Float64}(x) for x in eachrow(Codomain)]
     end
-
-    return Crystal(L, convert(Matrix, Domain), convert(Matrix, Codomain))
+    return Crystal{N}(L, Domain, Codomain)
 end
 
 
 function Base.getproperty(C::Crystal, sym::Symbol)
     if sym == :size_domain
-        size(C.Domain, 1)
+        length(C.Domain)
     elseif sym == :size_codomain
-        size(C.Codomain, 1)
+        length(C.Codomain)
     elseif sym ∈ [:A, :dim, :n, :iA, :dA] # some properties from lattice
         getproperty(getfield(C, :L), sym)
     else
@@ -74,14 +87,14 @@ end
 
 function wrtLattice(C::Crystal, A::Matrix)
     t = ElementsInQuotientSpace(C.A, A, fractional = false)
-    newDomain = vcat(transpose([x + y for x in eachslice(t, dims = 1) for y in eachslice(
-        C.Domain,
-        dims = 1,
-    )])...)
-    newCodomain = vcat(transpose([x + y for x in eachslice(t, dims = 1) for y in eachslice(
-        C.Codomain,
-        dims = 1,
-    )])...)
+    newDomain = vcat(transpose([
+        x + y for x in eachslice(t, dims = 1)
+        for y in eachslice(C.Domain, dims = 1)
+    ])...)
+    newCodomain = vcat(transpose([
+        x + y for x in eachslice(t, dims = 1)
+        for y in eachslice(C.Codomain, dims = 1)
+    ])...)
     return Crystal(A, newDomain, newCodomain)
 end
 

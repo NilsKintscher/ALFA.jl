@@ -58,6 +58,28 @@ function Base.show(io::IO, mime::MIME"text/plain", o::CrystalOperator)
     show(io, mime, o.M)
 end
 
+function symbol(S::CrystalOperator, k)
+    if length(S.M) == 0
+        mat = zeros(Int, S.C.size_codomain, S.C.size_domain)
+    else
+        mat = zeros(eltype(first(S.M).mat), S.C.size_codomain, S.C.size_domain)
+        for m in S.M
+            mat += m.mat * exp(im * 2π * dot((S.C.A * m.pos), k))
+        end
+    end
+    return mat
+end
+
+function eigvals(S::CrystalOperator, k)
+    symb = symbol(S, k)
+    return eigvals(symb)
+end
+
+function eigen(S::CrystalOperator, k)
+    symb = symbol(S, k)
+    return eigen(symb)
+end
+
 function normalize(S::CrystalOperator)
 
     (dn, ds, dp) = ShiftIntoUnitCell(S.C.Domain, S.C.L)
@@ -65,12 +87,12 @@ function normalize(S::CrystalOperator)
 
 
     m_old = collect(S.M)
-    y_old = vcat(transpose([x.pos for x in S.M])...)
+    y_old = [x.pos for x in S.M]#vcat(transpose([x.pos for x in S.M])...)
     # find all combinations of the shifts -ds+cs
     SS0 = SortedDict{Array{Int,1},Array{Tuple{Int,Int,Int},1}}() # find more efficient way.
-    for (k, yk) in enumerate(eachslice(y_old, dims = 1))
-        for (i, csi) in enumerate(eachslice(cs, dims = 1))
-            for (j, dsj) in enumerate(eachslice(ds, dims = 1))
+    for (k, yk) in enumerate(y_old) #eachslice(y_old, dims = 1))
+        for (i, csi) in enumerate(cs) # eachslice(cs, dims = 1))
+            for (j, dsj) in enumerate(ds) #eachslice(ds, dims = 1))
                 push!(
                     get!(SS0, yk + dsj - csi, Array{Tuple{Int64,Int64},1}()),
                     (k, i, j),
@@ -101,7 +123,7 @@ function normalize(S::CrystalOperator)
 end
 
 
-function wrtLattice(S::CrystalOperator, A::Matrix)
+function wrtLattice(S::CrystalOperator, A) ### A::Matrix
     #### TODO: Test this function, when Plot function exists. Need to construct test cases with alfa.py.
 
     t, dH = ElementsInQuotientSpace(
@@ -128,19 +150,27 @@ function wrtLattice(S::CrystalOperator, A::Matrix)
         sum(x * y for (x, y) in zip(tj, dHprod)) + 1
     end
     #
+    newDomain = [
+        x + y for x in t
+        for y in S.C.Domain
+    ]
 
-    newDomain = vcat(transpose([
-        x + y for x in eachslice(t, dims = 1)
-        for y in eachslice(S.C.Domain, dims = 1)
-    ])...)
-    newCodomain = vcat(transpose([
-        x + y for x in eachslice(t, dims = 1)
-        for y in eachslice(S.C.Codomain, dims = 1)
-    ])...)
+    newCodomain = [
+        x + y for x in t
+        for y in S.C.Codomain
+    ]
+    # newDomain = vcat(transpose([
+    #     x + y for x in eachslice(t, dims = 1)
+    #     for y in eachslice(S.C.Domain, dims = 1)
+    # ])...)
+    # newCodomain = vcat(transpose([
+    #     x + y for x in eachslice(t, dims = 1)
+    #     for y in eachslice(S.C.Codomain, dims = 1)
+    # ])...)
 
     m_old = collect(S.M)
-    y_old = vcat(transpose([x.pos for x in S.M])...)
-    Ay_old = transpose(S.C.L.A * transpose(y_old))
+    y_old = [x.pos for x in S.M]#vcat(transpose([x.pos for x in S.M])...)
+    Ay_old = [S.C.L.A * x for x in y_old]#transpose(S.C.L.A * transpose(y_old))
     # find all unique combinations of floor(A\S.C.L.A*(y_old[i] + t[j] - t[k]))
     #SS0 = SortedSet{Array{Int,1}}()
 
@@ -166,7 +196,7 @@ function wrtLattice(S::CrystalOperator, A::Matrix)
     #return SS0, dH
 
     SS = SortedSet{Array{Int,1}}()
-    for j in Iterators.product(eachslice(y_old, dims = 1), tiMinustj_all)
+    for j in Iterators.product(y_old, tiMinustj_all)
         y = A \ (S.C.L.A * (j[1] .+ j[2]))
         map!(
             x -> isapprox(x, round(x), rtol = alfa_rtol, atol = alfa_atol) ?
@@ -176,9 +206,9 @@ function wrtLattice(S::CrystalOperator, A::Matrix)
         )
         push!(SS, y)
     end
-    y_new = vcat(transpose(collect(SS))...)
+    y_new = collect(SS) #vcat(transpose(collect(SS))...)
     #println("y_new", y_new)
-    Ay_new = transpose(A * transpose(y_new)) # convert to cartesian coordinate of original lattice.
+    Ay_new = [A*x for x in y_new] #transpose(A * transpose(y_new)) # convert to cartesian coordinate of original lattice.
     #Ay_new = y_new
     # get coordinate of new lattice
     #println("Ay_new: ", Ay_new)
@@ -190,7 +220,7 @@ function wrtLattice(S::CrystalOperator, A::Matrix)
 
     Cnew = Crystal(A, newDomain, newCodomain)
     op = CrystalOperator(Cnew)
-    for (it_y, y) in enumerate(eachslice(Ay_new, dims = 1))
+    for (it_y, y) in enumerate(Ay_new) # eachslice(Ay_new, dims = 1))
         #println("y_new: ",y)
         mm = nothing
         for tiMinustj in tiMinustj_all
@@ -202,7 +232,7 @@ function wrtLattice(S::CrystalOperator, A::Matrix)
             #y_test = y - tdiff
             y_test = y .- tiMinustj
             #println("y_test  $y_test , it (i,j) = ($it_ti, $it_tj)")
-            for (it_yk, yk) in enumerate(eachslice(Ay_old, dims = 1))
+            for (it_yk, yk) in enumerate(Ay_old)
                 #print("yk $yk")
                 if isapprox(yk, y_test, rtol = alfa_rtol, atol = alfa_atol)
                     #println("#####################TRUE : yk:   $yk")
@@ -232,7 +262,7 @@ function wrtLattice(S::CrystalOperator, A::Matrix)
             end
         end
         if mm != nothing
-            push!(op, Multiplier(y_new[it_y, :], mm))
+            push!(op, Multiplier(y_new[it_y], mm))
         end
     end
     return op
