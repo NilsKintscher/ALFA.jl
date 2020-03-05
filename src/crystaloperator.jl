@@ -70,14 +70,18 @@ function symbol(S::CrystalOperator, k)
     return mat
 end
 
-function eigvals(S::CrystalOperator, k)
+function eigvals(S::CrystalOperator, k; by=abs)
     symb = symbol(S, k)
-    return eigvals(symb)
+    ev = LinearAlgebra.eigvals(symb)
+    ev = sort(ev, by=by)
+    return ev
 end
 
-function eigen(S::CrystalOperator, k)
+function eigen(S::CrystalOperator, k; by=abs)
     symb = symbol(S, k)
-    return eigen(symb)
+    ev = LinearAlgebra.eigen(symb)
+    p = sortperm(ev.values, by=by)
+    return LinearAlgebra.Eigen(ev.values[p], ev.vectors[:,p])
 end
 
 function normalize(S::CrystalOperator)
@@ -109,7 +113,7 @@ function normalize(S::CrystalOperator)
         for (k, i, j) in idxset
             if m_old[k].mat[cp[i], cp[j]] != 0
                 if mat == nothing
-                    mat = 0 * similar(m_old[1].mat)
+                    mat = 0 * m_old[1].mat
                 end
                 mat[i, j] = m_old[k].mat[cp[i], cp[j]]
             end
@@ -159,41 +163,11 @@ function wrtLattice(S::CrystalOperator, A) ### A::Matrix
         x + y for x in t
         for y in S.C.Codomain
     ]
-    # newDomain = vcat(transpose([
-    #     x + y for x in eachslice(t, dims = 1)
-    #     for y in eachslice(S.C.Domain, dims = 1)
-    # ])...)
-    # newCodomain = vcat(transpose([
-    #     x + y for x in eachslice(t, dims = 1)
-    #     for y in eachslice(S.C.Codomain, dims = 1)
-    # ])...)
 
     m_old = collect(S.M)
     y_old = [x.pos for x in S.M]#vcat(transpose([x.pos for x in S.M])...)
     Ay_old = [S.C.L.A * x for x in y_old]#transpose(S.C.L.A * transpose(y_old))
-    # find all unique combinations of floor(A\S.C.L.A*(y_old[i] + t[j] - t[k]))
-    #SS0 = SortedSet{Array{Int,1}}()
 
-    #
-    #dH = alfa.ElementsInQuotientSpace(S.C.A, A, return_diag_hnf=true)
-
-    #
-    # SS0 = SortedDict{Array{Int,1},Array{Tuple{Int,Int},1}}()
-    # ### TODO: MOST TIME SPEND IN FOLLOWING for loop.
-    # ### IT can explicitly computed using
-    # # dH = alfa.ElementsInQuotientSpace(S.C.A, A, return_diag_hnf=true)
-    # # and
-    # # collect(Iterators.product([-x+1:x-1 for x in dH]...)) # <-- all combinations of ti-tj
-    # # need a formula to obtain i and j from this thing.
-    # for (it_ti, ti) in enumerate(eachslice(t, dims = 1))
-    #     for (it_tj, tj) in enumerate(eachslice(t, dims = 1))
-    #         push!(
-    #             get!(SS0, ti - tj, Array{Tuple{Int64,Int64},1}()),
-    #             (it_ti, it_tj),
-    #         )
-    #     end
-    # end
-    #return SS0, dH
 
     SS = SortedSet{Array{Int,1}}()
     for j in Iterators.product(y_old, tiMinustj_all)

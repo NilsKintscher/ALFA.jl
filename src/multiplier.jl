@@ -1,7 +1,7 @@
 struct Multiplier{N} #<: AbstractArray{Int,1}
-    pos::SVector{N}
+    pos::MVector{N}
     mat::Matrix
-    function Multiplier{N}(pos::SVector{N,Int}, mat::Matrix{T}) where {N,T<:Number}
+    function Multiplier{N}(pos::MVector{N,Int}, mat::Matrix{T}) where {N,T<:Number}
         new{N}(pos, mat)
     end
 end
@@ -11,7 +11,7 @@ Base.isequal(a::Multiplier, b::Multiplier) = Base.isequal(a.pos, b.pos)
 
 function Multiplier(pos = nothing, mat = nothing)
     if pos == nothing
-        pos = SVector{1,Int}(0)
+        pos = MVector{1,Int}(0)
     # elseif pos isa Matrix || pos isa Vector
     #     pos = SVector{length(pos),Int}(pos)
     end
@@ -22,7 +22,7 @@ function Multiplier(pos = nothing, mat = nothing)
         mat = reshape(mat, length(mat), 1)
     end
 
-    return Multiplier{N}(convert(SVector{N,Int}, pos), convert(Matrix, mat))
+    return Multiplier{N}(convert(MVector{N,Int}, pos), convert(Matrix, mat))
 end
 
 function Base.getproperty(m::Multiplier, sym::Symbol)
