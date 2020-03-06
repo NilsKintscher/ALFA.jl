@@ -155,12 +155,12 @@ function wrtLattice(S::CrystalOperator, A) ### A::Matrix
     end
     #
     newDomain = [
-        x + y for x in t
+        S.C.L.A*x + y for x in t
         for y in S.C.Domain
     ]
 
     newCodomain = [
-        x + y for x in t
+        S.C.L.A*x + y for x in t
         for y in S.C.Codomain
     ]
 
@@ -204,7 +204,7 @@ function wrtLattice(S::CrystalOperator, A) ### A::Matrix
             #for (it_tj, tj) in enumerate(eachslice(t, dims = 1))
             #y_test = y - ti + tj
             #y_test = y - tdiff
-            y_test = y .- tiMinustj
+            y_test = y .- S.C.L.A*[tiMinustj...]
             #println("y_test  $y_test , it (i,j) = ($it_ti, $it_tj)")
             for (it_yk, yk) in enumerate(Ay_old)
                 #print("yk $yk")
