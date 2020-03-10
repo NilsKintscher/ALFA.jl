@@ -25,7 +25,7 @@ function Crystal(L = nothing, Domain = nothing, Codomain = nothing)
     if Domain == nothing # put a point at the origin.
         Domain = [zeros(SVector{N,Float64})]
     elseif typeof(Domain) <: Vector{Vector{T}} where {T<:Real} ||
-           Domain isa Vector{Array} #  turn Vector of Vector into Vector of SVector
+           Domain isa Vector{Matrix{T}} where {T<:Real} #  turn Vector of Vector into Vector of SVector
         Domain = [SVector{N,Float64}(x) for x in Domain]
     elseif Domain isa Vector{<:Number} # turn vector into vector of SVector.
         if N == 1
@@ -40,7 +40,7 @@ function Crystal(L = nothing, Domain = nothing, Codomain = nothing)
     if Codomain == nothing # put a point at the origin.
         Codomain = Domain
     elseif typeof(Codomain) <: Vector{Vector{T}} where {T<:Real} ||
-           Codomain isa Vector{Array}# turn Vector into Matrix with 1 Column
+           Codomain isa Vector{Matrix{T}} where {T<:Real}# turn Vector into Matrix with 1 Column
         Codomain = [SVector{N,Float64}(x) for x in Codomain]
     elseif Codomain isa Vector{<:Number} # turn vector into vector of SVector.
         if N == 1

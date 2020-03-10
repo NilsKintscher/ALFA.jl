@@ -9,6 +9,7 @@ using StaticArrays
 
     @test isa(alfa.Lattice([5]), alfa.Lattice) == true
     @test isa(alfa.Lattice([5.0]), alfa.Lattice) == true
+    @test isa(alfa.Lattice(6), alfa.Lattice) == true
 
     Amstatic = @MMatrix [3 1; 5 6]
     A = alfa.Lattice(Amstatic)
@@ -40,7 +41,12 @@ using StaticArrays
     A = alfa.Lattice([1 -1; 8 -5])
     B = alfa.Lattice([-1 -4; 7 -5])
     s = [SVector{2, Int}(x) for x in eachrow([0 0; -1 -5; -2 -10; -3 -15; -4 -20; -5 -25; -6 -30; -7 -35; -8 -40; -9 -45; -10 -50])]
-    @test s == alfa.ElementsInQuotientSpace(A,B)
+    sfrac = StaticArrays.SArray{Tuple{2},Int64,1,2}[[0, 0], [0, 1], [0, 2], [0, 3], [0, 4], [0, 5], [0, 6], [0, 7], [0, 8], [0, 9], [0, 10]]
+    @test s == alfa.ElementsInQuotientSpace(A.A,B.A)
+    @test sfrac == alfa.ElementsInQuotientSpace(A.A,B.A, return_fractional=true)
+    @test s == alfa.ElementsInQuotientSpace(A.A,B.A,return_diag_hnf=true)[1]
+    @test [1,11] == alfa.ElementsInQuotientSpace(A.A,B.A,return_diag_hnf=true)[2]
+
     s2 = [SVector{2, Float64}(x) for x in eachrow([-4.0 -2.0; -4.0 1.0; -3.0 -3.0; -3.0 0.0; -3.0 3.0; -2.0 -1.0; -2.0 2.0; -2.0 5.0; -1.0 1.0; -1.0 4.0; 0.0 0.0])]
     y = [SVector{2, Int}(x) for x in eachrow([-4.0 2.0; -3.0 1.0; -1.0 0.0; -5.0 3.0; -4.0 2.0; -2.0 1.0; -1.0 0.0; -5.0 3.0; -3.0 2.0; -2.0 1.0; 0.0 -0.0])]
     p = [9, 6, 3, 11, 8, 5, 2, 10, 7, 4, 1]

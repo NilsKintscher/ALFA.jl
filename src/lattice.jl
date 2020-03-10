@@ -114,10 +114,6 @@ function ElementsInQuotientSpace(
     end
 end
 
-function ElementsInQuotientSpace(A::Lattice, B::Lattice)
-    return ElementsInQuotientSpace(A.A, B.A)
-end
-
 function ShiftIntoUnitCell(s, A) # s vector of SVector
     # shift s into the unit cell and sort lexicographically.
     # Thus: A\snew[i] ∈ [0,1)
