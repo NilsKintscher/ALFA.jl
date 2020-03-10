@@ -450,7 +450,7 @@ function Base.:+(A::CrystalOperator, B::CrystalOperator)
 end
 
 
-function transpose(A::CrystalOperator)
+function Base.transpose(A::CrystalOperator)
     if A._CompatibilityCheckOnly
         tA = CrystalOperator(
             Crystal(A.C.L, A.C.Codomain, A.C.Domain),
@@ -469,7 +469,7 @@ function transpose(A::CrystalOperator)
     return tA
 end
 
-function pinv(A::CrystalOperator)
+function LinearAlgebra.pinv(A::CrystalOperator)
     @assert A._CompatibilityCheckOnly
     return transpose(A)
 end
