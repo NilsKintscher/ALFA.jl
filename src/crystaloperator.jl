@@ -468,3 +468,20 @@ function Base.:^(A::CrystalOperator, p::Int)
     @assert p > 0
     return prod([A for _ = 1:p])
 end
+
+function Base.:(==)(A::CrystalOperator, B::CrystalOperator)
+    if A.C == B.C
+        for (ma,mb) in zip(A.M, B.M)
+            if ma != mb
+                return false
+            end
+        end
+        return true
+    else
+        return false
+    end
+end
+
+function Base.:(!=)(A::CrystalOperator, B::CrystalOperator)
+    return !(A==B)
+end

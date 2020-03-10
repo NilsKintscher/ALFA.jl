@@ -26,8 +26,8 @@ using StaticArrays
     @test C.dim == 2
     @test C.A == C.L.A
 
-    # @test show(C) == nothing
-
+    @test C == deepcopy(C)
+    @test C != alfa.Crystal([1 0; 0 2], [1 2; 3 4; 5 6], [1 2; 3 4; 5.5 6; 7 8])
 
     L = alfa.Lattice(C.A*[1 2; -3 4])
 

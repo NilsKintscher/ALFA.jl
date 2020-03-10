@@ -14,6 +14,9 @@ using StaticArrays
     Amstatic = @MMatrix [3 1; 5 6]
     A = alfa.Lattice(Amstatic)
     @test isa(A, alfa.Lattice)
+    # testing == operator
+    @test A == deepcopy(A)
+    @test A != alfa.Lattice([5])
 
     @test size(A) == (2, 2)
     @test getindex(A, 1, 2) == 1

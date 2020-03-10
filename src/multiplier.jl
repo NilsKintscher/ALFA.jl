@@ -41,3 +41,11 @@ end
 function Base.size(m::Multiplier, y...)
     return size(m.mat, y...)
 end
+
+function Base.:(==)(A::Multiplier, B::Multiplier)
+     return A.pos == B.pos && A.mat == B.mat
+end
+
+function Base.:(!=)(A::Multiplier, B::Multiplier)
+     return !(A == B)
+end

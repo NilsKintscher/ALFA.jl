@@ -144,15 +144,16 @@ function CheckIfNormal(s, A)
     return false
 end
 
-# function ShiftIntoUnitCell(s, A)
-#     s2 = deepcopy(s)
-#     return ShiftIntoUnitCell!(s2, A)
-# end
-
-# function ShiftIntoUnitCell(s, A::Lattice)
-#     return ShiftIntoUnitCell(s, A.A)
-# end
 
 function ShiftIntoUnitCell(s, A::Lattice)
     return ShiftIntoUnitCell(s, A.A)
+end
+
+
+function Base.:(==)(A::Lattice, B::Lattice)
+     return A.A == B.A
+end
+
+function Base.:(!=)(A::Lattice, B::Lattice)
+     return !(A == B)
 end
