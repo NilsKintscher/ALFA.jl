@@ -80,10 +80,6 @@ function Base.show(io::IO, mime::MIME"text/plain", C::Crystal)
     show(io, mime, C.Codomain)
 end
 
-function normalize!(C::Crystal)
-    ShiftIntoUnitCell!(C.Domain, C.L)
-    ShiftIntoUnitCell!(C.Codomain, C.L)
-end
 
 function normalize(C::Crystal)
     dn, ds, dp = ShiftIntoUnitCell(C.Domain, C.L)
