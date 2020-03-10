@@ -8,7 +8,7 @@ using RecipesBase
 using ColorSchemes
 using DataFrames
 
-# 
+#
 # import Base.Ordering
 # import Base.lt
 # import DataStructures.eq
@@ -29,6 +29,8 @@ include("multiplier.jl")
 include("crystaloperator.jl")
 include("operatorcomposition.jl")
 include("gallery.jl")
+include("show.jl")
 include("plotrecipes.jl")
+
 
 end # module
