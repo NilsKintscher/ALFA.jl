@@ -2,12 +2,14 @@ struct Crystal{N}
     L::Lattice{N}
     Domain::Vector{SVector{N,Float64}}   #Matrix # m × dim
     Codomain::Vector{SVector{N,Float64}} # m × dim
+    _IsNormalized::Bool
     function Crystal{N}(
         L::Lattice{N},
         Domain::Vector{SVector{N,Float64}},
         Codomain::Vector{SVector{N,Float64}},
+        _IsNormalized::Bool
     ) where {N}#
-        new{N}(L, Domain, Codomain)
+        new{N}(L, Domain, Codomain, _IsNormalized)
     end
 end
 
@@ -49,9 +51,11 @@ function Crystal(L = nothing, Domain = nothing, Codomain = nothing)
     elseif Codomain isa Matrix{<:Number} # turn a matrix rowwise into a vector of SVector.
         Codomain = [SVector{N,Float64}(x) for x in eachrow(Codomain)]
     end
-    return Crystal{N}(L, Domain, Codomain)
-end
 
+    _IsNormalized = CheckIfNormal(Domain, L) && CheckIfNormal(Codomain, L)
+
+    return Crystal{N}(L, Domain, Codomain, _IsNormalized)
+end
 
 function Base.getproperty(C::Crystal, sym::Symbol)
     if sym == :size_domain

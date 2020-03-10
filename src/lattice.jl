@@ -140,6 +140,14 @@ function ShiftIntoUnitCell(s, A) # s vector of SVector
     return s, y, p # We now have s in the primitive cell of A (A*[0,1)^dim) and s is lexicographically ordered
 end
 
+function CheckIfNormal(s, A)
+    (n,s,p) = ShiftIntoUnitCell(s,A)
+    if s == 0*s && p == sort(p)
+        return true
+    end
+    return false
+end
+
 # function ShiftIntoUnitCell(s, A)
 #     s2 = deepcopy(s)
 #     return ShiftIntoUnitCell!(s2, A)

@@ -1,4 +1,4 @@
-struct Multiplier{N} #<: AbstractArray{Int,1}
+mutable struct Multiplier{N} #<: AbstractArray{Int,1}
     pos::MVector{N}
     mat::Matrix
     function Multiplier{N}(pos::MVector{N,Int}, mat::Matrix{T}) where {N,T<:Number}

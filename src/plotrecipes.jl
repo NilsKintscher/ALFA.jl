@@ -238,3 +238,77 @@ end
 
     end
 end
+
+
+
+
+@userplot SurfaceSpectrum
+
+@recipe function f(h::SurfaceSpectrum)
+    if length(h.args) == 1 || length(h.args) == 2
+         if typeof(h.args[1]) == CrystalOperator
+             if length(h.args) == 2
+                 N = h.args[2]
+             else
+                 N=20
+             end
+             S = h.args[1]
+         end
+     end
+    N = 20
+    x = y = range(0, stop = 1, length = N + 1)[1:end-1]
+    #x = range(0, stop=1, length=N+1)[1:end-1]
+    f(x, y) = abs(alfa.eigvals(S, [x, y])[end])
+
+    layout := (1,2)
+    c := :viridis
+    @series begin
+        subplot := 1
+        seriestype := :surface
+        x, y, f
+    end
+    @series begin
+        subplot := 2
+        seriestype := :contourf
+        x, y, f
+    end
+
+    #    end
+end
+
+
+@userplot SurfaceNorm
+
+@recipe function f(h::SurfaceNorm)
+    if length(h.args) == 1 || length(h.args) == 2
+         if typeof(h.args[1]) == CrystalOperator
+             if length(h.args) == 2
+                 N = h.args[2]
+             else
+                 N=20
+             end
+             S = h.args[1]
+         end
+     end
+    N = 20
+    x = y = range(0, stop = 1, length = N + 1)[1:end-1]
+    #x = range(0, stop=1, length=N+1)[1:end-1]
+    f(x, y) = norm(alfa.symbol(S, [x, y]))
+
+    layout := (1,2)
+    c := :viridis
+    @series begin
+        subplot := 1
+        seriestype := :surface
+        x, y, f
+    end
+    @series begin
+        subplot := 2
+        seriestype := :contourf
+        x, y, f
+    end
+
+    #    end
+end
+
+@userplot ScatterSpectrum
