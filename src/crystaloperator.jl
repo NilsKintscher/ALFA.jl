@@ -67,16 +67,6 @@ function Base.push!(S::CrystalOperator, m::Multiplier, add_to_existing = false)
 end
 
 
-function Base.show(io::IO, mime::MIME"text/plain", s::SortedSet{Multiplier})
-    show(io, mime, collect(s))
-end
-
-function Base.show(io::IO, mime::MIME"text/plain", o::CrystalOperator)
-    show(io, mime, o.C)
-    print(io, "\nMultiplier: ")
-    show(io, mime, o.M)
-end
-
 function symbol(S::CrystalOperator, k; π = π)
     if length(S.M) == 0
         mat = zeros(Int, S.C.size_codomain, S.C.size_domain)

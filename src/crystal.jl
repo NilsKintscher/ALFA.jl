@@ -71,16 +71,6 @@ function Base.getproperty(C::Crystal, sym::Symbol)
 end
 
 
-function Base.show(io::IO, mime::MIME"text/plain", C::Crystal)
-    print(io, "Lattice Basis: ")
-    show(io, mime, C.L)
-    print(io, "\nDomain: ")
-    show(io, mime, C.Domain)
-    print(io, "\nCodomain: ")
-    show(io, mime, C.Codomain)
-end
-
-
 function normalize(C::Crystal)
     dn, ds, dp = ShiftIntoUnitCell(C.Domain, C.L)
     cn, ds, dp = ShiftIntoUnitCell(C.Codomain, C.L)

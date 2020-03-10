@@ -52,9 +52,13 @@ import DataStructures: SortedSet
     # @test show(O) == nothing
 
 
-
+    # test find_multiplier
     @test alfa.find_multiplier(O,[12, 12]) == nothing
     @test alfa.find_multiplier(O,[0, 0]) isa alfa.Multiplier
 
+
+    # test push!
+    mult = alfa.Multiplier([0, 0], [-4])
+    @test alfa.find_multiplier(push!(O, mult), [0, 0]).mat == [-4]
 
 end

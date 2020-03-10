@@ -41,10 +41,3 @@ end
 function Base.size(m::Multiplier, y...)
     return size(m.mat, y...)
 end
-
-function Base.show(io::IO, mime::MIME"text/plain", m::Multiplier)
-    print(io, "Position: ")
-    show(io, mime, m.pos)
-    print(io, "\nMultiplier: ")
-    show(io, mime, m.mat)
-end
