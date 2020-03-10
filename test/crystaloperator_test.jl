@@ -67,6 +67,16 @@ import DataStructures: SortedSet
     # @test alfa.find_multiplier(push!(O, mult), [0, 0]).mat == [-4]
     # @test alfa.find_multiplier(push!(O, mult, true), [0, 0]).mat == [-8]
 
+
     @test S2 == deepcopy(S2)
+    S3 = deepcopy(S2)
+    push!(S3, mult, true)
+    @test S2 != S3
+    S3 = deepcopy(S2)
+    push!(S3, alfa.Multiplier([1000, 100], [-4 1 1 0; 1 -4 0 1; 1 0 -4 1; 0 1 1 -4]), true)
+    @test S2 != S3
     @test S != S2
+
+
+
 end

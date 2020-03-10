@@ -470,7 +470,7 @@ function Base.:^(A::CrystalOperator, p::Int)
 end
 
 function Base.:(==)(A::CrystalOperator, B::CrystalOperator)
-    if A.C == B.C
+    if A.C == B.C && length(A.M) == length(B.M)
         for (ma,mb) in zip(A.M, B.M)
             if ma != mb
                 return false
