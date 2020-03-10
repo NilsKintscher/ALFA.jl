@@ -26,7 +26,7 @@ using StaticArrays
     @test C.dim == 2
     @test C.A == C.L.A
 
-    @test show(C) == nothing
+    # @test show(C) == nothing
 
 
     L = alfa.Lattice(C.A*[1 2; -3 4])

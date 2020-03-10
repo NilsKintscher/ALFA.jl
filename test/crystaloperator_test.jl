@@ -48,6 +48,13 @@ import DataStructures: SortedSet
     @test isa(O, alfa.CrystalOperator)
     ## do stuff with O.
 
+    # @test show(O.M) == nothing
+    # @test show(O) == nothing
 
-    
+
+
+    @test alfa.find_multiplier(O,[12, 12]) == nothing
+    @test alfa.find_multiplier(O,[0, 0]) isa alfa.Multiplier
+
+
 end
