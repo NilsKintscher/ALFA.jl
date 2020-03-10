@@ -57,8 +57,14 @@ import DataStructures: SortedSet
     @test alfa.find_multiplier(O,[0, 0]) isa alfa.Multiplier
 
 
-    # test push!
-    mult = alfa.Multiplier([0, 0], [-4])
-    @test alfa.find_multiplier(push!(O, mult), [0, 0]).mat == [-4]
+    # test wrtLattice
+    S = alfa.gallery()
+    S2 = alfa.wrtLattice(S, 2*S.C.L.A)
+    mult = alfa.Multiplier([0, 0], [-4 1 1 0; 1 -4 0 1; 1 0 -4 1; 0 1 1 -4])
+    mult_orig = deepcopy(mult)
+    @test alfa.find_multiplier(push!(S2, mult), [0, 0]).mat == mult_orig.mat
+    @test alfa.find_multiplier(push!(S2, mult, true), [0, 0]).mat == 2*mult_orig.mat
+    # @test alfa.find_multiplier(push!(O, mult), [0, 0]).mat == [-4]
+    # @test alfa.find_multiplier(push!(O, mult, true), [0, 0]).mat == [-8]
 
 end

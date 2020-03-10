@@ -23,3 +23,8 @@ end
 @safetestset "OperatorComposition" begin
     include("operatorcomposition_test.jl")
 end
+
+
+@safetestset "Show" begin
+    include("show_test.jl")
+end
