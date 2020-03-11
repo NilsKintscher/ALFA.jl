@@ -46,6 +46,6 @@ function Base.:(==)(A::Multiplier, B::Multiplier)
      return A.pos == B.pos && A.mat == B.mat
 end
 
-function Base.:(!=)(A::Multiplier, B::Multiplier)
-     return !(A == B)
-end
+# function Base.:(!=)(A::Multiplier, B::Multiplier)
+#      return !(A == B)
+# end

@@ -154,6 +154,6 @@ function Base.:(==)(A::Lattice, B::Lattice)
      return A.A == B.A
 end
 
-function Base.:(!=)(A::Lattice, B::Lattice)
-     return !(A == B)
-end
+# function Base.:(!=)(A::Lattice, B::Lattice)
+#      return !(A == B)
+# end

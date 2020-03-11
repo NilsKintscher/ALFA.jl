@@ -482,6 +482,6 @@ function Base.:(==)(A::CrystalOperator, B::CrystalOperator)
     end
 end
 
-function Base.:(!=)(A::CrystalOperator, B::CrystalOperator)
-    return !(A==B)
-end
+# function Base.:(!=)(A::CrystalOperator, B::CrystalOperator)
+#     return !(A==B)
+# end

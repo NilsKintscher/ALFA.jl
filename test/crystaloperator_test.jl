@@ -68,6 +68,8 @@ import DataStructures: SortedSet
     # @test alfa.find_multiplier(push!(O, mult, true), [0, 0]).mat == [-8]
 
 
+    # check of ==
+    S2 = alfa.wrtLattice(S, 2*S.C.L.A)
     @test S2 == deepcopy(S2)
     S3 = deepcopy(S2)
     push!(S3, mult, true)
@@ -76,6 +78,21 @@ import DataStructures: SortedSet
     push!(S3, alfa.Multiplier([1000, 100], [-4 1 1 0; 1 -4 0 1; 1 0 -4 1; 0 1 1 -4]), true)
     @test S2 != S3
     @test S != S2
+
+    ##test symbol
+    S2 = alfa.wrtLattice(S, 2*S.C.L.A)
+    x = [0.5969463404190447, 0.9794807414680586]
+    sym = Complex{Float64}[-4.0 + 0.0im 1.3452758388167156 - 0.938501249402159im 1.966939802419922 + 0.25500474210516544im 0.0 + 0.0im; 1.3452758388167156 + 0.938501249402159im -4.0 + 0.0im 0.0 + 0.0im 1.966939802419922 + 0.25500474210516544im; 1.966939802419922 - 0.25500474210516544im 0.0 + 0.0im -4.0 + 0.0im 1.3452758388167156 - 0.938501249402159im; 0.0 + 0.0im 1.966939802419922 - 0.25500474210516544im 1.3452758388167156 + 0.938501249402159im -4.0 + 0.0im]
+    @test sym == alfa.symbol(S2,x)
+
+    ev = [-0.3763088603685248, -3.656889100285505, -4.343110899714498, -7.623691139631474]
+    @test ev == alfa.eigvals(S2,x)
+    @test sort(ev, by=real) == sort(alfa.eigvals(S2,x,by=nothing), by=real)
+
+    evN2 = [1.3322676295501878e-15, -2.0, -2.0, -2.0, -2.0, -3.9999999999999973, -3.999999999999998, -3.9999999999999996, -4.0, -4.0, -4.0, -6.0, -6.0, -6.0, -6.0, -7.999999999999998]
+    @test evN2 == alfa.eigvals(S2,N=2)
+    evN2unique = Complex[0.0 + 0.0im, -2.0 + 0.0im, -4.0 + 0.0im, -6.0 + 0.0im, -8.0 + 0.0im]
+    @test evN2unique == alfa.eigvals(S2, N=2, unique=true)
 
 
 

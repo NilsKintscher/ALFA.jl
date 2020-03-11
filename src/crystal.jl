@@ -91,8 +91,3 @@ end
 function Base.:(==)(A::Crystal, B::Crystal)
      return A.L == B.L && A.Domain == B.Domain && A.Codomain == B.Codomain
 end
-
-function Base.:(!=)(A::Crystal, B::Crystal)
-     return !(A == B)
- end
-#
