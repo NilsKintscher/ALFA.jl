@@ -13,6 +13,8 @@ using Plots
     S = alfa.gallery.Laplace2D()
     S2 = alfa.wrtLattice(S, S.C.L.A*2)
     @test surfacespectrum(S2) isa Plots.Plot{Plots.GRBackend}
+    @test surfacespectrum(S2,4) isa Plots.Plot{Plots.GRBackend}
     @test surfacenorm(S2) isa Plots.Plot{Plots.GRBackend}
+    @test surfacenorm(S2,4) isa Plots.Plot{Plots.GRBackend}
 
 end

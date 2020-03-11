@@ -331,12 +331,63 @@ const atol = 1e-14
         false,
     )
 
-    Snewn = alfa.CrystalOperator(alfa.Crystal(alfa.Lattice([0.0 -2.0; 2.0 2.0]), SArray{Tuple{2},Float64,1,2}[[-1.0, 1.0], [-1.0, 2.0], [0.0, 0.0], [0.0, 1.0]], SArray{Tuple{2},Float64,1,2}[[-1.0, 1.0], [-1.0, 2.0], [0.0, 0.0], [0.0, 1.0]]), SortedSet(alfa.Multiplier[alfa.Multiplier([-1, 0], [0 1 0 0; 0 0 0 0; 0 1 0 1; 0 0 0 0]), alfa.Multiplier([-1, 1], [0 0 0 1; 0 0 0 0; 0 0 0 0; 0 0 0 0]), alfa.Multiplier([0, -1], [0 0 0 0; 0 0 0 0; 0 1 0 0; 0 0 0 0]), alfa.Multiplier([0, 0], [-4 1 0 1; 1 -4 0 0; 0 0 -4 1; 1 0 1 -4]), alfa.Multiplier([0, 1], [0 0 0 0; 0 0 1 0; 0 0 0 0; 0 0 0 0]), alfa.Multiplier([1, -1], [0 0 0 0; 0 0 0 0; 0 0 0 0; 1 0 0 0]), alfa.Multiplier([1, 0], [0 0 0 0; 1 0 1 0; 0 0 0 0; 0 0 1 0])],
-       Base.Order.ForwardOrdering()), false)
+    Snewn = alfa.CrystalOperator(
+        alfa.Crystal(
+            alfa.Lattice([0.0 -2.0; 2.0 2.0]),
+            SArray{Tuple{2},Float64,1,2}[
+                [-1.0, 1.0],
+                [-1.0, 2.0],
+                [0.0, 0.0],
+                [0.0, 1.0],
+            ],
+            SArray{Tuple{2},Float64,1,2}[
+                [-1.0, 1.0],
+                [-1.0, 2.0],
+                [0.0, 0.0],
+                [0.0, 1.0],
+            ],
+        ),
+        SortedSet(
+            alfa.Multiplier[
+                alfa.Multiplier([-1, 0], [0 1 0 0; 0 0 0 0; 0 1 0 1; 0 0 0 0]),
+                alfa.Multiplier([-1, 1], [0 0 0 1; 0 0 0 0; 0 0 0 0; 0 0 0 0]),
+                alfa.Multiplier([0, -1], [0 0 0 0; 0 0 0 0; 0 1 0 0; 0 0 0 0]),
+                alfa.Multiplier(
+                    [0, 0],
+                    [-4 1 0 1; 1 -4 0 0; 0 0 -4 1; 1 0 1 -4],
+                ),
+                alfa.Multiplier([0, 1], [0 0 0 0; 0 0 1 0; 0 0 0 0; 0 0 0 0]),
+                alfa.Multiplier([1, -1], [0 0 0 0; 0 0 0 0; 0 0 0 0; 1 0 0 0]),
+                alfa.Multiplier([1, 0], [0 0 0 0; 1 0 1 0; 0 0 0 0; 0 0 1 0]),
+            ],
+            Base.Order.ForwardOrdering(),
+        ),
+        false,
+    )
 
     @test Snewn == alfa.wrtSameLatticeAndNormalize(S, R)[1]
     @test Rnewn == alfa.wrtSameLatticeAndNormalize(S, R)[2]
     #
+    @test (Snewn,Snewn) == alfa.wrtSameLatticeAndNormalize(Snewn, Snewn)
+
+    #### Test of computation rules.
+
+    SS = alfa.CrystalOperator(alfa.Crystal(alfa.Lattice([1.0 0.0; 0.0 1.0]), SArray{Tuple{2},Float64,1,2}[[0.0, 0.0]], SArray{Tuple{2},Float64,1,2}[[0.0, 0.0]]), SortedSet(alfa.Multiplier[alfa.Multiplier([-2, 0], [1]), alfa.Multiplier([-1, -1], [2]), alfa.Multiplier([-1, 0], [-8]), alfa.Multiplier([-1, 1], [2]), alfa.Multiplier([0, -2], [1]), alfa.Multiplier([0, -1], [-8]), alfa.Multiplier([0, 0], [20]), alfa.Multiplier([0, 1], [-8]), alfa.Multiplier([0, 2], [1]), alfa.Multiplier([1, -1], [2]), alfa.Multiplier([1, 0], [-8]), alfa.Multiplier([1, 1], [2]), alfa.Multiplier([2, 0], [1])],
+       Base.Order.ForwardOrdering()), false)
+
+    @test SS == S*S
+    @test S == S^1
+    @test SS == S^2
+    Sc = deepcopy(S)
+    Sc._CompatibilityCheckOnly = true
+
+    ScSc = alfa.CrystalOperator(alfa.Crystal(alfa.Lattice([1.0 0.0; 0.0 1.0]), SArray{Tuple{2},Float64,1,2}[[0.0, 0.0]], SArray{Tuple{2},Float64,1,2}[[0.0, 0.0]]), SortedSet(alfa.Multiplier[],
+       Base.Order.ForwardOrdering()), true)
+
+    @test Sc*Sc == ScSc
+
+    @test Sc^1 == Sc
+    @test Sc^2 == ScSc
 
 
 end

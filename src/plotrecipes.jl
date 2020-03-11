@@ -247,7 +247,6 @@ end
             S = h.args[1]
         end
     end
-    N = 20
     x = y = range(0, stop = 1, length = N + 1)[1:end-1]
     #x = range(0, stop=1, length=N+1)[1:end-1]
     f(x, y) = abs(alfa.eigvals(S, [x, y])[end])
@@ -282,7 +281,6 @@ end
             S = h.args[1]
         end
     end
-    N = 20
     x = y = range(0, stop = 1, length = N + 1)[1:end-1]
     #x = range(0, stop=1, length=N+1)[1:end-1]
     f(x, y) = norm(alfa.symbol(S, [x, y]))
