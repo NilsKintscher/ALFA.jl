@@ -135,7 +135,7 @@ function eigen(S::CrystalOperator, k; by = abs)
     return LinearAlgebra.Eigen(ev.values[p], ev.vectors[:, p])
 end
 
-function compute_spectrum(S::CrystalOperator, N = 20; by = abs)
+function compute_spectrum(S::CrystalOperator; N = 20, by = abs)
     k_iter = Iterators.product([
         range(0, stop = 1, length = N + 1)[1:end-1] for _ = 1:S.C.dim
     ]...)
@@ -481,7 +481,3 @@ function Base.:(==)(A::CrystalOperator, B::CrystalOperator)
         return false
     end
 end
-
-# function Base.:(!=)(A::CrystalOperator, B::CrystalOperator)
-#     return !(A==B)
-# end
