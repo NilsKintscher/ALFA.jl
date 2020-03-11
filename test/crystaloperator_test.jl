@@ -72,13 +72,14 @@ const atol = 1e-14
 
 
     # check of ==
+    @test S == alfa.wrtLattice(S, S.C.L)
     S2 = alfa.wrtLattice(S, 2*S.C.L.A)
     @test S2 == deepcopy(S2)
     S3 = deepcopy(S2)
     push!(S3, mult, true)
     @test S2 != S3
     S3 = deepcopy(S2)
-    push!(S3, alfa.Multiplier([1000, 100], [-4 1 1 0; 1 -4 0 1; 1 0 -4 1; 0 1 1 -4]), true)
+    push!(S3, alfa.Multiplier([1000, 100], [-4 1 1 5; 2 -4 0 1; 1 0 -4 1; 8 1 1 -4]), true)
     @test S2 != S3
     @test S != S2
 
@@ -115,6 +116,12 @@ const atol = 1e-14
 
 
 
+    S3n = alfa.CrystalOperator(alfa.Crystal(alfa.Lattice([2.0 0.0; 0.0 2.0]), SArray{Tuple{2},Float64,1,2}[[0.0, 0.0], [0.0, 1.0], [1.0, 0.0], [1.0, 1.0]], SArray{Tuple{2},Float64,1,2}[[0.0, 0.0], [0.0, 1.0], [1.0, 0.0], [1.0, 1.0]]), SortedSet(alfa.Multiplier[alfa.Multiplier([-1, 0], [0 0 1 0; 0 0 0 1; 0 0 0 0; 0 0 0 0]), alfa.Multiplier([0, -1], [0 1 0 0; 0 0 0 0; 0 0 0 1; 0 0 0 0]), alfa.Multiplier([0, 0], [-4 1 1 0; 1 -4 0 1; 1 0 -4 1; 0 1 1 -4]), alfa.Multiplier([0, 1], [0 0 0 0; 1 0 0 0; 0 0 0 0; 0 0 1 0]), alfa.Multiplier([1, 0], [0 0 0 0; 0 0 0 0; 1 0 0 0; 0 1 0 0]), alfa.Multiplier([1000, 100], [-4 1 1 5; 1 -4 0 1; 2 0 -4 1; 8 1 1 -4])],
+       Base.Order.ForwardOrdering()), false)
+
+    @test S3n == alfa.normalize(S3)
+
+    @test S3n == alfa.normalize(S3n)
 
 
 end
