@@ -4,7 +4,7 @@ import DataStructures: SortedSet
 using StaticArrays
 using DataFrames
 using LinearAlgebra
-
+const atol = 1e-12
 @testset "crystaloperator.jl" begin
     @test isa(alfa.CrystalOperator(), alfa.CrystalOperator) == true
 
@@ -86,32 +86,32 @@ using LinearAlgebra
     S2 = alfa.wrtLattice(S, 2*S.C.L.A)
     x = [0.5969463404190447, 0.9794807414680586]
     sym = Complex{Float64}[-4.0 + 0.0im 1.3452758388167156 - 0.938501249402159im 1.966939802419922 + 0.25500474210516544im 0.0 + 0.0im; 1.3452758388167156 + 0.938501249402159im -4.0 + 0.0im 0.0 + 0.0im 1.966939802419922 + 0.25500474210516544im; 1.966939802419922 - 0.25500474210516544im 0.0 + 0.0im -4.0 + 0.0im 1.3452758388167156 - 0.938501249402159im; 0.0 + 0.0im 1.966939802419922 - 0.25500474210516544im 1.3452758388167156 + 0.938501249402159im -4.0 + 0.0im]
-    @test sym ≈ alfa.symbol(S2,x)
+    @test isapprox(sym, alfa.symbol(S2,x), atol=atol)
 
     ev = [-0.3763088603685248, -3.656889100285505, -4.343110899714498, -7.623691139631474]
-    @test ev ≈ alfa.eigvals(S2,x)
-    @test sort(ev, by=real) ≈ sort(alfa.eigvals(S2,x,by=nothing), by=real)
+    @test isapprox(ev, alfa.eigvals(S2,x), atol=atol)
+    @test isapprox(sort(ev, by=real), sort(alfa.eigvals(S2,x,by=nothing), by=real),  atol=atol)
 
     evN2 = [1.3322676295501878e-15, -2.0, -2.0, -2.0, -2.0, -3.9999999999999973, -3.999999999999998, -3.9999999999999996, -4.0, -4.0, -4.0, -6.0, -6.0, -6.0, -6.0, -7.999999999999998]
-    @test evN2 ≈ alfa.eigvals(S2,N=2)
+    @test isapprox(evN2, alfa.eigvals(S2,N=2), atol=atol)
     evN2unique = Complex[0.0 + 0.0im, -2.0 + 0.0im, -4.0 + 0.0im, -6.0 + 0.0im, -8.0 + 0.0im]
-    @test evN2unique ≈ alfa.eigvals(S2, N=2, unique=true)
+    @test isapprox(evN2unique, alfa.eigvals(S2, N=2, unique=true), atol=atol)
 
     eigenX = LinearAlgebra.Eigen{Complex{Float64},Float64,Array{Complex{Float64},2},Array{Float64,1}}([-0.3763088603685248, -3.656889100285501, -4.343110899714497, -7.623691139631462], Complex{Float64}[-0.44345000006130575 + 0.23098072959800614im -0.4434500000613082 + 0.23098072959800736im 0.44345000006130586 - 0.2309807295980063im 0.4434500000613058 - 0.23098072959800625im; -0.49585025491824697 - 0.06428471589351338im 0.49585025491824525 + 0.06428471589351344im 0.4958502549182475 + 0.0642847158935136im -0.4958502549182465 - 0.06428471589351344im; -0.4100725299896222 + 0.2860778218385873im -0.4100725299896212 + 0.2860778218385863im -0.4100725299896234 + 0.28607782183858815im -0.4100725299896216 + 0.2860778218385871im; -0.5000000000000002 - 0.0im 0.5000000000000007 + 0.0im -0.49999999999999806 - 0.0im 0.5000000000000012 - 0.0im])
 
-    @test eigenX.values ≈ alfa.eigen(S2, x).values
-    @test eigenX.vectors ≈ alfa.eigen(S2, x).vectors
+    @test isapprox(eigenX.values, alfa.eigen(S2, x).values, atol=atol)
+    @test isapprox(eigenX.vectors, alfa.eigen(S2, x).vectors, atol=atol)
 
 
     k = Array{Float64,1}[[0.0, 0.0], [0.5, 0.0], [0.0, 0.5], [0.5, 0.5]]
     dAk = StaticArrays.SArray{Tuple{2},Float64,1,2}[[0.0, 0.0], [0.25, 0.0], [0.0, 0.25], [0.25, 0.25]]
     Λ = Array{Float64,1}[[1.3322676295501878e-15, -3.9999999999999973, -4.0, -7.999999999999998], [-2.0, -2.0, -6.0, -6.0], [-2.0, -2.0, -6.0, -6.0], [-3.999999999999998, -3.9999999999999996, -4.0, -4.0]]
     df = DataFrame(k = k, dAk = dAk, Λ = Λ)
-    @test alfa.compute_spectrum(S2, N=2).k ≈ k
-    @test alfa.compute_spectrum(S2, N=2).dAk ≈ dAk
-    @test alfa.compute_spectrum(S2, N=2).Λ ≈ Λ
+    @test isapprox(alfa.compute_spectrum(S2, N=2).k, k, atol=atol)
+    @test isapprox(alfa.compute_spectrum(S2, N=2).dAk, dAk, atol=atol)
+    @test isapprox(alfa.compute_spectrum(S2, N=2).Λ,  Λ, atol=atol)
 
-    
+
 
 
 
