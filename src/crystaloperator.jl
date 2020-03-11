@@ -189,6 +189,7 @@ function normalize(S::CrystalOperator)
             push!(op, Multiplier(y_new, mat))
         end
     end
+    CleanUp!(op)
     return op
 end
 
@@ -307,6 +308,7 @@ function wrtLattice(S::CrystalOperator, A) ### A::Matrix
             push!(op, Multiplier(y_new[it_y], mm))
         end
     end
+    CleanUp!(op)
     return op
 end
 

@@ -28,3 +28,7 @@ end
 @safetestset "Show" begin
     include("show_test.jl")
 end
+
+@safetestset "PlotRecipes" begin
+    include("plotrecipes_test.jl")
+end

@@ -89,6 +89,9 @@ const atol = 1e-14
     @test S != S2
 
     ##test symbol
+    R = alfa.gallery.fw_restriction2D()
+    @test alfa.symbol(alfa.CrystalOperator(R.C), rand(2)) == [0 0 0 0]
+
     S2 = alfa.wrtLattice(S, 2 * S.C.L.A)
     x = [0.5969463404190447, 0.9794807414680586]
     sym = Complex{Float64}[
