@@ -177,11 +177,11 @@ function normalize(S::CrystalOperator)
     for (y_new, idxset) in SS0
         mat = nothing  # allocate new matrix.
         for (k, i, j) in idxset
-            if m_old[k].mat[cp[i], cp[j]] != 0
+            if m_old[k].mat[cp[i], dp[j]] != 0
                 if mat == nothing
                     mat = 0 * m_old[1].mat
                 end
-                mat[i, j] = m_old[k].mat[cp[i], cp[j]]
+                mat[i, j] = m_old[k].mat[cp[i], dp[j]]
             end
         end
 
@@ -452,7 +452,26 @@ function Base.transpose(A::CrystalOperator)
         tA = CrystalOperator(Crystal(A.C.L, A.C.Codomain, A.C.Domain))
 
         for ma in A.M
-            m = Multiplier(-ma.pos, ma.mat)
+            m = Multiplier(-ma.pos, transpose(ma.mat))
+            push!(tA, m)
+        end
+    end
+    return tA
+end
+
+function Base.adjoint(A::CrystalOperator)
+    if A._CompatibilityCheckOnly
+        tA = CrystalOperator(
+            Crystal(A.C.L, A.C.Codomain, A.C.Domain),
+            nothing,
+            true,
+        )
+        return tA
+    else
+        tA = CrystalOperator(Crystal(A.C.L, A.C.Codomain, A.C.Domain))
+
+        for ma in A.M
+            m = Multiplier(-ma.pos, adjoint(ma.mat))
             push!(tA, m)
         end
     end

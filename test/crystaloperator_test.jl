@@ -46,8 +46,8 @@ const atol = 1e-14
     mymults3 = SortedSet{alfa.Multiplier}([m13, m_wrong_matsize2])
     @test_throws AssertionError alfa.CrystalOperator(C, mymults3)
 
-    @test isa(alfa.gallery(), alfa.CrystalOperator)
-    O = alfa.gallery("Laplacian2D")
+    @test isa(alfa.gallery.Laplace2D(), alfa.CrystalOperator)
+    O = alfa.gallery.Laplace2D()
     @test isa(O, alfa.CrystalOperator)
     ## do stuff with O.
 
@@ -61,7 +61,7 @@ const atol = 1e-14
 
 
     # test wrtLattice
-    S = alfa.gallery()
+    S = alfa.gallery.Laplace2D()
     S2 = alfa.wrtLattice(S, 2*S.C.L.A)
     mult = alfa.Multiplier([0, 0], [-4 1 1 0; 1 -4 0 1; 1 0 -4 1; 0 1 1 -4])
     mult_orig = deepcopy(mult)
@@ -122,6 +122,22 @@ const atol = 1e-14
     @test S3n == alfa.normalize(S3)
 
     @test S3n == alfa.normalize(S3n)
+
+    R = alfa.gallery.fw_restriction2D()
+    X = alfa.Lattice([0.0 -2.0; 2.0 2.0])
+
+    Rnew = alfa.CrystalOperator(alfa.Crystal(alfa.Lattice([0.0 -2.0; 2.0 2.0]), SArray{Tuple{2},Float64,1,2}[[0.0, 0.0], [0.0, 1.0], [1.0, 0.0], [1.0, 1.0]], SArray{Tuple{2},Float64,1,2}[[0.0, 0.0]]), SortedSet(alfa.Multiplier[alfa.Multiplier([-2, 1], Rational{Int64}[0//1 0//1 0//1 1//4]), alfa.Multiplier([-1, 0], Rational{Int64}[0//1 1//2 0//1 1//4]), alfa.Multiplier([-1, 1], Rational{Int64}[0//1 0//1 1//2 1//4]), alfa.Multiplier([0, 0], Rational{Int64}[1//1 1//2 1//2 1//4])],
+       Base.Order.ForwardOrdering()), false)
+    @test Rnew == alfa.wrtLattice(R,X)
+
+    Rnewn = alfa.CrystalOperator(alfa.Crystal(alfa.Lattice([0.0 -2.0; 2.0 2.0]), StaticArrays.SArray{Tuple{2},Float64,1,2}[[-1.0, 1.0], [-1.0, 2.0], [0.0, 0.0], [0.0, 1.0]], StaticArrays.SArray{Tuple{2},Float64,1,2}[[0.0, 0.0]]), SortedSet(alfa.Multiplier[alfa.Multiplier([-1, 0], Rational{Int64}[1//4 1//2 0//1 1//2]), alfa.Multiplier([0, -1], Rational{Int64}[1//4 1//2 0//1 0//1]), alfa.Multiplier([0, 0], Rational{Int64}[1//4 0//1 1//1 1//2]), alfa.Multiplier([1, -1], Rational{Int64}[1//4 0//1 0//1 0//1])], Base.Order.ForwardOrdering()), false)
+
+    Snewn = alfa.CrystalOperator(alfa.Crystal(alfa.Lattice([0.0 -2.0; 2.0 2.0]), SArray{Tuple{2},Float64,1,2}[[-1.0, 1.0], [-1.0, 2.0], [0.0, 0.0], [0.0, 1.0]], SArray{Tuple{2},Float64,1,2}[[0.0, 0.0]]), SortedSet(alfa.Multiplier[alfa.Multiplier([-1, 0], Rational{Int64}[1//4 1//2 0//1 1//2]), alfa.Multiplier([0, -1], Rational{Int64}[1//4 1//2 0//1 0//1]), alfa.Multiplier([0, 0], Rational{Int64}[1//4 0//1 1//1 1//2]), alfa.Multiplier([1, -1], Rational{Int64}[1//4 0//1 0//1 0//1])],
+           Base.Order.ForwardOrdering()), false)
+
+           @test Snewn == alfa.wrtSameLatticeAndNormalize(S,R)[1]
+    @test Rnewn == alfa.wrtSameLatticeAndNormalize(S,R)[2]
+    #
 
 
 end

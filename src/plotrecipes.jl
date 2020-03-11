@@ -72,7 +72,7 @@ end
             markersize --> 10
             markerstrokewidth --> 1
             markerstrokecolor --> :black
-            domain := false
+            plot_domain := false
             C, pos_fractional#, domain=false
         end
     end
@@ -82,14 +82,14 @@ end
             markerstrokealpha := 0
             label := ""
             markershape --> :diamond
-            domain := true
+            plot_domain := true
             C, pos_fractional#, domain=true
         end
     end
 
 end
 
-@recipe function f(C::Crystal, pos_fractional; domain = true)
+@recipe function f(C::Crystal, pos_fractional; plot_domain = true)
     # #TODO:  check this:
     # domain --> true
     # codomain --> !domain
@@ -99,7 +99,7 @@ end
     markercolor --> :orange
     label := ""
     markershape --> :dtriangle
-    if domain
+    if plot_domain
         s = C.Domain
     else
         s = C.Codomain
@@ -156,13 +156,13 @@ end
     @series begin
         label --> ""
         c := :viridis
-        line_z := mmin:mmax
+        line_z := range(mmin, stop=mmax, length=10)
         [NaN], [NaN]
     end
 
     for m in S.M #  pos != 0.
         coord_cartesian = S.C.L.A * m.pos
-        #println("mat: $(m.mat)")
+
         for (it_d, sd) in enumerate(S.C.Domain) #eachslice(S.C.Domain, dims = 1))
             for (it_c, sc) in enumerate(S.C.Codomain) #eachslice(S.C.Codomain, dims = 1))
                 val = real(m.mat[it_c, it_d])
@@ -199,29 +199,21 @@ end
         end
 
     end
-
-
     for m in S.M #  pos != 0.
         coord_cartesian = S.C.L.A * m.pos
         for (it_d, sd) in enumerate(S.C.Domain) #eachslice(S.C.Domain, dims = 1))
             for (it_c, sc) in enumerate(S.C.Codomain) #eachslice(S.C.Codomain, dims = 1))
-                val = real(m.mat[it_d, it_c])
+                val = real(m.mat[it_c, it_d])
                 #if abs(val) > threshhold
                 p0 = coord_cartesian + sd
                 p2 = sc
                 if norm(p0 - p2) ≈ 0
-                    println(val)
-                    println(mmin)
-                    println(mmax)
-                    print(-(mmin - val) / (mmax - mmin))
                     @series begin
                         seriestype := :scatter
                         markercolor := get(
                             ColorSchemes.viridis,
                             -(mmin - val) / (mmax - mmin),
                         ) # linear interpolation
-                        #markercolor := get(ColorSchemes.viridis,0.5) # linear interpolation
-                        #clim := -5:-4
                         label := ""
                         markershape --> :pentagon
                         markeralpha := 1
@@ -246,21 +238,21 @@ end
 
 @recipe function f(h::SurfaceSpectrum)
     if length(h.args) == 1 || length(h.args) == 2
-         if typeof(h.args[1]) == CrystalOperator
-             if length(h.args) == 2
-                 N = h.args[2]
-             else
-                 N=20
-             end
-             S = h.args[1]
-         end
-     end
+        if typeof(h.args[1]) == CrystalOperator
+            if length(h.args) == 2
+                N = h.args[2]
+            else
+                N = 20
+            end
+            S = h.args[1]
+        end
+    end
     N = 20
     x = y = range(0, stop = 1, length = N + 1)[1:end-1]
     #x = range(0, stop=1, length=N+1)[1:end-1]
     f(x, y) = abs(alfa.eigvals(S, [x, y])[end])
 
-    layout := (1,2)
+    layout := (1, 2)
     c := :viridis
     @series begin
         subplot := 1
@@ -281,21 +273,21 @@ end
 
 @recipe function f(h::SurfaceNorm)
     if length(h.args) == 1 || length(h.args) == 2
-         if typeof(h.args[1]) == CrystalOperator
-             if length(h.args) == 2
-                 N = h.args[2]
-             else
-                 N=20
-             end
-             S = h.args[1]
-         end
-     end
+        if typeof(h.args[1]) == CrystalOperator
+            if length(h.args) == 2
+                N = h.args[2]
+            else
+                N = 20
+            end
+            S = h.args[1]
+        end
+    end
     N = 20
     x = y = range(0, stop = 1, length = N + 1)[1:end-1]
     #x = range(0, stop=1, length=N+1)[1:end-1]
     f(x, y) = norm(alfa.symbol(S, [x, y]))
 
-    layout := (1,2)
+    layout := (1, 2)
     c := :viridis
     @series begin
         subplot := 1
