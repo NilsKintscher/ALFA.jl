@@ -484,7 +484,7 @@ macro check(func::Symbol)
             case = "✓"
         end
         case = case === nothing ? "✓" : case
-
+        println("$(nameof(escf)): $cnt / $N successful ; $case")
         @testset "$(nameof(escf)): $cnt / $N successful ; $case" begin
             @test cnt > 0.5
         end
@@ -560,10 +560,10 @@ function adjointProp()
     end
 end
 
-#@testset "computation properties, crystaloperator" begin
+@testset "computation properties, crystaloperator" begin
 @check commProp
 @check distProp1
 @check distProp2
 @check transposeProp
 @check adjointProp
-#end
+end
