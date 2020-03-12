@@ -12,6 +12,14 @@ mutable struct CrystalOperator
     end
 end
 
+function CrystalOperator(C::Crystal, J::UniformScaling, _CompatibilityCheckOnly = false)
+    M = SortedSet{Multiplier}()
+    pos = zeros(C.dim)
+    mat = Matrix(J, C.size_codomain, C.size_domain)
+    push!(M, Multiplier(pos, mat))
+    return CrystalOperator(C, M, _CompatibilityCheckOnly)
+end
+
 function CrystalOperator(
     C = nothing,
     M = nothing,
@@ -326,6 +334,10 @@ function wrtSameLatticeAndNormalize(A::CrystalOperator, B::CrystalOperator)
     return Anew, Bnew
 end
 
+function IsApproxEquivalent(A::CrystalOperator, B::CrystalOperator)
+    (Anew, Bnew) = wrtSameLatticeAndNormalize(A, B)
+    return Anew ≈ Bnew
+end
 
 function Base.:*(b::T, A::CrystalOperator) where {T<:Number}
     return A * b
@@ -490,10 +502,45 @@ function Base.:^(A::CrystalOperator, p::Int)
     return prod([A for _ = 1:p])
 end
 
+function Base.:+(J::UniformScaling, A::CrystalOperator)
+    return A+J
+end
+function Base.:+(A::CrystalOperator, J::UniformScaling)
+    Ac = deepcopy(A)
+    pos = zeros(A.C.dim)
+    mat = Matrix(J, A.C.size_codomain, A.C.size_domain)
+    push!(Ac, Multiplier(pos, mat), true)
+    return Ac
+end
+
+function Base.:-(A::CrystalOperator, J::UniformScaling)
+    return A + (-J)
+end
+function Base.:-(J::UniformScaling, A::CrystalOperator)
+    return J + (-A)
+end
+
+
+
 function Base.:(==)(A::CrystalOperator, B::CrystalOperator)
     if A.C == B.C && length(A.M) == length(B.M)
         for (ma,mb) in zip(A.M, B.M)
             if ma != mb
+                return false
+            end
+        end
+        return true
+    else
+        return false
+    end
+end
+
+
+
+function Base.:(≈)(A::CrystalOperator, B::CrystalOperator)
+    if A.C ≈ B.C && length(A.M) == length(B.M)
+        for (ma,mb) in zip(A.M, B.M)
+            if !(ma ≈ mb)
                 return false
             end
         end

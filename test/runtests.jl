@@ -1,7 +1,7 @@
 using SafeTestsets
 
-@safetestset "AbstractAlgebra Wrapper" begin
-    include("abstractalgebra_test.jl")
+@safetestset "Nemo Wrapper" begin
+    include("nemo_test.jl")
 end
 
 @safetestset "Lattice" begin

@@ -20,6 +20,12 @@ using StaticArrays
     C = alfa.Crystal([10 0; 0 20], [[1 2], [3 4], [5 6]], [[1 2], [3 4], [5.5 6], [7 8]])
     @test isa(C, alfa.Crystal) == true
 
+
+    #check if the output of print() can be used as a constructor.
+    io = IOBuffer();
+    print(io, alfa.Crystal());
+    eval(Meta.parse(String(take!(io)))) == alfa.Crystal()
+
     #getproperty tests
     @test C.size_domain == 3
     @test C.size_codomain == 4

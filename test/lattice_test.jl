@@ -11,6 +11,12 @@ using StaticArrays
     @test isa(alfa.Lattice([5.0]), alfa.Lattice) == true
     @test isa(alfa.Lattice(6), alfa.Lattice) == true
 
+    #check if the output of print() can be used as a constructor.
+    io = IOBuffer();
+    print(io, alfa.Lattice());
+    eval(Meta.parse(String(take!(io)))) == alfa.Lattice()
+
+
     Amstatic = @MMatrix [3 1; 5 6]
     A = alfa.Lattice(Amstatic)
     @test isa(A, alfa.Lattice)
@@ -37,9 +43,9 @@ using StaticArrays
 
     Bm = [7 1; 2 3]
     B = alfa.Lattice(Bm)
-    Cm = [-78.0 19.0; -481.0 114.0]
-    C = alfa.Lattice(Cm)
-    @test lcm(A, B).A == C.A
+
+    @test B.A\lcm(A, B).A ≈ round.(B.A\lcm(A, B).A)
+    @test A.A\lcm(A, B).A ≈ round.(A.A\lcm(A, B).A)
 
     A = alfa.Lattice([1 -1; 8 -5])
     B = alfa.Lattice([-1 -4; 7 -5])

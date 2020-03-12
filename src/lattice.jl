@@ -7,16 +7,10 @@ struct Lattice{N}
         new{N}(A)
     end
 end
-#
-# struct Lattice <: AbstractMatrix{Real}
-#     A::Matrix
-#     function Lattice(A::Matrix)
-#         @assert typeof(A) <: Matrix{<:Real} "Matrix entries must be of type Real"
-#         @assert !isapprox(det(A), 0) "Basis must be nonsingular"
-#         new(A)
-#     end
-# end
 
+function Lattice{N}(mat = nothing) where {N}
+    return Lattice(mat)
+end
 
 function Lattice(mat = nothing)
     if mat == nothing
@@ -56,7 +50,7 @@ end
 
 Returns the least common multiple of A and B, i.e. a sub-lattice C (C ⊂ A and C ⊂ B) with |det(C)| as small as possible.
 """
-function Base.lcm(A, B, rmax = 50) # TODO: ??? Change r to det(A) and test it with graphene lattice basis.
+function Base.lcm(A, B, rmax::Int = Int(1e+10)) # TODO: ??? Change r to det(A) and test it with graphene lattice basis.
     M0 = A \ B
     for r in range(1, stop = rmax)
         rM = r * M0
@@ -65,14 +59,22 @@ function Base.lcm(A, B, rmax = 50) # TODO: ??? Change r to det(A) and test it wi
             # compute SNF
             S, U, V = snf_with_transform(rMr)
             N = diagm(r ./ gcd.(diag(S), r))
-            C = B * V * N
+            # @show V
+            # @show N
+            # VN = V*N
+            # @show V*N
+            # lllVN = alfa.lll(VN)
+            # @show lllVN
+            C = B * alfa.lll(V * N)
+            # @show C
+            # return alfa.lll(C)
             return C
             break
         end
     end
 end
 
-function Base.lcm(A::Lattice, B::Lattice, rmax = 50)
+function Base.lcm(A::Lattice, B::Lattice, rmax = 1e+10)
     return Lattice(lcm(A.A, B.A))
 end
 
@@ -101,7 +103,7 @@ function ElementsInQuotientSpace(
         # end
     else
         #
-        s = [SVector{length(dH),Int}(A * [x...]) for x in J]
+        s = [SVector{length(dH)}(A * [x...]) for x in J]
         # s = Matrix(undef, length(J), length(dH))
         # for (i,x) in enumerate(J)
         #     s[i,:] .= A*[x...]
@@ -154,6 +156,7 @@ function Base.:(==)(A::Lattice, B::Lattice)
      return A.A == B.A
 end
 
-# function Base.:(!=)(A::Lattice, B::Lattice)
-#      return !(A == B)
-# end
+
+function Base.:(≈)(A::Lattice, B::Lattice)
+     return A.A ≈ B.A
+end

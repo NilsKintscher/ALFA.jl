@@ -9,6 +9,10 @@ end
 Base.isless(a::Multiplier, b::Multiplier) = Base.isless(a.pos, b.pos)
 Base.isequal(a::Multiplier, b::Multiplier) = Base.isequal(a.pos, b.pos)
 
+function Multiplier{N}(pos = nothing, mat = nothing) where {N}
+    return Multiplier(pos, mat)
+end
+
 function Multiplier(pos = nothing, mat = nothing)
     if pos == nothing
         pos = MVector{1,Int}(0)
@@ -44,4 +48,8 @@ end
 
 function Base.:(==)(A::Multiplier, B::Multiplier)
      return A.pos == B.pos && A.mat == B.mat
+end
+
+function Base.:(≈)(A::Multiplier, B::Multiplier)
+     return A.pos ≈ B.pos && A.mat ≈ B.mat
 end

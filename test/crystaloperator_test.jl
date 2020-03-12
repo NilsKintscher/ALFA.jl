@@ -5,6 +5,8 @@ using StaticArrays
 using DataFrames
 using LinearAlgebra
 const atol = 1e-14
+
+
 @testset "crystaloperator.jl" begin
     @test isa(alfa.CrystalOperator(), alfa.CrystalOperator) == true
 
@@ -62,6 +64,11 @@ const atol = 1e-14
 
     # test wrtLattice
     S = alfa.gallery.Laplace2D()
+
+    io = IOBuffer()
+    print(io, S)
+    eval(Meta.parse(String(take!(io)))) == S
+
     S2 = alfa.wrtLattice(S, 2 * S.C.L.A)
     mult = alfa.Multiplier([0, 0], [-4 1 1 0; 1 -4 0 1; 1 0 -4 1; 0 1 1 -4])
     mult_orig = deepcopy(mult)
@@ -297,33 +304,34 @@ const atol = 1e-14
     @test Rnew == alfa.wrtLattice(R, X)
 
     Rnewn = alfa.CrystalOperator(
-        alfa.Crystal(
-            alfa.Lattice([0.0 -2.0; 2.0 2.0]),
-            StaticArrays.SArray{Tuple{2},Float64,1,2}[
+        alfa.Crystal{2}(
+            alfa.Lattice{2}([0.0 -2.0; 2.0 0.0]),
+            SArray{Tuple{2},Float64,1,2}[
+                [-1.0, 0.0],
                 [-1.0, 1.0],
-                [-1.0, 2.0],
                 [0.0, 0.0],
                 [0.0, 1.0],
             ],
-            StaticArrays.SArray{Tuple{2},Float64,1,2}[[0.0, 0.0]],
+            SArray{Tuple{2},Float64,1,2}[[0.0, 0.0]],
+            true,
         ),
         SortedSet(
             alfa.Multiplier[
-                alfa.Multiplier(
+                alfa.Multiplier{2}(
+                    [-1, -1],
+                    Rational{Int64}[0 // 1 1 // 4 0 // 1 0 // 1],
+                ),
+                alfa.Multiplier{2}(
                     [-1, 0],
-                    Rational{Int64}[1 // 4 1 // 2 0 // 1 1 // 2],
+                    Rational{Int64}[0 // 1 1 // 4 0 // 1 1 // 2],
                 ),
-                alfa.Multiplier(
+                alfa.Multiplier{2}(
                     [0, -1],
-                    Rational{Int64}[1 // 4 1 // 2 0 // 1 0 // 1],
+                    Rational{Int64}[1 // 2 1 // 4 0 // 1 0 // 1],
                 ),
-                alfa.Multiplier(
+                alfa.Multiplier{2}(
                     [0, 0],
-                    Rational{Int64}[1 // 4 0 // 1 1 // 1 1 // 2],
-                ),
-                alfa.Multiplier(
-                    [1, -1],
-                    Rational{Int64}[1 // 4 0 // 1 0 // 1 0 // 1],
+                    Rational{Int64}[1 // 2 1 // 4 1 // 1 1 // 2],
                 ),
             ],
             Base.Order.ForwardOrdering(),
@@ -332,33 +340,44 @@ const atol = 1e-14
     )
 
     Snewn = alfa.CrystalOperator(
-        alfa.Crystal(
-            alfa.Lattice([0.0 -2.0; 2.0 2.0]),
+        alfa.Crystal{2}(
+            alfa.Lattice{2}([0.0 -2.0; 2.0 0.0]),
             SArray{Tuple{2},Float64,1,2}[
+                [-1.0, 0.0],
                 [-1.0, 1.0],
-                [-1.0, 2.0],
                 [0.0, 0.0],
                 [0.0, 1.0],
             ],
             SArray{Tuple{2},Float64,1,2}[
+                [-1.0, 0.0],
                 [-1.0, 1.0],
-                [-1.0, 2.0],
                 [0.0, 0.0],
                 [0.0, 1.0],
             ],
+            true,
         ),
         SortedSet(
             alfa.Multiplier[
-                alfa.Multiplier([-1, 0], [0 1 0 0; 0 0 0 0; 0 1 0 1; 0 0 0 0]),
-                alfa.Multiplier([-1, 1], [0 0 0 1; 0 0 0 0; 0 0 0 0; 0 0 0 0]),
-                alfa.Multiplier([0, -1], [0 0 0 0; 0 0 0 0; 0 1 0 0; 0 0 0 0]),
-                alfa.Multiplier(
-                    [0, 0],
-                    [-4 1 0 1; 1 -4 0 0; 0 0 -4 1; 1 0 1 -4],
+                alfa.Multiplier{2}(
+                    [-1, 0],
+                    [0 1 0 0; 0 0 0 0; 0 0 0 1; 0 0 0 0],
                 ),
-                alfa.Multiplier([0, 1], [0 0 0 0; 0 0 1 0; 0 0 0 0; 0 0 0 0]),
-                alfa.Multiplier([1, -1], [0 0 0 0; 0 0 0 0; 0 0 0 0; 1 0 0 0]),
-                alfa.Multiplier([1, 0], [0 0 0 0; 1 0 1 0; 0 0 0 0; 0 0 1 0]),
+                alfa.Multiplier{2}(
+                    [0, -1],
+                    [0 0 0 0; 0 0 0 0; 1 0 0 0; 0 1 0 0],
+                ),
+                alfa.Multiplier{2}(
+                    [0, 0],
+                    [-4 1 1 0; 1 -4 0 1; 1 0 -4 1; 0 1 1 -4],
+                ),
+                alfa.Multiplier{2}(
+                    [0, 1],
+                    [0 0 1 0; 0 0 0 1; 0 0 0 0; 0 0 0 0],
+                ),
+                alfa.Multiplier{2}(
+                    [1, 0],
+                    [0 0 0 0; 1 0 0 0; 0 0 0 0; 0 0 1 0],
+                ),
             ],
             Base.Order.ForwardOrdering(),
         ),
@@ -368,26 +387,183 @@ const atol = 1e-14
     @test Snewn == alfa.wrtSameLatticeAndNormalize(S, R)[1]
     @test Rnewn == alfa.wrtSameLatticeAndNormalize(S, R)[2]
     #
-    @test (Snewn,Snewn) == alfa.wrtSameLatticeAndNormalize(Snewn, Snewn)
+    @test (Snewn, Snewn) == alfa.wrtSameLatticeAndNormalize(Snewn, Snewn)
 
-    #### Test of computation rules.
+    #### Test of computation rules. property testing.
 
-    SS = alfa.CrystalOperator(alfa.Crystal(alfa.Lattice([1.0 0.0; 0.0 1.0]), SArray{Tuple{2},Float64,1,2}[[0.0, 0.0]], SArray{Tuple{2},Float64,1,2}[[0.0, 0.0]]), SortedSet(alfa.Multiplier[alfa.Multiplier([-2, 0], [1]), alfa.Multiplier([-1, -1], [2]), alfa.Multiplier([-1, 0], [-8]), alfa.Multiplier([-1, 1], [2]), alfa.Multiplier([0, -2], [1]), alfa.Multiplier([0, -1], [-8]), alfa.Multiplier([0, 0], [20]), alfa.Multiplier([0, 1], [-8]), alfa.Multiplier([0, 2], [1]), alfa.Multiplier([1, -1], [2]), alfa.Multiplier([1, 0], [-8]), alfa.Multiplier([1, 1], [2]), alfa.Multiplier([2, 0], [1])],
-       Base.Order.ForwardOrdering()), false)
+    ##
 
-    @test SS == S*S
+
+
+
+
+
+
+
+
+
+    ###
+    SS = alfa.CrystalOperator(
+        alfa.Crystal(
+            alfa.Lattice([1.0 0.0; 0.0 1.0]),
+            SArray{Tuple{2},Float64,1,2}[[0.0, 0.0]],
+            SArray{Tuple{2},Float64,1,2}[[0.0, 0.0]],
+        ),
+        SortedSet(
+            alfa.Multiplier[
+                alfa.Multiplier([-2, 0], [1]),
+                alfa.Multiplier([-1, -1], [2]),
+                alfa.Multiplier([-1, 0], [-8]),
+                alfa.Multiplier([-1, 1], [2]),
+                alfa.Multiplier([0, -2], [1]),
+                alfa.Multiplier([0, -1], [-8]),
+                alfa.Multiplier([0, 0], [20]),
+                alfa.Multiplier([0, 1], [-8]),
+                alfa.Multiplier([0, 2], [1]),
+                alfa.Multiplier([1, -1], [2]),
+                alfa.Multiplier([1, 0], [-8]),
+                alfa.Multiplier([1, 1], [2]),
+                alfa.Multiplier([2, 0], [1]),
+            ],
+            Base.Order.ForwardOrdering(),
+        ),
+        false,
+    )
+
+    @test SS == S * S
     @test S == S^1
     @test SS == S^2
     Sc = deepcopy(S)
     Sc._CompatibilityCheckOnly = true
 
-    ScSc = alfa.CrystalOperator(alfa.Crystal(alfa.Lattice([1.0 0.0; 0.0 1.0]), SArray{Tuple{2},Float64,1,2}[[0.0, 0.0]], SArray{Tuple{2},Float64,1,2}[[0.0, 0.0]]), SortedSet(alfa.Multiplier[],
-       Base.Order.ForwardOrdering()), true)
+    ScSc = alfa.CrystalOperator(
+        alfa.Crystal(
+            alfa.Lattice([1.0 0.0; 0.0 1.0]),
+            SArray{Tuple{2},Float64,1,2}[[0.0, 0.0]],
+            SArray{Tuple{2},Float64,1,2}[[0.0, 0.0]],
+        ),
+        SortedSet(alfa.Multiplier[], Base.Order.ForwardOrdering()),
+        true,
+    )
 
-    @test Sc*Sc == ScSc
+    @test Sc * Sc == ScSc
 
     @test Sc^1 == Sc
     @test Sc^2 == ScSc
 
 
 end
+
+
+function testit(func::Function, N = 1000)
+    local cnt = 0
+    local errorcase = nothing
+    local case = nothing
+    local res
+    for i = 1:N
+        try
+            (res, case) = eval(func())
+        catch e
+            res = false
+            errorcase = e
+        end
+        if res != false
+            #return res, case
+            cnt = cnt + 1
+        end
+    end
+    return true, errorcase, cnt
+end
+
+macro check(func::Symbol)
+    quote
+        local N = 100
+        local escf = $(esc(func))
+        local res, case, cnt = testit($(esc(func)), N)
+        if case === nothing
+            case = "✓"
+        end
+        case = case === nothing ? "✓" : case
+
+        @testset "$(nameof(escf)): $cnt / $N successful ; $case" begin
+            @test cnt > 0.5
+        end
+    end
+end
+
+
+
+function commProp()
+    O = rand(alfa.CrystalOperator)
+    A = rand(O, domain_eq_Adomain = true, codomain_eq_Acodomain = true)
+    B = rand(O, domain_eq_Adomain = true, codomain_eq_Acodomain = true)
+    if alfa.IsApproxEquivalent(A + B, B + A)
+        return true, nothing
+    else
+        return false, "Failed with A: $A, B: $B"
+    end
+end
+
+function distProp1()
+    O = rand(alfa.CrystalOperator)
+    B = rand(O, domain_eq_Adomain = true, codomain_eq_Acodomain = true)
+    C = rand(O, domain_eq_Adomain = true, codomain_eq_Acodomain = true)
+    A = rand(O, domain_eq_Acodomain = true)
+    try
+        ABC = A * (B + C)
+    catch
+        return false, "Failed A*(B+C) with A = $A; B= $B; C= $C"
+    end
+    try
+        ABAC = A * B + A * C
+    catch
+        return false, "Failed A * B + A * C with A = $A; B= $B; C= $C"
+    end
+    if alfa.IsApproxEquivalent(A * (B + C), A * B + A * C)
+        return true, nothing
+    else
+        return false, "Failed with A = $A; B= $B; C= $C"
+    end
+end
+
+function distProp2()
+    O = rand(alfa.CrystalOperator)
+    B = rand(O, domain_eq_Adomain = true, codomain_eq_Acodomain = true)
+    C = rand(O, domain_eq_Adomain = true, codomain_eq_Acodomain = true)
+    D = rand(O, codomain_eq_Adomain = true)
+    if alfa.IsApproxEquivalent((B + C) * D, B * D + C * D)
+        return true, nothing
+    else
+        return false, "Failed with B: $B, C: $C, D: $D"
+    end
+end
+
+function transposeProp()
+    O = rand(alfa.CrystalOperator)
+    A = rand(O, domain_eq_Adomain = true, codomain_eq_Acodomain = true)
+    B = rand(O, codomain_eq_Adomain = true)
+    if alfa.IsApproxEquivalent(transpose(A * B), transpose(B) * transpose(A))
+        return true, nothing
+    else
+        return false, "Failed with A: $A, B: $B"
+    end
+end
+
+function adjointProp()
+    O = rand(alfa.CrystalOperator)
+    A = rand(O, domain_eq_Adomain = true, codomain_eq_Acodomain = true)
+    B = rand(O, codomain_eq_Adomain = true)
+    if alfa.IsApproxEquivalent(adjoint(A * B), adjoint(B) * adjoint(A))
+        return true, nothing
+    else
+        return false, "Failed with A: $A, B: $B"
+    end
+end
+
+#@testset "computation properties, crystaloperator" begin
+@check commProp
+@check distProp1
+@check distProp2
+@check transposeProp
+@check adjointProp
+#end

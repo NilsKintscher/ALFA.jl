@@ -249,7 +249,7 @@ end
     end
     x = y = range(0, stop = 1, length = N + 1)[1:end-1]
     #x = range(0, stop=1, length=N+1)[1:end-1]
-    f(x, y) = abs(alfa.eigvals(S, [x, y])[end])
+    f(x, y) = abs(alfa.eigvals(S, S.C.L.dA*[x, y])[end])
 
     layout := (1, 2)
     c := :viridis
@@ -283,7 +283,7 @@ end
     end
     x = y = range(0, stop = 1, length = N + 1)[1:end-1]
     #x = range(0, stop=1, length=N+1)[1:end-1]
-    f(x, y) = norm(alfa.symbol(S, [x, y]))
+    f(x, y) = norm(alfa.symbol(S, S.C.L.dA*[x, y]))
 
     layout := (1, 2)
     c := :viridis
