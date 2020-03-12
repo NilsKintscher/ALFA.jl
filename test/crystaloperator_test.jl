@@ -486,7 +486,7 @@ macro check(func::Symbol)
         case = case === nothing ? "✓" : case
         println("$(nameof(escf)): $cnt / $N successful ; $case")
         @testset "$(nameof(escf)): $cnt / $N successful ; $case" begin
-            @test cnt > 0.5
+            @test cnt > 0.8
         end
     end
 end

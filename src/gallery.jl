@@ -180,8 +180,8 @@ function Base.rand(
     codomain_eq_Acodomain = false,
     maxdigits = 3
 )
-    if A.C.dim > 2
-        MaxLatticeSize = 1
+    if A.C.dim > 3
+        MaxLatticeSize = 2
     else
         MaxLatticeSize = 2
     end
@@ -190,7 +190,7 @@ function Base.rand(
     MaxPos = 4# 10
 
     B = alfa.lll(rand(-MaxLatticeSize:MaxLatticeSize, A.C.dim, A.C.dim))
-    while abs(det(B)) < 1e-1
+    while abs(det(B)) > 10 || abs(det(B)) < 1
         B = alfa.lll(rand(-MaxLatticeSize:MaxLatticeSize, A.C.dim, A.C.dim))
     end
     B = A.C.L.A * B # make it a sublattice of A
