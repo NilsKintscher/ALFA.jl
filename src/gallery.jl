@@ -120,7 +120,12 @@ end
 
 
 
-function Base.rand(::Type{alfa.CrystalOperator}; single_domain = false, maxdigits = 3)
+function Base.rand(
+    ::Type{alfa.CrystalOperator};
+    single_domain = false
+)
+    maxdigits = 2
+
     MaxDim = 4 #4
     MaxNumElements = 2 #10
     MaxNumMultipliers = 4#10
@@ -130,28 +135,35 @@ function Base.rand(::Type{alfa.CrystalOperator}; single_domain = false, maxdigit
 
     if dim == 2
         mytol = 0.2
-    elseif dim==3
+    elseif dim == 3
         mytol = 0.13
     else
-        mytol=0.1
+        mytol = 0.1
     end
 
-    A = round.(rand(dim, dim), digits = maxdigits)
+    num = rand(1:10^maxdigits, dim, dim)
+    den = rand(1:10^maxdigits, dim, dim)
+    A = [BigInt(x) // BigInt(y) for (x, y) in zip(num, den)]
     while abs(det(A)) < mytol
-        A = round.(rand(dim, dim), digits = maxdigits)
+        num = rand(1:10^maxdigits, dim, dim)
+        den = rand(1:10^maxdigits, dim, dim)
+        A = [BigInt(x) // BigInt(y) for (x, y) in zip(num, den)]
     end
 
 
     L = alfa.Lattice(A)
-    domain =
-        [L.dA * unique(round.(rand(dim), digits = maxdigits)) for _ = 1:rand(1:MaxNumElements)]
+    denom = [[rand(1:10^maxdigits) for _ = 1:dim] for _ = 1:rand(1:MaxNumElements)]
+    myrand(x) = rand(1:x) // x
+    domain = unique([
+        L.A * [myrand(rand(1:10^maxdigits)) for _ = 1:dim] for _ = 1:rand(1:MaxNumElements)
+    ])
     if single_domain
         codomain = domain
     else
-        codomain = [
-            L.dA * round.(rand(dim), digits = maxdigits)
+        codomain = unique([
+            L.A * [myrand(rand(1:10^maxdigits)) for _ = 1:dim]
             for _ = 1:rand(1:MaxNumElements)
-        ]
+        ])
     end
     C = alfa.Crystal(L, domain, codomain)
     S = alfa.CrystalOperator(C)
@@ -178,47 +190,48 @@ function Base.rand(
     domain_eq_Acodomain = false,
     codomain_eq_Adomain = false,
     codomain_eq_Acodomain = false,
-    maxdigits = 3
+    maxdigits = 2,
 )
-    if A.C.dim > 3
-        MaxLatticeSize = 2
-    else
-        MaxLatticeSize = 2
-    end
+
+    MaxLatticeSize = 2
+
     MaxNumElements = 2 #10
     MaxNumMultipliers = 4 #10
     MaxPos = 4# 10
 
     B = alfa.lll(rand(-MaxLatticeSize:MaxLatticeSize, A.C.dim, A.C.dim))
-    while abs(det(B)) > 10 || abs(det(B)) < 1
+    while abs(det(B)) > 8 || abs(det(B)) < 1
         B = alfa.lll(rand(-MaxLatticeSize:MaxLatticeSize, A.C.dim, A.C.dim))
     end
     B = A.C.L.A * B # make it a sublattice of A
 
     L = alfa.Lattice(B)
-    if domain_eq_Adomain || domain_eq_Acodomain || codomain_eq_Acodomain || codomain_eq_Adomain
+    if domain_eq_Adomain ||
+       domain_eq_Acodomain || codomain_eq_Acodomain || codomain_eq_Adomain
         C = alfa.wrtLattice(A.C, L)
     end
+
+    myrand(x) = rand(1:x) // x
 
     if domain_eq_Adomain
         domain = C.Domain
     elseif domain_eq_Acodomain
         domain = C.Codomain
     else
-        domain = [
-            L.dA * unique(round.(rand(L.dim), digits = maxdigits))
+        domain = unique([
+            L.A * [myrand(rand(1:10^maxdigits)) for _ = 1:L.dim]
             for _ = 1:rand(1:MaxNumElements)
-        ]
+        ])
     end
     if codomain_eq_Acodomain
         codomain = C.Codomain
     elseif codomain_eq_Adomain
         codomain = C.Domain
     else
-        codomain = [
-            L.dA * unique(round.(rand(L.dim), digits = maxdigits))
+        codomain = unique([
+            L.A * [myrand(rand(1:10^maxdigits)) for _ = 1:L.dim]
             for _ = 1:rand(1:MaxNumElements)
-        ]
+        ])
     end
 
     C = alfa.Crystal(L, domain, codomain)

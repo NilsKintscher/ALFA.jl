@@ -93,7 +93,7 @@ function eigvals(
     k::T;
     by = abs,
 ) where {T<:Union{AbstractVector,Tuple}}
-    symb = symbol(S, k)
+    symb = ComplexF64.(symbol(S, k))
     ev = LinearAlgebra.eigvals(symb)
     if by == nothing
         return ev
@@ -138,7 +138,7 @@ end
 
 function eigen(S::CrystalOperator, k; by = abs)
     symb = symbol(S, k)
-    ev = LinearAlgebra.eigen(symb)
+    ev = LinearAlgebra.eigen(ComplexF64.(symb))
     p = sortperm(ev.values, by = by)
     return LinearAlgebra.Eigen(ev.values[p], ev.vectors[:, p])
 end
@@ -248,13 +248,13 @@ function wrtLattice(S::CrystalOperator, A) ### A::Matrix
 
     SS = SortedSet{Array{Int,1}}()
     for j in Iterators.product(y_old, tiMinustj_all)
-        y = A \ (S.C.L.A * (j[1] .+ j[2]))
-        map!(
-            x -> isapprox(x, round(x), rtol = alfa_rtol, atol = alfa_atol) ?
-                round(x) : floor(x),
-            y,
-            y,
-        )
+        y = floor.(inv(A)* (S.C.L.A * (j[1] .+ j[2])))
+        # map!(
+        #     x -> isapprox(x, round(x), rtol = alfa_rtol, atol = alfa_atol) ?
+        #         round(x) : floor(x),
+        #     y,
+        #     y,
+        # )
         push!(SS, y)
     end
     y_new = collect(SS) #vcat(transpose(collect(SS))...)

@@ -187,7 +187,7 @@ end
                             B(t) for t in range(0, stop = 1, step = 0.01)
                         ]'...)
 
-                        vv = MArray(vv)
+                        vv = Array(vv)
                         @series begin
                             #arrow := true
                             linewidth := 2

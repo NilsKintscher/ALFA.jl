@@ -1,7 +1,7 @@
-mutable struct Multiplier{N} #<: AbstractArray{Int,1}
+mutable struct Multiplier{N} #<: AbstractArray{BigInt,1}
     pos::MVector{N}
     mat::Matrix
-    function Multiplier{N}(pos::MVector{N,Int}, mat::Matrix{T}) where {N,T<:Number}
+    function Multiplier{N}(pos::MVector{N,BigInt}, mat::Matrix{T}) where {N,T<:Number}
         new{N}(pos, mat)
     end
 end
@@ -15,9 +15,9 @@ end
 
 function Multiplier(pos = nothing, mat = nothing)
     if pos == nothing
-        pos = MVector{1,Int}(0)
+        pos = MVector{1,BigInt}(0)
     # elseif pos isa Matrix || pos isa Vector
-    #     pos = SVector{length(pos),Int}(pos)
+    #     pos = SVector{length(pos),BigInt}(pos)
     end
     N = length(pos)
     if mat == nothing
@@ -26,7 +26,7 @@ function Multiplier(pos = nothing, mat = nothing)
         mat = reshape(mat, length(mat), 1)
     end
 
-    return Multiplier{N}(convert(MVector{N,Int}, pos), convert(Matrix, mat))
+    return Multiplier{N}(convert(MVector{N,BigInt}, pos), convert(Matrix, mat))
 end
 
 function Base.getproperty(m::Multiplier, sym::Symbol)

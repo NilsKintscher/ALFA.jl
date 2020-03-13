@@ -1,12 +1,12 @@
 struct Crystal{N}
     L::Lattice{N}
-    Domain::Vector{SVector{N,Float64}}   #Matrix # m × dim
-    Codomain::Vector{SVector{N,Float64}} # m × dim
+    Domain::Vector{SVector{N,Rational{BigInt}}}   #Matrix # m × dim
+    Codomain::Vector{SVector{N,Rational{BigInt}}} # m × dim
     _IsNormalized::Bool
     function Crystal{N}(
         L::Lattice{N},
-        Domain::Vector{SVector{N,Float64}},
-        Codomain::Vector{SVector{N,Float64}},
+        Domain::Vector{SVector{N,Rational{BigInt}}},
+        Codomain::Vector{SVector{N,Rational{BigInt}}},
         _IsNormalized::Bool
     ) where {N}#
         new{N}(L, Domain, Codomain, _IsNormalized)
@@ -20,36 +20,36 @@ function Crystal(L = nothing, Domain = nothing, Codomain = nothing)
         L = Lattice(L)
     end
 
-    N = typeof(L).parameters[1] # dimension
+    N = L.dim# typeof(L).parameters[1] # dimension
 
     if Domain == nothing # put a point at the origin.
-        Domain = [zeros(SVector{N,Float64})]
+        Domain = [zeros(SVector{N,Rational{BigInt}})]
     elseif typeof(Domain) <: Vector{Vector{T}} where {T<:Real} ||
            Domain isa Vector{Matrix{T}} where {T<:Real} #  turn Vector of Vector into Vector of SVector
-        Domain = [SVector{N,Float64}(x) for x in Domain]
+        Domain = [SVector{N,Rational{BigInt}}(x) for x in Domain]
     elseif Domain isa Vector{<:Number} # turn vector into vector of SVector.
         if N == 1
-            Domain = [SVector{N,Float64}(x) for x in Domain]
+            Domain = [SVector{N,Rational{BigInt}}(x) for x in Domain]
         else
-            Domain = [SVector{N,Float64}(Domain)]
+            Domain = [SVector{N,Rational{BigInt}}(Domain)]
         end
     elseif Domain isa Matrix{<:Number} # turn a matrix rowwise into a vector of SVector.
-        Domain = [SVector{N,Float64}(x) for x in eachrow(Domain)]
+        Domain = [SVector{N,Rational{BigInt}}(x) for x in eachrow(Domain)]
     end
 
     if Codomain == nothing # put a point at the origin.
         Codomain = Domain
     elseif typeof(Codomain) <: Vector{Vector{T}} where {T<:Real} ||
            Codomain isa Vector{Matrix{T}} where {T<:Real}# turn Vector into Matrix with 1 Column
-        Codomain = [SVector{N,Float64}(x) for x in Codomain]
+        Codomain = [SVector{N,Rational{BigInt}}(x) for x in Codomain]
     elseif Codomain isa Vector{<:Number} # turn vector into vector of SVector.
         if N == 1
-            Codomain = [SVector{N,Float64}(x) for x in Codomain]
+            Codomain = [SVector{N,Rational{BigInt}}(x) for x in Codomain]
         else
-            Codomain = [SVector{N,Float64}(Codomain)]
+            Codomain = [SVector{N,Rational{BigInt}}(Codomain)]
         end
     elseif Codomain isa Matrix{<:Number} # turn a matrix rowwise into a vector of SVector.
-        Codomain = [SVector{N,Float64}(x) for x in eachrow(Codomain)]
+        Codomain = [SVector{N,Rational{BigInt}}(x) for x in eachrow(Codomain)]
     end
 
     _IsNormalized = CheckIfNormal(Domain, L) && CheckIfNormal(Codomain, L)

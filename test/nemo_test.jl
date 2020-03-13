@@ -10,8 +10,8 @@ using StaticArrays
     #convert tests
     @test convert(Nemo.fmpz_mat, A) == AZZ
     @test convert(Nemo.fmpz_mat, Astatic) == AZZ
-    @test convert(Matrix{Int}, AZZ) == A
-    @test convert(MMatrix{size(AZZ)...,Int}, AZZ) == Astatic
+    @test convert(Matrix{BigInt}, AZZ) == A
+    @test convert(MMatrix{size(AZZ)...,BigInt}, AZZ) == Astatic
     #functions test
     H = [1 0 0; 0 2 0; 21406 33146 70274]
     Hstatic = @MMatrix [1 0 0; 0 2 0; 21406 33146 70274]
