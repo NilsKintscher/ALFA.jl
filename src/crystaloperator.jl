@@ -1,37 +1,37 @@
-mutable struct CrystalOperator
-    C::Crystal ## dimension L.dim dictates size of Multiplier.pos and dim of structure elements.
+mutable struct CrystalOperator{N,T}
+    C::Crystal{N,T} ## dimension L.dim dictates size of Multiplier.pos and dim of structure elements.
     M::SortedSet{Multiplier}# Array{Multiplier,1}
     _CompatibilityCheckOnly::Bool
-    function CrystalOperator(
-        C::Crystal,
+    function CrystalOperator{N,T}(
+        C::Crystal{N,T},
         M::SortedSet{Multiplier},
         _CompatibilityCheckOnly::Bool,
-    )
+    ) where {N,T<:Union{Float64, Rational}}
         _sanitycheck(C, M)
-        new(C, M, _CompatibilityCheckOnly)
+        new{N,T}(C, M, _CompatibilityCheckOnly)
     end
 end
 
-function CrystalOperator(C::Crystal, J::UniformScaling, _CompatibilityCheckOnly = false)
+function CrystalOperator(C::Crystal{N,T}, J::UniformScaling, _CompatibilityCheckOnly = false) where {N,T}
     M = SortedSet{Multiplier}()
     pos = zeros(C.dim)
     mat = Matrix(J, C.size_codomain, C.size_domain)
     push!(M, Multiplier(pos, mat))
-    return CrystalOperator(C, M, _CompatibilityCheckOnly)
+    return CrystalOperator{T}(C, M, _CompatibilityCheckOnly)
 end
 
-function CrystalOperator(
+function CrystalOperator{N,T}(
     C = nothing,
     M = nothing,
     _CompatibilityCheckOnly = false,
-)
+) where {N,T<:Union{Float64, Rational}}
     if C == nothing
-        C = Crystal()
+        C = Crystal{N,T}()
     end
     if M == nothing
         M = SortedSet{Multiplier}()
     end
-    return CrystalOperator(C, M, _CompatibilityCheckOnly)
+    return CrystalOperator{N,T}(C, M, _CompatibilityCheckOnly)
 end
 
 function _sanitycheck(C::Crystal, m::Multiplier) # check dimensionality and size:
@@ -156,7 +156,7 @@ function compute_spectrum(S::CrystalOperator; N = 20, by = abs)
     df = DataFrame(k = kv, dAk = dAkv, Λ = Λ)
 end
 
-function normalize(S::CrystalOperator)
+function normalize(S::CrystalOperator{N,T}) where {N,T}
     if S.C._IsNormalized
         return S
     end
@@ -179,8 +179,8 @@ function normalize(S::CrystalOperator)
         end
     end
 
-    Cnew = Crystal(S.C.L.A, dn, cn)
-    op = CrystalOperator(Cnew)
+    Cnew = Crystal{N,T}(S.C.L.A, dn, cn)
+    op = CrystalOperator{N,T}(Cnew)
     #
     for (y_new, idxset) in SS0
         mat = nothing  # allocate new matrix.
@@ -209,7 +209,7 @@ function CleanUp!(S::CrystalOperator)
     end
 end
 
-function wrtLattice(S::CrystalOperator, A) ### A::Matrix
+function wrtLattice(S::CrystalOperator{N,T}, A) where {N,T}### A::Matrix
     if A isa Lattice
         A = A.A
     end
@@ -269,8 +269,8 @@ function wrtLattice(S::CrystalOperator, A) ### A::Matrix
     brs = S.C.size_codomain #block row size
     bcs = S.C.size_domain #block column size
 
-    Cnew = Crystal(A, newDomain, newCodomain)
-    op = CrystalOperator(Cnew)
+    Cnew = Crystal{N,T}(A, newDomain, newCodomain)
+    op = CrystalOperator{N,T}(Cnew)
     for (it_y, y) in enumerate(Ay_new) # eachslice(Ay_new, dims = 1))
         #println("y_new: ",y)
         mm = nothing
@@ -342,12 +342,12 @@ end
 function Base.:*(b::T, A::CrystalOperator) where {T<:Number}
     return A * b
 end
-function Base.:*(A::CrystalOperator, b::T) where {T<:Number}
+function Base.:*(A::CrystalOperator{N,T}, b::S) where {N,T,S<:Number}
     if A._CompatibilityCheckOnly
-        AB = CrystalOperator(A.C, nothing, true)
+        AB = CrystalOperator{N,T}(A.C, nothing, true)
         return AB
     else
-        AB = CrystalOperator(A.C)
+        AB = CrystalOperator{N,T}(A.C)
         for am in A.M
             amnew = deepcopy(am)
             amnew.mat *= b
@@ -358,7 +358,7 @@ function Base.:*(A::CrystalOperator, b::T) where {T<:Number}
     end
 end
 
-function Base.:*(A::CrystalOperator, B::CrystalOperator)
+function Base.:*(A::CrystalOperator{N,T}, B::CrystalOperator{N,T}) where {N,T}
     if A._CompatibilityCheckOnly || B._CompatibilityCheckOnly
         @assert A.C.L.A == B.C.L.A && isapprox(
             A.C.Domain,
@@ -366,8 +366,8 @@ function Base.:*(A::CrystalOperator, B::CrystalOperator)
             rtol = alfa_rtol,
             atol = alfa_atol,
         )
-        ABc = Crystal(A.C.L, B.C.Domain, A.C.Codomain)
-        AB = CrystalOperator(ABc, nothing, true)
+        ABc = Crystal{N,T}(A.C.L, B.C.Domain, A.C.Codomain)
+        AB = CrystalOperator{N,T}(ABc, nothing, true)
         return AB
     else
         A, B = wrtSameLatticeAndNormalize(A, B)
@@ -378,8 +378,8 @@ function Base.:*(A::CrystalOperator, B::CrystalOperator)
             atol = alfa_atol,
         )
 
-        ABc = Crystal(A.C.L, B.C.Domain, A.C.Codomain)
-        AB = CrystalOperator(ABc)
+        ABc = Crystal{N,T}(A.C.L, B.C.Domain, A.C.Codomain)
+        AB = CrystalOperator{N,T}(ABc)
 
         for am in A.M
             for bm in B.M
@@ -412,7 +412,7 @@ function Base.:-(A::CrystalOperator, B::CrystalOperator)
     return A + (-B)
 end
 
-function Base.:+(A::CrystalOperator, B::CrystalOperator)
+function Base.:+(A::CrystalOperator{N,T}, B::CrystalOperator{N,T}) where {N,T}
     if A._CompatibilityCheckOnly || B._CompatibilityCheckOnly
         @assert A.C.L.A == B.C.L.A && isapprox(
             A.C.Domain,
@@ -425,7 +425,7 @@ function Base.:+(A::CrystalOperator, B::CrystalOperator)
             rtol = alfa_rtol,
             atol = alfa_atol,
         )
-        AB = CrystalOperator(A.C, nothing, true)
+        AB = CrystalOperator{N,T}(A.C, nothing, true)
         return AB
     else
         A, B = wrtSameLatticeAndNormalize(A, B)
@@ -454,16 +454,16 @@ function Base.:+(A::CrystalOperator, B::CrystalOperator)
 end
 
 
-function Base.transpose(A::CrystalOperator)
+function Base.transpose(A::CrystalOperator{N,T}) where {N,T}
     if A._CompatibilityCheckOnly
-        tA = CrystalOperator(
+        tA = CrystalOperator{N,T}(
             Crystal(A.C.L, A.C.Codomain, A.C.Domain),
             nothing,
             true,
         )
         return tA
     else
-        tA = CrystalOperator(Crystal(A.C.L, A.C.Codomain, A.C.Domain))
+        tA = CrystalOperator{N,T}(Crystal(A.C.L, A.C.Codomain, A.C.Domain))
 
         for ma in A.M
             m = Multiplier(-ma.pos, transpose(ma.mat))
@@ -473,16 +473,16 @@ function Base.transpose(A::CrystalOperator)
     return tA
 end
 
-function Base.adjoint(A::CrystalOperator)
+function Base.adjoint(A::CrystalOperator{N,T}) where {N,T}
     if A._CompatibilityCheckOnly
-        tA = CrystalOperator(
+        tA = CrystalOperator{N,T}(
             Crystal(A.C.L, A.C.Codomain, A.C.Domain),
             nothing,
             true,
         )
         return tA
     else
-        tA = CrystalOperator(Crystal(A.C.L, A.C.Codomain, A.C.Domain))
+        tA = CrystalOperator{N,T}(Crystal(A.C.L, A.C.Codomain, A.C.Domain))
 
         for ma in A.M
             m = Multiplier(-ma.pos, adjoint(ma.mat))

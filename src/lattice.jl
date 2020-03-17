@@ -1,31 +1,27 @@
 
 
-struct Lattice{N}
-    A::MMatrix{N,N,Rational{BigInt}}
-    function Lattice{N}(A::MMatrix{N,N,Rational{BigInt}}) where {N}
+struct Lattice{N,T}
+    A::MMatrix{N,N,T}
+    function Lattice{N,T}(A::MMatrix{N,N,T}) where {N,T<:Union{Float64,Rational}}
         @assert !isapprox(det(A), 0) "Basis must be nonsingular"
-        new{N}(A)
+        new{N,T}(A)
     end
 end
 
-function Lattice{N}(mat = nothing) where {N}
-    return Lattice(mat)
-end
-
-function Lattice(mat = nothing)
+function Lattice{N,T}(mat = nothing) where {N,T<:Union{Float64, Rational}}
     if mat == nothing
-        mat = MMatrix{2,2,Rational{BigInt}}(I) # identity matrix.
+        mat = MMatrix{N,N,T}(I) # identity matrix.
     elseif mat isa Matrix
         @assert size(mat, 1) == size(mat, 2) "Matrix must be square."
-        mat = MMatrix{size(mat)...,Rational{BigInt}}(mat)
+        mat = MMatrix{N,N,T}(mat)
     elseif mat isa Real
-        mat = MMatrix{1,1,Rational{BigInt}}(mat)
+        mat = MMatrix{N,N,T}(mat)
     elseif mat isa Vector
-        mat = MMatrix{1,1,Rational{BigInt}}(mat...)
+        mat = MMatrix{N,N,T}(mat...)
     else
-        mat = convert(MMatrix{size(mat)...,Rational{BigInt}}, mat)
+        mat = convert(MMatrix{N,N,T}, mat)
     end
-    Lattice{size(mat, 1)}(mat)
+    Lattice{N,T}(mat)
 end
 
 Base.size(L::Lattice) = size(L.A)
@@ -49,67 +45,68 @@ end
 
 Returns the least common multiple of A and B, i.e. a sub-lattice C (C ⊂ A and C ⊂ B) with |det(C)| as small as possible.
 """
-function Base.lcm(A, B) # TODO: ??? Change r to det(A) and test it with graphene lattice basis.
+
+
+function Base.lcm(A, B)
+    M0 = inv(A) * B
+    for r in range(1, stop = 50)
+        rM = r * M0
+        rMr = round.(rM)
+        if isapprox(rM, rMr, rtol = alfa_rtol, atol = alfa_atol)
+            # compute SNF
+            S, U, V = snf_with_transform(rMr)
+            N = diagm(r ./ gcd.(diag(S), r))
+            C = B * alfa.lll(V * N)
+            return convert(typeof(A), C)
+            break
+        end
+    end
+end
+function Base.lcm(A::MArray{X,T}, B::MArray{X,T}) where {X,T<:Rational}
     M0 = inv(A) * B
     r = lcm(denominator.(M0))
-    rM = r*M0
+    rM = r * M0
     S, U, V = snf_with_transform(rM)
     N = diagm(r ./ gcd.(diag(S), r))
     C = B * alfa.lll(V * N)
-    return C
-    # for r in range(1, stop = rmax)
-    #     rM = r * M0
-    #     rMr = round.(rM)
-    #     if isapprox(rM, rMr, rtol = alfa_rtol, atol = alfa_atol)
-    #         @show rMr
-    #         # compute SNF
-    #         S, U, V = snf_with_transform(rMr)
-    #         N = diagm(r ./ gcd.(diag(S), r))
-    #         # @show V
-    #         # @show N
-    #         # VN = V*N
-    #         # @show V*N
-    #         # lllVN = alfa.lll(VN)
-    #         # @show lllVN
-    #         C = B * alfa.lll(V * N)
-    #         # @show C
-    #         # return alfa.lll(C)
-    #         return C
-    #         break
-    #     end
-    # end
+    return convert(typeof(A), C)
 end
 
-function Base.lcm(A::Lattice, B::Lattice, rmax = 1e+10)
-    return Lattice(lcm(A.A, B.A))
+function Base.lcm(A::Lattice{N,T}, B::Lattice{N,T}) where {N,T}
+    C = lcm(A.A, B.A)
+    return Lattice{N,T}(C)
 end
 
 
 
 function ElementsInQuotientSpace(
-    A,
-    B;
+    A::Union{Matrix{T},MMatrix{N,N,T}},
+    B::Union{Matrix{T},MMatrix{N,N,T}};
     return_diag_hnf::Bool = false,
     return_fractional::Bool = false,
-) where {T}
+) where {N,T}
 
-    M = inv(A)*B
+    M = inv(A) * B
     Mr = round.(M)
     @assert isapprox(M, Mr, rtol = alfa_rtol, atol = alfa_atol) "A must be a sublattice of B, i.e. A\\B must be integral."
-    H = hnf(Mr)
+    H = convert(Matrix{Int}, hnf(Mr))
     dH = diag(H)
     m = prod(dH)
     J = Iterators.product([0:x-1 for x in dH]...)
 
     if return_fractional
         #s = Matrix{Int}(undef, length(J), length(dH))
-        s = [SVector{length(dH),Int}(x) for x in J]
+        if T == BigInt
+            s = [SVector{length(dH),BigInt}(x) for x in J]
+        else
+            s = [SVector{length(dH),Int}(x) for x in J]
+        end
         # for (i,x) in enumerate(J)
         #     s[i,:] .= x
         # end
     else
         #
-        s = [SVector{length(dH)}(A * [x...]) for x in J]
+        s = [SVector{length(dH),T}(A * [x...]) for x in J]
         # s = Matrix(undef, length(J), length(dH))
         # for (i,x) in enumerate(J)
         #     s[i,:] .= A*[x...]
@@ -122,10 +119,10 @@ function ElementsInQuotientSpace(
     end
 end
 
-function ShiftIntoUnitCell(s, A) # s vector of SVector
+function ShiftIntoUnitCell(s, A::Union{Matrix{T}, MMatrix{N,N,T}}) where {N,T} # s vector of SVector
     # shift s into the unit cell and sort lexicographically.
     # Thus: A\snew[i] ∈ [0,1)
-    y = [inv(A)* x for x in s]
+    y = [inv(A) * x for x in s]
     #@show y
     # for yy in y
     #     map!(
@@ -150,8 +147,8 @@ function ShiftIntoUnitCell(s, A) # s vector of SVector
 end
 
 function CheckIfNormal(s, A)
-    (n,s,p) = ShiftIntoUnitCell(s,A)
-    if s == 0*s && p == sort(p)
+    (n, s, p) = ShiftIntoUnitCell(s, A)
+    if s == 0 * s && p == sort(p)
         return true
     end
     return false
@@ -164,10 +161,10 @@ end
 
 
 function Base.:(==)(A::Lattice, B::Lattice)
-     return A.A == B.A
+    return A.A == B.A
 end
 
 
 function Base.:(≈)(A::Lattice, B::Lattice)
-     return A.A ≈ B.A
+    return A.A ≈ B.A
 end

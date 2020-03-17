@@ -3,35 +3,52 @@ module gallery
 using ..alfa
 using LinearAlgebra
 
-function Laplace2D()
-    A = [1 0; 0 1]
-    Domain = [0 0]
-    Codomain = [0 0]
+function Laplace(N = 2, T = Float64)
+    if N == 1
+        A = [1]
+        Domain = [0]
+        Codomain = [0]
 
-    C = alfa.Crystal(A, Domain, Codomain)
-    L = alfa.CrystalOperator(C)
+        C = alfa.Crystal{N,T}(A, Domain, Codomain)
+        L = alfa.CrystalOperator{N,T}(C)
 
-    push!(L, alfa.Multiplier([0 0], [-4]))
-    push!(L, alfa.Multiplier([0 -1], [1]))
-    push!(L, alfa.Multiplier([0 1], [1]))
-    push!(L, alfa.Multiplier([1 0], [1]))
-    push!(L, alfa.Multiplier([-1 0], [1]))
-    return L
+        push!(L, alfa.Multiplier([0], [-2]))
+        push!(L, alfa.Multiplier([-1], [1]))
+        push!(L, alfa.Multiplier([1], [1]))
+        return L
+
+    elseif N == 2
+        A = [1 0; 0 1]
+        Domain = [0 0]
+        Codomain = [0 0]
+
+        C = alfa.Crystal{N,T}(A, Domain, Codomain)
+        L = alfa.CrystalOperator{N,T}(C)
+
+        push!(L, alfa.Multiplier([0 0], [-4]))
+        push!(L, alfa.Multiplier([0 -1], [1]))
+        push!(L, alfa.Multiplier([0 1], [1]))
+        push!(L, alfa.Multiplier([1 0], [1]))
+        push!(L, alfa.Multiplier([-1 0], [1]))
+        return L
+    end
 end
 
-function fw_restriction2D()
-    A = 2 * [1 0; 0 1]
-    Domain = [[0, 0], [0, 1], [1, 0], [1, 1]]
-    Codomain = [0, 0]
+function fw_restriction(N = 2, T = Float64)
+    if N == 2
+        A = 2 * [1 0; 0 1]
+        Domain = [[0, 0], [0, 1], [1, 0], [1, 1]]
+        Codomain = [0, 0]
 
-    C = alfa.Crystal(A, Domain, Codomain)
-    L = alfa.CrystalOperator(C)
+        C = alfa.Crystal{2,T}(A, Domain, Codomain)
+        L = alfa.CrystalOperator{2,T}(C)
 
-    push!(L, alfa.Multiplier([0 0], [1 1 // 2 1 // 2 1 // 4]))
-    push!(L, alfa.Multiplier([-1 0], [0 0 1 // 2 1 // 4]))
-    push!(L, alfa.Multiplier([0 -1], [0 1 // 2 0 1 // 4]))
-    push!(L, alfa.Multiplier([-1 -1], [0 0 0 1 // 4]))
-    return L
+        push!(L, alfa.Multiplier([0 0], [1 1 // 2 1 // 2 1 // 4]))
+        push!(L, alfa.Multiplier([-1 0], [0 0 1 // 2 1 // 4]))
+        push!(L, alfa.Multiplier([0 -1], [0 1 // 2 0 1 // 4]))
+        push!(L, alfa.Multiplier([-1 -1], [0 0 0 1 // 4]))
+        return L
+    end
 end
 
 function graphene_tight_binding(t = nothing)
@@ -121,58 +138,78 @@ end
 
 
 function Base.rand(
-    ::Type{alfa.CrystalOperator};
-    single_domain = false
-)
+    ::Type{alfa.CrystalOperator{N,T}};
+    single_domain = false,
+) where {N,T}
     maxdigits = 2
 
-    MaxDim = 4 #4
     MaxNumElements = 2 #10
     MaxNumMultipliers = 4#10
     MaxPos = 4# 10
 
-    dim = rand(1:MaxDim)
-
-    if dim == 2
+    if N == 2
         mytol = 0.2
-    elseif dim == 3
+    elseif N == 3
         mytol = 0.13
     else
         mytol = 0.1
     end
 
-    num = rand(1:10^maxdigits, dim, dim)
-    den = rand(1:10^maxdigits, dim, dim)
-    A = [BigInt(x) // BigInt(y) for (x, y) in zip(num, den)]
-    while abs(det(A)) < mytol
-        num = rand(1:10^maxdigits, dim, dim)
-        den = rand(1:10^maxdigits, dim, dim)
-        A = [BigInt(x) // BigInt(y) for (x, y) in zip(num, den)]
+    num = rand(1:10^maxdigits, N, N)
+    den = rand(1:10^maxdigits, N, N)
+    if T <: Rational
+        X = T.parameters[1]
+        A = [X(x) // X(y) for (x, y) in zip(num, den)]
+        while abs(det(A)) < mytol
+            num = rand(1:10^maxdigits, N, N)
+            den = rand(1:10^maxdigits, N, N)
+            A = [X(x) // X(y) for (x, y) in zip(num, den)]
+        end
+    else
+        A = T.(round.(rand(N, N), digits = maxdigits))
+        while abs(det(A)) < mytol
+            A = T.(round.(rand(N, N), digits = maxdigits))
+        end
     end
 
 
-    L = alfa.Lattice(A)
-    denom = [[rand(1:10^maxdigits) for _ = 1:dim] for _ = 1:rand(1:MaxNumElements)]
-    myrand(x) = rand(1:x) // x
-    domain = unique([
-        L.A * [myrand(rand(1:10^maxdigits)) for _ = 1:dim] for _ = 1:rand(1:MaxNumElements)
-    ])
-    if single_domain
-        codomain = domain
+    L = alfa.Lattice{N,T}(A)
+    if T <: Rational
+        denom = [
+            [rand(1:10^maxdigits) for _ = 1:N] for _ = 1:rand(1:MaxNumElements)
+        ]
+        myrand(x) = rand(1:x) // x
+        domain = unique([
+            L.A * [myrand(rand(1:10^maxdigits)) for _ = 1:N] for _ = 1:rand(1:MaxNumElements)
+        ])
     else
-        codomain = unique([
-            L.A * [myrand(rand(1:10^maxdigits)) for _ = 1:dim]
+        domain = unique([
+            L.A * round.(rand(N), digits = maxdigits)
             for _ = 1:rand(1:MaxNumElements)
         ])
     end
-    C = alfa.Crystal(L, domain, codomain)
-    S = alfa.CrystalOperator(C)
+    if single_domain
+        codomain = domain
+    else
+        if T <: Rational
+            codomain = unique([
+                L.A * [myrand(rand(1:10^maxdigits)) for _ = 1:N] for _ = 1:rand(1:MaxNumElements)
+            ])
+        else
+            codomain = unique([
+                L.A * round.(rand(N), digits = maxdigits)
+                for _ = 1:rand(1:MaxNumElements)
+            ])
+        end
+    end
+    C = alfa.Crystal{N,T}(L, domain, codomain)
+    S = alfa.CrystalOperator{N,T}(C)
 
     M = rand(1:MaxNumMultipliers)
 
 
     for m in M
-        pos = rand(-MaxPos:MaxPos, dim)
+        pos = rand(-MaxPos:MaxPos, N)
         m =
             round.(
                 rand(ComplexF64, C.size_codomain, C.size_domain),
@@ -185,27 +222,26 @@ function Base.rand(
 end
 
 function Base.rand(
-    A::alfa.CrystalOperator;
+    A::alfa.CrystalOperator{N,T};
     domain_eq_Adomain = false,
     domain_eq_Acodomain = false,
     codomain_eq_Adomain = false,
     codomain_eq_Acodomain = false,
     maxdigits = 2,
-)
+) where {N,T}
 
     MaxLatticeSize = 2
-
     MaxNumElements = 2 #10
     MaxNumMultipliers = 4 #10
     MaxPos = 4# 10
 
-    B = alfa.lll(rand(-MaxLatticeSize:MaxLatticeSize, A.C.dim, A.C.dim))
+    B = alfa.lll(rand(-MaxLatticeSize:MaxLatticeSize, N, N))
     while abs(det(B)) > 8 || abs(det(B)) < 1
-        B = alfa.lll(rand(-MaxLatticeSize:MaxLatticeSize, A.C.dim, A.C.dim))
+        B = alfa.lll(rand(-MaxLatticeSize:MaxLatticeSize, N, N))
     end
     B = A.C.L.A * B # make it a sublattice of A
 
-    L = alfa.Lattice(B)
+    L = alfa.Lattice{N,T}(B)
     if domain_eq_Adomain ||
        domain_eq_Acodomain || codomain_eq_Acodomain || codomain_eq_Adomain
         C = alfa.wrtLattice(A.C, L)
@@ -218,24 +254,37 @@ function Base.rand(
     elseif domain_eq_Acodomain
         domain = C.Codomain
     else
-        domain = unique([
-            L.A * [myrand(rand(1:10^maxdigits)) for _ = 1:L.dim]
-            for _ = 1:rand(1:MaxNumElements)
-        ])
+
+        if T <: Rational
+            domain = unique([
+                L.A * [myrand(rand(1:10^maxdigits)) for _ = 1:L.dim] for _ = 1:rand(1:MaxNumElements)
+            ])
+        else
+            domain = unique([
+                L.A * round.(rand(N), digits = maxdigits)
+                for _ = 1:rand(1:MaxNumElements)
+            ])
+        end
     end
     if codomain_eq_Acodomain
         codomain = C.Codomain
     elseif codomain_eq_Adomain
         codomain = C.Domain
     else
-        codomain = unique([
-            L.A * [myrand(rand(1:10^maxdigits)) for _ = 1:L.dim]
-            for _ = 1:rand(1:MaxNumElements)
-        ])
+        if T <: Rational
+            codomain = unique([
+                L.A * [myrand(rand(1:10^maxdigits)) for _ = 1:L.dim] for _ = 1:rand(1:MaxNumElements)
+            ])
+        else
+            codomain = [
+                L.A * unique(round.(rand(N), digits = maxdigits))
+                for _ = 1:rand(1:MaxNumElements)
+            ]
+        end
     end
 
-    C = alfa.Crystal(L, domain, codomain)
-    S = alfa.CrystalOperator(C)
+    C = alfa.Crystal{N,T}(L, domain, codomain)
+    S = alfa.CrystalOperator{N,T}(C)
 
     M = rand(1:MaxNumMultipliers)
 

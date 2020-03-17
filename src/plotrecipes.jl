@@ -237,8 +237,9 @@ end
 @userplot SurfaceSpectrum
 
 @recipe function f(h::SurfaceSpectrum)
+
     if length(h.args) == 1 || length(h.args) == 2
-        if typeof(h.args[1]) == CrystalOperator
+        if h.args[1] isa CrystalOperator
             if length(h.args) == 2
                 N = h.args[2]
             else
@@ -247,6 +248,7 @@ end
             S = h.args[1]
         end
     end
+
     x = y = range(0, stop = 1, length = N + 1)[1:end-1]
     #x = range(0, stop=1, length=N+1)[1:end-1]
     f(x, y) = abs(alfa.eigvals(S, S.C.L.dA*[x, y])[end])
@@ -272,7 +274,7 @@ end
 
 @recipe function f(h::SurfaceNorm)
     if length(h.args) == 1 || length(h.args) == 2
-        if typeof(h.args[1]) == CrystalOperator
+        if h.args[1] isa CrystalOperator
             if length(h.args) == 2
                 N = h.args[2]
             else
