@@ -208,7 +208,7 @@ function Base.rand(
     M = rand(1:MaxNumMultipliers)
 
 
-    for m in M
+    for m in 1:M
         pos = rand(-MaxPos:MaxPos, N)
         m =
             round.(
@@ -289,7 +289,7 @@ function Base.rand(
     M = rand(1:MaxNumMultipliers)
 
 
-    for m in M
+    for m in 1:M
         pos = rand(-MaxPos:MaxPos, A.C.dim)
         m =
             round.(
