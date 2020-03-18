@@ -18,10 +18,7 @@ using DataFrames
 # eq(::ComplexOrdering, a, b) = a == b
 
 
-const alfa_rtol = 1e-4
-const alfa_atol = 1e-7
-
-
+include("utils.jl")
 include("nemo_wrapper.jl")
 include("lattice.jl")
 include("crystal.jl")

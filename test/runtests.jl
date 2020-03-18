@@ -32,3 +32,8 @@ end
 @safetestset "PlotRecipes" begin
     include("plotrecipes_test.jl")
 end
+
+
+@safetestset "OperatorCompositionComputation" begin
+    include("crystaloperator_properties_test.jl")
+end

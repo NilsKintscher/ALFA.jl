@@ -119,7 +119,31 @@ function ElementsInQuotientSpace(
     end
 end
 
-function ShiftIntoUnitCell(s, A::Union{Matrix{T}, MMatrix{N,N,T}}) where {N,T} # s vector of SVector
+
+function ShiftIntoUnitCell(s, A::Union{Matrix{T}, MMatrix{N,N,T}}) where {N,T}
+    # shift s into the unit cell and sort lexicographically.
+    # Thus: A\snew[i] ∈ [0,1)
+    y = [MVector(A \ x) for x in s]
+    #@show y
+    for yy in y
+        map!(
+            x -> isapprox(x, round(x), rtol = alfa_rtol, atol = alfa_atol) ?
+                round(x) : floor(x),
+            yy,
+            yy,
+        ) # remove non-integral part ∈(0,1)
+    end
+    #y = [floor.(x) for x in y]
+    Ay = [A * x for x in y]
+    #transpose(A * transpose(y))
+    s = s - Ay
+    # sort lexicographically
+    p = sortperm(s, alg = Base.Sort.DEFAULT_STABLE, lt=islessapprox)
+    s = s[p]
+    y = y[p]
+    return s, y, p
+end
+function ShiftIntoUnitCell(s, A::Union{Matrix{T}, MMatrix{N,N,T}}) where {N,T<:Rational} # s vector of SVector
     # shift s into the unit cell and sort lexicographically.
     # Thus: A\snew[i] ∈ [0,1)
     y = [inv(A) * x for x in s]
@@ -140,7 +164,7 @@ function ShiftIntoUnitCell(s, A::Union{Matrix{T}, MMatrix{N,N,T}}) where {N,T} #
 
 
     # sort lexicographically
-    p = sortperm(s, alg = Base.Sort.DEFAULT_STABLE)
+    p = sortperm(s, alg = Base.Sort.DEFAULT_STABLE, lt=islessapprox)
     s = s[p]
     y = y[p]
     return s, y, p # We now have s in the primitive cell of A (A*[0,1)^dim) and s is lexicographically ordered

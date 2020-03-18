@@ -6,13 +6,17 @@ mutable struct CrystalOperator{N,T}
         C::Crystal{N,T},
         M::SortedSet{Multiplier},
         _CompatibilityCheckOnly::Bool,
-    ) where {N,T<:Union{Float64, Rational}}
+    ) where {N,T<:Union{Float64,Rational}}
         _sanitycheck(C, M)
         new{N,T}(C, M, _CompatibilityCheckOnly)
     end
 end
 
-function CrystalOperator(C::Crystal{N,T}, J::UniformScaling, _CompatibilityCheckOnly = false) where {N,T}
+function CrystalOperator(
+    C::Crystal{N,T},
+    J::UniformScaling,
+    _CompatibilityCheckOnly = false,
+) where {N,T}
     M = SortedSet{Multiplier}()
     pos = zeros(C.dim)
     mat = Matrix(J, C.size_codomain, C.size_domain)
@@ -24,7 +28,7 @@ function CrystalOperator{N,T}(
     C = nothing,
     M = nothing,
     _CompatibilityCheckOnly = false,
-) where {N,T<:Union{Float64, Rational}}
+) where {N,T<:Union{Float64,Rational}}
     if C == nothing
         C = Crystal{N,T}()
     end
@@ -209,7 +213,7 @@ function CleanUp!(S::CrystalOperator)
     end
 end
 
-function wrtLattice(S::CrystalOperator{N,T}, A) where {N,T}### A::Matrix
+function wrtLattice(S::CrystalOperator{N,T}, A) where {N,T} ### A::Matrix
     if A isa Lattice
         A = A.A
     end
@@ -219,7 +223,7 @@ function wrtLattice(S::CrystalOperator{N,T}, A) where {N,T}### A::Matrix
         return_fractional = true,
         return_diag_hnf = true,
     )
-    tiMinustj_all = collect(Iterators.product([-x+1:x-1 for x in dH]...)) # all possible combinations of t[i]-t[j]
+    tiMinustj_all = collect(Iterators.product([-x+1:x-1 for x in dH]...))# all possible combinations of t[i]-t[j]
 
     # helper functions for t and index calculation of t
     function RangeOfTi(tiMinustj)
@@ -247,23 +251,32 @@ function wrtLattice(S::CrystalOperator{N,T}, A) where {N,T}### A::Matrix
 
 
     SS = SortedSet{Array{Int,1}}()
-    for j in Iterators.product(y_old, tiMinustj_all)
-        y = floor.(inv(A)* (S.C.L.A * (j[1] .+ j[2])))
-        # map!(
-        #     x -> isapprox(x, round(x), rtol = alfa_rtol, atol = alfa_atol) ?
-        #         round(x) : floor(x),
-        #     y,
-        #     y,
-        # )
-        push!(SS, y)
+    if T <: Rational
+        for j in Iterators.product(y_old, tiMinustj_all)
+            y = floor.(inv(A) * (S.C.L.A * (j[1] .+ j[2])))
+            # map!(
+            #     x -> isapprox(x, round(x), rtol = alfa_rtol, atol = alfa_atol) ?
+            #         round(x) : floor(x),
+            #     y,
+            #     y,
+            # )
+            push!(SS, y)
+        end
+    else
+        for j in Iterators.product(y_old, tiMinustj_all)
+            y = A \ (S.C.L.A * (j[1] .+ j[2]))
+            map!(
+                x ->
+                    isapprox(x, round(x), rtol = alfa_rtol, atol = alfa_atol) ?
+                    round(x) : floor(x),
+                y,
+                y,
+            )
+            push!(SS, y)
+        end
     end
-    y_new = collect(SS) #vcat(transpose(collect(SS))...)
-    #println("y_new", y_new)
-    Ay_new = [A * x for x in y_new] #transpose(A * transpose(y_new)) # convert to cartesian coordinate of original lattice.
-    #Ay_new = y_new
-    # get coordinate of new lattice
-    #println("Ay_new: ", Ay_new)
-    #println("Ay_old:", Ay_old)
+    y_new = collect(SS)
+    Ay_new = [A * x for x in y_new]
     # assign multipliers.
 
     brs = S.C.size_codomain #block row size
@@ -271,24 +284,13 @@ function wrtLattice(S::CrystalOperator{N,T}, A) where {N,T}### A::Matrix
 
     Cnew = Crystal{N,T}(A, newDomain, newCodomain)
     op = CrystalOperator{N,T}(Cnew)
-    for (it_y, y) in enumerate(Ay_new) # eachslice(Ay_new, dims = 1))
-        #println("y_new: ",y)
+    for (it_y, y) in enumerate(Ay_new)
         mm = nothing
         for tiMinustj in tiMinustj_all
-            #for (tdiff, ss_ij) in SS0
-
-            #for (it_ti, ti) in enumerate(eachslice(t, dims = 1))
-            #for (it_tj, tj) in enumerate(eachslice(t, dims = 1))
-            #y_test = y - ti + tj
-            #y_test = y - tdiff
             y_test = y .- S.C.L.A * [tiMinustj...]
-            #println("y_test  $y_test , it (i,j) = ($it_ti, $it_tj)")
             for (it_yk, yk) in enumerate(Ay_old)
-                #print("yk $yk")
                 if isapprox(yk, y_test, rtol = alfa_rtol, atol = alfa_atol)
-                    #println("#####################TRUE : yk:   $yk")
                     matblock = m_old[it_yk].mat
-                    #println("matblock: $matblock")
                     if mm == nothing
                         mm = zeros(
                             eltype(first(S.M).mat),
@@ -296,7 +298,6 @@ function wrtLattice(S::CrystalOperator{N,T}, A) where {N,T}### A::Matrix
                             Cnew.size_domain,
                         ) # init new matrix.
                     end
-                    #for (it_ti, it_tj) in ss_ij
                     for (it_ti, it_tj) in [
                         lookup_idxij(x, tiMinustj)
                         for x in RangeOfTi(tiMinustj)
@@ -457,13 +458,13 @@ end
 function Base.transpose(A::CrystalOperator{N,T}) where {N,T}
     if A._CompatibilityCheckOnly
         tA = CrystalOperator{N,T}(
-            Crystal(A.C.L, A.C.Codomain, A.C.Domain),
+            Crystal{N,T}(A.C.L, A.C.Codomain, A.C.Domain),
             nothing,
             true,
         )
         return tA
     else
-        tA = CrystalOperator{N,T}(Crystal(A.C.L, A.C.Codomain, A.C.Domain))
+        tA = CrystalOperator{N,T}(Crystal{N,T}(A.C.L, A.C.Codomain, A.C.Domain))
 
         for ma in A.M
             m = Multiplier(-ma.pos, transpose(ma.mat))
@@ -476,13 +477,13 @@ end
 function Base.adjoint(A::CrystalOperator{N,T}) where {N,T}
     if A._CompatibilityCheckOnly
         tA = CrystalOperator{N,T}(
-            Crystal(A.C.L, A.C.Codomain, A.C.Domain),
+            Crystal{N,T}(A.C.L, A.C.Codomain, A.C.Domain),
             nothing,
             true,
         )
         return tA
     else
-        tA = CrystalOperator{N,T}(Crystal(A.C.L, A.C.Codomain, A.C.Domain))
+        tA = CrystalOperator{N,T}(Crystal{N,T}(A.C.L, A.C.Codomain, A.C.Domain))
 
         for ma in A.M
             m = Multiplier(-ma.pos, adjoint(ma.mat))
@@ -503,7 +504,7 @@ function Base.:^(A::CrystalOperator, p::Int)
 end
 
 function Base.:+(J::UniformScaling, A::CrystalOperator)
-    return A+J
+    return A + J
 end
 function Base.:+(A::CrystalOperator, J::UniformScaling)
     Ac = deepcopy(A)
@@ -524,7 +525,7 @@ end
 
 function Base.:(==)(A::CrystalOperator, B::CrystalOperator)
     if A.C == B.C && length(A.M) == length(B.M)
-        for (ma,mb) in zip(A.M, B.M)
+        for (ma, mb) in zip(A.M, B.M)
             if ma != mb
                 return false
             end
@@ -539,7 +540,7 @@ end
 
 function Base.:(≈)(A::CrystalOperator, B::CrystalOperator)
     if A.C ≈ B.C && length(A.M) == length(B.M)
-        for (ma,mb) in zip(A.M, B.M)
+        for (ma, mb) in zip(A.M, B.M)
             if !(ma ≈ mb)
                 return false
             end
