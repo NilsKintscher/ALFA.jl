@@ -3,7 +3,7 @@ using Test
 using StaticArrays
 
 @testset "crystal.jl" begin
-    for T in [Float64, Rational{Int}, Rational{BigInt}]
+    for T in [Float64, Rational{BigInt}]
         @test_throws Exception alfa.Crystal{T}([1 0; 0 1], [1 2 3])
         @test_throws Exception alfa.Crystal{T}([1 0; 0 1], [1 2], [1 2 3])
         @test_throws Exception alfa.Crystal{T}([1 0; 0 1], [1 2 + 1im])
