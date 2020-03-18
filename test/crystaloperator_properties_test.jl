@@ -173,7 +173,9 @@ end
 
 numtests = 20
 for N in [1,2,3]
+    println("N=$N")
     for T in [Float64,Rational{BigInt}]
+        println("T=$T")
         @testset "computation properties, crystaloperator (N,T) = ($N,$T)" begin
             @check AB numtests N T
             @check commProp numtests N T
