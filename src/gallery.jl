@@ -3,7 +3,7 @@ module gallery
 using ..alfa
 using LinearAlgebra
 
-function Laplace(N = 2, T = Float64)
+function Laplace(N = 2, h=1, T = Float64)
     if N == 1
         A = [1]
         Domain = [0]

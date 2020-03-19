@@ -132,25 +132,7 @@ function adjointProp(N, T)
         return false, "Failed with A: $A, B: $B"
     end
 end
-# macro check(func::Symbol, x...)
-#     quote
-#         #@show func
-#         local escf = $(esc(func))
-#         local xx = $(esc(x))
-#         numtests = xx[1]
-#         @show xx[2]
-#         @show xx[3]
-#         local res, case, cnt = testit(escf, xx...)
-#         if case === nothing
-#             case = "✓"
-#         end
-#         case = case === nothing ? "✓" : case
-#         println("$(nameof(escf)): $cnt / $numtests successful ; $case")
-#         @testset "$(nameof(escf)): $cnt / $numtests successful ; $case" begin
-#             @test cnt == numtests
-#         end
-#     end
-# end
+
 
 
 macro check(func::Symbol, numtests, N, T)

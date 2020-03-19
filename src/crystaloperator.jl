@@ -21,7 +21,7 @@ function CrystalOperator(
     pos = zeros(C.dim)
     mat = Matrix(J, C.size_codomain, C.size_domain)
     push!(M, Multiplier(pos, mat))
-    return CrystalOperator{T}(C, M, _CompatibilityCheckOnly)
+    return CrystalOperator{N,T}(C, M, _CompatibilityCheckOnly)
 end
 
 function CrystalOperator{N,T}(
@@ -340,6 +340,11 @@ function IsApproxEquivalent(A::CrystalOperator, B::CrystalOperator)
     return Anew ≈ Bnew
 end
 
+
+
+function Base.:/(A::CrystalOperator, b::T) where {T<:Number}
+    return A * (1/b)
+end
 function Base.:*(b::T, A::CrystalOperator) where {T<:Number}
     return A * b
 end
@@ -500,7 +505,8 @@ end
 
 function Base.:^(A::CrystalOperator, p::Int)
     @assert p > 0
-    return prod([A for _ = 1:p])
+    Ac = normalize(A)
+    return prod(Ac for _ = 1:p)
 end
 
 function Base.:+(J::UniformScaling, A::CrystalOperator)
@@ -511,6 +517,7 @@ function Base.:+(A::CrystalOperator, J::UniformScaling)
     pos = zeros(A.C.dim)
     mat = Matrix(J, A.C.size_codomain, A.C.size_domain)
     push!(Ac, Multiplier(pos, mat), true)
+    CleanUp!(Ac)
     return Ac
 end
 

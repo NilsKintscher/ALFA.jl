@@ -2,6 +2,7 @@ using alfa
 using Nemo
 using Test
 using StaticArrays
+using LinearAlgebra
 
 @testset "nemo_wrapper.jl" begin
     A = [70 1 21; 58 92 28; 64 94 8]
@@ -31,4 +32,12 @@ using StaticArrays
     Lstatic = @MMatrix [21 7 -69; 28 -26 34; 8 40 30]
     @test abs(det(Lstatic\Astatic)) ≈ 1
     @test abs(det(Astatic\Lstatic)) ≈ 1
+
+    M = rand(1:100, 10,10)
+    Mstatic = convert(MMatrix{size(M)...}, M)
+
+    S = alfa.lll(M)
+    Sstatic = alfa.lll(Mstatic)
+    @test abs(det(S\M)) ≈ 1
+    @test abs(det(Sstatic\Mstatic)) ≈ 1
 end
