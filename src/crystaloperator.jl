@@ -169,6 +169,7 @@ function normalize(S::CrystalOperator{N,T}) where {N,T}
 
 
     m_old = collect(S.M)
+    mattype = typejoin([typeof(mm.mat).parameters[1] for mm in m_old]...)
     y_old = [x.pos for x in S.M]#vcat(transpose([x.pos for x in S.M])...)
     # find all combinations of the shifts -ds+cs
     SS0 = SortedDict{Array{Int,1},Array{Tuple{Int,Int,Int},1}}() # find more efficient way.
@@ -191,7 +192,7 @@ function normalize(S::CrystalOperator{N,T}) where {N,T}
         for (k, i, j) in idxset
             if m_old[k].mat[cp[i], dp[j]] != 0
                 if mat == nothing
-                    mat = 0 * m_old[1].mat
+                    mat = zeros(mattype, size(m_old[1].mat)...) #0 * m_old[1].mat
                 end
                 mat[i, j] = m_old[k].mat[cp[i], dp[j]]
             end
@@ -246,6 +247,7 @@ function wrtLattice(S::CrystalOperator{N,T}, A) where {N,T} ### A::Matrix
     newCodomain = [S.C.L.A * x + y for x in t for y in S.C.Codomain]
 
     m_old = collect(S.M)
+    mattype = typejoin([typeof(mm.mat).parameters[1] for mm in m_old]...)
     y_old = [x.pos for x in S.M]#vcat(transpose([x.pos for x in S.M])...)
     Ay_old = [S.C.L.A * x for x in y_old]#transpose(S.C.L.A * transpose(y_old))
 
@@ -293,7 +295,7 @@ function wrtLattice(S::CrystalOperator{N,T}, A) where {N,T} ### A::Matrix
                     matblock = m_old[it_yk].mat
                     if mm == nothing
                         mm = zeros(
-                            eltype(first(S.M).mat),
+                            mattype,
                             Cnew.size_codomain,
                             Cnew.size_domain,
                         ) # init new matrix.

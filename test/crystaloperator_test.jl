@@ -8,7 +8,7 @@ const atol = 1e-14
 
 
 @testset "crystaloperator.jl" begin
-    for T in [Float64, Rational{Int}, Rational{BigInt}]
+    for T in [Float64, Rational{BigInt}]
         @test isa(alfa.CrystalOperator{2,T}(), alfa.CrystalOperator) == true
 
         C = alfa.Crystal{2,T}(
@@ -236,20 +236,18 @@ const atol = 1e-14
         @test isapprox(alfa.compute_spectrum(S2, N = 2).Λ, Λ, atol = atol)
 
 
-
-        S = rand(alfa.CrystalOperator{2,T}, single_domain=true)
-        Id = alfa.CrystalOperator(S.C,2*I)
-        @test alfa.IsApproxEquivalent((S+Id)-Id, S)
-        @test alfa.IsApproxEquivalent((S+I)-I , S)
-        @test !alfa.IsApproxEquivalent(S + I , S)
-        @test !alfa.IsApproxEquivalent(S + Id , S)
-
-        @test (1*S) == (S*1) == S
-        @test alfa.IsApproxEquivalent(2*S, S*2)
-        @test alfa.IsApproxEquivalent((S*4)/2, 2*S)
-
-
-        @test alfa.IsApproxEquivalent(S^1, S)
-        @test S^2 == S*S
+        for jj = 1:100
+            S = rand(alfa.CrystalOperator{2,T}, single_domain = true)
+            Id = alfa.CrystalOperator(S.C, 2 * I)
+            @test alfa.IsApproxEquivalent((S + Id) - Id, S)
+            @test alfa.IsApproxEquivalent((S + I) - I, S)
+            @test !alfa.IsApproxEquivalent(S + I, S)
+            @test !alfa.IsApproxEquivalent(S + Id, S)
+            @test (1 * S) == (S * 1) == S
+            @test alfa.IsApproxEquivalent(2 * S, S * 2)
+            @test alfa.IsApproxEquivalent((S * 4) / 2, 2 * S)
+            @test alfa.IsApproxEquivalent(S^1, S)
+            @test S^2 == S * S
+        end
     end
 end
