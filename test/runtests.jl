@@ -24,6 +24,9 @@ end
     include("operatorcomposition_test.jl")
 end
 
+@safetestset "Gallery" begin
+    include("gallery_test.jl")
+end
 
 @safetestset "Show" begin
     include("show_test.jl")

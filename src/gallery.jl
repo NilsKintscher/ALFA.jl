@@ -3,40 +3,51 @@ module gallery
 using ..alfa
 using LinearAlgebra
 
-function Laplace(N = 2, h=1, T = Float64)
+function Laplace(;N = 2, h=1, T = Float64)
     if N == 1
-        A = [1]
+        A = h*[1]
         Domain = [0]
         Codomain = [0]
 
         C = alfa.Crystal{N,T}(A, Domain, Codomain)
         L = alfa.CrystalOperator{N,T}(C)
 
-        push!(L, alfa.Multiplier([0], [-2]))
-        push!(L, alfa.Multiplier([-1], [1]))
-        push!(L, alfa.Multiplier([1], [1]))
+        push!(L, alfa.Multiplier([0], [-2/h^2]))
+        push!(L, alfa.Multiplier([-1], [1/h^2]))
+        push!(L, alfa.Multiplier([1], [1/h^2]))
         return L
 
     elseif N == 2
-        A = [1 0; 0 1]
+        A = h*[1 0; 0 1]
         Domain = [0 0]
         Codomain = [0 0]
 
         C = alfa.Crystal{N,T}(A, Domain, Codomain)
         L = alfa.CrystalOperator{N,T}(C)
 
-        push!(L, alfa.Multiplier([0 0], [-4]))
-        push!(L, alfa.Multiplier([0 -1], [1]))
-        push!(L, alfa.Multiplier([0 1], [1]))
-        push!(L, alfa.Multiplier([1 0], [1]))
-        push!(L, alfa.Multiplier([-1 0], [1]))
+        push!(L, alfa.Multiplier([0 0], [-4/h^2]))
+        push!(L, alfa.Multiplier([0 -1], [1/h^2]))
+        push!(L, alfa.Multiplier([0 1], [1/h^2]))
+        push!(L, alfa.Multiplier([1 0], [1/h^2]))
+        push!(L, alfa.Multiplier([-1 0], [1/h^2]))
         return L
     end
 end
 
-function fw_restriction(N = 2, T = Float64)
-    if N == 2
-        A = 2 * [1 0; 0 1]
+function fw_restriction(;m=1, N = 2, T = Float64)
+    if N==1
+        A = 2^m * [1]
+        Domain = [[0], [1]]
+        Codomain = [0]
+
+        C = alfa.Crystal{1,T}(A, Domain, Codomain)
+        L = alfa.CrystalOperator{1,T}(C)
+
+        push!(L, alfa.Multiplier([0], [1 1//2]))
+        push!(L, alfa.Multiplier([-1], [0 1//2]))
+        return L
+    elseif N == 2
+        A = 2^m * [1 0; 0 1]
         Domain = [[0, 0], [0, 1], [1, 0], [1, 1]]
         Codomain = [0, 0]
 
@@ -51,15 +62,15 @@ function fw_restriction(N = 2, T = Float64)
     end
 end
 
-function graphene_tight_binding(t = nothing)
+function graphene_tight_binding(;t = nothing, T=Float64)
     if t == nothing
         t = [0, -1, 0, 0]
     end
     A = 1 // 2 * [3 3; sqrt(3) -sqrt(3)]
     Domain = [j // 3 * A * [1, 1] for j in [1, 2]]
 
-    C = alfa.Crystal(A, Domain)
-    L = alfa.CrystalOperator(C)
+    C = alfa.Crystal{2,T}(A, Domain)
+    L = alfa.CrystalOperator{2,T}(C)
 
     push!(L, alfa.Multiplier([0, 0], [t[1] t[2]; t[2] t[1]]))
 
@@ -78,10 +89,10 @@ function graphene_tight_binding(t = nothing)
     return L
 end
 
-function graphene_dirac_restriction(; m = 2, wl = 0.5, wlh = 0)
+function graphene_dirac_restriction(;T=Float64, m = 1, wl = 0.5, wlh = 0)
     ws = wl + wlh - 1
 
-    A = 2^(m - 2) * 1 // 2 * [3 3; sqrt(3) -sqrt(3)]
+    A = 2^(m - 1) * 1 // 2 * [3 3; sqrt(3) -sqrt(3)]
     Ac = 2 * A
 
     s01 = [j // 3 * A * [1, 1] for j in [1, 2]]
@@ -89,8 +100,8 @@ function graphene_dirac_restriction(; m = 2, wl = 0.5, wlh = 0)
     Domain = [A * x + y for x in [[0, 0], [1, 0], [0, 1], [1, 1]] for y in s01]
     Codomain = [j // 3 * Ac * [1, 1] for j in [1, 2]]
 
-    C = alfa.Crystal(Ac, Domain, Codomain)
-    L = alfa.CrystalOperator(C)
+    C = alfa.Crystal{2,T}(Ac, Domain, Codomain)
+    L = alfa.CrystalOperator{2,T}(C)
 
     m = zeros(2, 8)
     m[2, 1] = wl

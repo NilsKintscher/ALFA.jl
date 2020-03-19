@@ -56,8 +56,8 @@ const atol = 1e-14
         mymults3 = SortedSet{alfa.Multiplier}([m13, m_wrong_matsize2])
         @test_throws AssertionError alfa.CrystalOperator{2,T}(C, mymults3)
 
-        @test isa(alfa.gallery.Laplace(2, T), alfa.CrystalOperator)
-        O = alfa.gallery.Laplace(2, T)
+        @test isa(alfa.gallery.Laplace(N=2, T=T), alfa.CrystalOperator)
+        O = alfa.gallery.Laplace(N=2, T=T)
         @test isa(O, alfa.CrystalOperator)
         ## do stuff with O.
 
@@ -71,7 +71,7 @@ const atol = 1e-14
 
 
         # test wrtLattice
-        S = alfa.gallery.Laplace(2, T)
+        S = alfa.gallery.Laplace(N=2, T=T)
 
 
         S2 = alfa.wrtLattice(S, 2 * S.C.L.A)
@@ -104,7 +104,7 @@ const atol = 1e-14
         @test S != S2
 
         ##test symbol
-        R = alfa.gallery.fw_restriction(2, T)
+        R = alfa.gallery.fw_restriction(N=2, T=T)
         @test alfa.symbol(alfa.CrystalOperator{2,T}(R.C), rand(2)) == [0 0 0 0]
 
         S2 = alfa.wrtLattice(S, 2 * S.C.L.A)

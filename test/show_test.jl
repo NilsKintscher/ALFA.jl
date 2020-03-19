@@ -5,5 +5,5 @@ using Test
 @testset "show.jl" begin
     @test sprint(show, MIME("text/plain"), alfa.Crystal{2,Float64}()) isa String
     @test sprint(show, MIME("text/plain"), alfa.Multiplier()) isa String
-    @test sprint(show, MIME("text/plain"), alfa.gallery.Laplace(2,Float64)) isa String
+    @test sprint(show, MIME("text/plain"), alfa.gallery.Laplace(N=2,T=Float64)) isa String
 end
