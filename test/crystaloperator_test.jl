@@ -245,7 +245,8 @@ const atol = 1e-14
         @test !alfa.IsApproxEquivalent(S + Id , S)
 
         @test (1*S) == (S*1) == S
-        @test 2*S ≈ S*2 == (S*4)/2
+        @test alfa.IsApproxEquivalent(2*S, S*2)
+        @test alfa.IsApproxEquivalent((S*4)/2, 2*S)
 
         S = rand(alfa.CrystalOperator{2,T},single_domain=true)
         @test alfa.IsApproxEquivalent(S^1, S)
