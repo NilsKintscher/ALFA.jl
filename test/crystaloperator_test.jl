@@ -237,7 +237,7 @@ const atol = 1e-14
 
 
 
-        S = rand(alfa.CrystalOperator{2,T})
+        S = rand(alfa.CrystalOperator{2,T}, single_domain=true)
         Id = alfa.CrystalOperator(S.C,2*I)
         @test alfa.IsApproxEquivalent((S+Id)-Id, S)
         @test alfa.IsApproxEquivalent((S+I)-I , S)
@@ -248,7 +248,7 @@ const atol = 1e-14
         @test alfa.IsApproxEquivalent(2*S, S*2)
         @test alfa.IsApproxEquivalent((S*4)/2, 2*S)
 
-        S = rand(alfa.CrystalOperator{2,T},single_domain=true)
+
         @test alfa.IsApproxEquivalent(S^1, S)
         @test S^2 == S*S
     end
