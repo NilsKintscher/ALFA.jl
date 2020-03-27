@@ -40,14 +40,13 @@ function Base.getproperty(L::Lattice, sym::Symbol)
     end
 end
 
+
 """
     lcm(A::Matrix,B::Matrix)
 
 Returns the least common multiple of A and B, i.e. a sub-lattice C (C ⊂ A and C ⊂ B) with |det(C)| as small as possible.
 """
-
-
-function Base.lcm(A, B)
+function Base.lcm(A::MArray{X,T}, B::MArray{X,T}) where {X,T<:Real}
     M0 = inv(A) * B
     for r in range(1, stop = 50)
         rM = r * M0
@@ -62,6 +61,7 @@ function Base.lcm(A, B)
         end
     end
 end
+
 function Base.lcm(A::MArray{X,T}, B::MArray{X,T}) where {X,T<:Rational}
     M0 = inv(A) * B
     r = lcm(denominator.(M0))
@@ -78,6 +78,10 @@ function Base.lcm(A::Lattice{N,T}, B::Lattice{N,T}) where {N,T}
 end
 
 
+Base.lcm(A::Lattice{N,T}, B::Lattice{N,T}...) where {N,T} = Base.lcm(A, Base.lcm(B...))
+Base.lcm(A::MArray{X,T}, B::MArray{X,T}...) where {X,T} = Base.lcm(A, Base.lcm(B...))
+Base.lcm(A::MArray{X,T}) where {X,T} = A
+Base.lcm(A::Lattice{N,T}) where {N,T} = A
 
 function ElementsInQuotientSpace(
     A::Union{Matrix{T},MMatrix{N,N,T}},

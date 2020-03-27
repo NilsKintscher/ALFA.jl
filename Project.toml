@@ -11,6 +11,7 @@ ColorSchemes = "35d6a980-a343-548e-a6ea-1d62b119f2f4"
 RecipesBase = "3cdcf5f2-1ef4-517c-9805-6587b60abb01"
 StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
+MacroTools = "1914dd2f-81c6-5fcd-8719-6d5c9610ff09"
 
 [compat]
 julia = "1"

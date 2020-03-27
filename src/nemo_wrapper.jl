@@ -1,6 +1,9 @@
 
-function Base.convert(::Type{Nemo.fmpz_mat}, mat::Union{Matrix{T}, MMatrix{N,N,T}}) where {N, T<:Real}
-    return  Nemo.MatrixSpace(Nemo.ZZ, size(mat)...)( BigInt.(round.(mat)) )
+function Base.convert(
+    ::Type{Nemo.fmpz_mat},
+    mat::Union{Matrix{T},MMatrix{N,N,T}},
+) where {N,T<:Real}
+    return Nemo.MatrixSpace(Nemo.ZZ, size(mat)...)(BigInt.(round.(mat)))
 end
 
 function Base.convert(::Type{MMatrix{N,N,BigInt}}, mat::Nemo.fmpz_mat) where {N}
@@ -8,16 +11,13 @@ function Base.convert(::Type{MMatrix{N,N,BigInt}}, mat::Nemo.fmpz_mat) where {N}
     return convert(MMatrix{N,N,BigInt}, A)
 end
 
-function Base.convert(
-    ::Type{Matrix{BigInt}},
-    mat::Nemo.fmpz_mat,
-)
+function Base.convert(::Type{Matrix{BigInt}}, mat::Nemo.fmpz_mat)
     return Matrix{BigInt}(mat)
 end
 
 
 
-function snf_with_transform(mat::MMatrix{M,N}) where M where N #{T} where T<:Real)
+function snf_with_transform(mat::MMatrix{M,N}) where {M} where {N} #{T} where T<:Real)
     mat = convert(Nemo.fmpz_mat, mat)
     (S, U, V) = Nemo.snf_with_transform(mat) # U*mat*V = S
     U = convert(MMatrix{size(U)...,BigInt}, U)
@@ -36,7 +36,7 @@ function snf_with_transform(mat::Matrix) #where M where N #{T} where T<:Real)
 end
 
 
-function hnf(mat::MMatrix{M,N}) where M where N
+function hnf(mat::MMatrix{M,N}) where {M} where {N}
     # computes the H = mat*U, s.t. H is in HNF and U is unimodular.
     mat = convert(Nemo.fmpz_mat, mat)
     H = transpose(Nemo.hnf(transpose(mat)))
@@ -52,7 +52,7 @@ function hnf(mat::Matrix)
     return H
 end
 
-function lll(mat::MMatrix{M,N}) where M where N
+function lll(mat::MMatrix{M,N}) where {M} where {N}
     # computes L, such that mat*T = L for some unimodular T
     mat = convert(Nemo.fmpz_mat, mat)
     L = Nemo.lll(transpose(mat))

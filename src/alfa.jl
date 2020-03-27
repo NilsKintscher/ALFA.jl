@@ -7,7 +7,9 @@ import DataStructures: SortedSet, SortedDict
 using RecipesBase
 using ColorSchemes
 using DataFrames
+using MacroTools
 
+# using LazyArrays
 #
 # import Base.Ordering
 # import Base.lt

@@ -91,6 +91,10 @@ function symbol(S::CrystalOperator, k; π = π)
     return mat
 end
 
+function symbol(x, k; kwargs...)
+    return x
+end
+
 
 function eigvals(
     S::CrystalOperator,
@@ -501,6 +505,10 @@ function Base.adjoint(A::CrystalOperator{N,T}) where {N,T}
 end
 
 function LinearAlgebra.pinv(A::CrystalOperator)
+    @assert A._CompatibilityCheckOnly
+    return transpose(A)
+end
+function LinearAlgebra.inv(A::CrystalOperator)
     @assert A._CompatibilityCheckOnly
     return transpose(A)
 end
