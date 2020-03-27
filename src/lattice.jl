@@ -64,7 +64,7 @@ end
 
 function Base.lcm(A::MArray{X,T}, B::MArray{X,T}) where {X,T<:Rational}
     M0 = inv(A) * B
-    r = lcm(denominator.(M0))
+    r = lcm(denominator.(M0)...)
     rM = r * M0
     S, U, V = snf_with_transform(rM)
     N = diagm(r ./ gcd.(diag(S), r))

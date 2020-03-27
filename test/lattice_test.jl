@@ -36,6 +36,12 @@ using LinearAlgebra
         @test B.iA * lcm(A, B).A ≈ round.(B.iA * lcm(A, B).A)
         @test A.iA * lcm(A, B).A ≈ round.(A.iA * lcm(A, B).A)
 
+        @test alfa.hnf(lcm(A,B,A).A) == alfa.hnf(lcm(A,B).A)
+        @test lcm(A) == A
+
+        @test alfa.hnf(lcm(A.A,B.A,A.A)) == alfa.hnf(lcm(A.A,B.A))
+        @test lcm(A.A) == A.A
+
         A = alfa.Lattice{2,T}([1 -1; 8 -5])
         B = alfa.Lattice{2,T}([-1 -4; 7 -5])
         s = [

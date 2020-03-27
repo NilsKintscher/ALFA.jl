@@ -8,16 +8,8 @@ using RecipesBase
 using ColorSchemes
 using DataFrames
 using MacroTools
+import Base.lcm
 
-# using LazyArrays
-#
-# import Base.Ordering
-# import Base.lt
-# import DataStructures.eq
-# struct ComplexOrdering <: Ordering
-# end
-# lt(::ComplexOrdering, a, b) = isless(real(a), real(b)) || (real(a) == real(b) && isless(imag(a), imag(b)))
-# eq(::ComplexOrdering, a, b) = a == b
 
 
 include("utils.jl")
