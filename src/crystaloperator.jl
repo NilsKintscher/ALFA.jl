@@ -24,6 +24,7 @@ function CrystalOperator(
     return CrystalOperator{N,T}(C, M, _CompatibilityCheckOnly)
 end
 
+
 function CrystalOperator{N,T}(
     C = nothing,
     M = nothing,
