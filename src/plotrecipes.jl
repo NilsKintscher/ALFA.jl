@@ -33,19 +33,6 @@
     end
 end
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 @recipe function f(
     C::Crystal;
     xmin = -3,
@@ -239,7 +226,7 @@ end
 @recipe function f(h::SurfaceSpectrum)
 
     if length(h.args) == 1 || length(h.args) == 2
-        if h.args[1] isa CrystalOperator
+        if h.args[1] isa CrystalOperator || h.args[1] isa OperatorComposition
             if length(h.args) == 2
                 N = h.args[2]
             else
@@ -274,7 +261,7 @@ end
 
 @recipe function f(h::SurfaceNorm)
     if length(h.args) == 1 || length(h.args) == 2
-        if h.args[1] isa CrystalOperator
+        if h.args[1] isa CrystalOperator || h.args[1] isa OperatorComposition
             if length(h.args) == 2
                 N = h.args[2]
             else

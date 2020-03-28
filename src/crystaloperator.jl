@@ -79,90 +79,6 @@ function Base.push!(S::CrystalOperator, m::Multiplier, add_to_existing = false)
 end
 
 
-function symbol(S::CrystalOperator, k; π = π)
-    if length(S.M) == 0
-        mat = zeros(Int, S.C.size_codomain, S.C.size_domain)
-    else
-        mat = zeros(eltype(first(S.M).mat), S.C.size_codomain, S.C.size_domain)
-        for m in S.M
-            mat += m.mat * exp(im * 2π * dot((S.C.A * m.pos), k))
-        end
-    end
-    return mat
-end
-
-function symbol(x, k; kwargs...)
-    return x
-end
-
-
-function eigvals(
-    S::CrystalOperator,
-    k::T;
-    by = abs,
-) where {T<:Union{AbstractVector,Tuple}}
-    symb = ComplexF64.(symbol(S, k))
-    ev = LinearAlgebra.eigvals(symb)
-    if by == nothing
-        return ev
-    else
-        return sort(ev, by = by)
-    end
-
-end
-
-
-
-function eigvals(
-    S::CrystalOperator;
-    N = 20,
-    by = abs,
-    unique = false,
-    digits = 5,
-)
-    k_iter = Iterators.product([
-        range(0, stop = 1, length = N + 1)[1:end-1] for _ = 1:S.C.dim
-    ]...)
-    #kv = reshape([[x...] for x in collect(k_iter)],:)
-    #dAkv = [S.C.dA*x for x in kv]
-    if unique
-        SS = Set{Complex}()
-        for k in k_iter
-            Λ = Base.unique(round.(
-                eigvals(S, S.C.dA * [k...], by = nothing),
-                digits = digits,
-            ))
-            for λ in Λ
-                push!(SS, λ)
-            end
-        end
-        return sort(collect(SS), by = by)
-    else
-        Λ = [eigvals(S, S.C.dA * [k...], by = nothing) for k in k_iter]
-        return Λ = sort(vcat(Λ...), by = by)
-    end
-end
-
-
-function eigen(S::CrystalOperator, k; by = abs)
-    symb = symbol(S, k)
-    ev = LinearAlgebra.eigen(ComplexF64.(symb))
-    p = sortperm(ev.values, by = by)
-    return LinearAlgebra.Eigen(ev.values[p], ev.vectors[:, p])
-end
-
-function compute_spectrum(S::CrystalOperator; N = 20, by = abs)
-    k_iter = Iterators.product([
-        range(0, stop = 1, length = N + 1)[1:end-1] for _ = 1:S.C.dim
-    ]...)
-    kv = reshape([[x...] for x in collect(k_iter)], :)
-
-    dAkv = [S.C.dA * x for x in kv]
-
-    Λ = [eigvals(S, k, by = by) for k in dAkv]
-
-    df = DataFrame(k = kv, dAk = dAkv, Λ = Λ)
-end
 
 function normalize(S::CrystalOperator{N,T}) where {N,T}
     if S.C._IsNormalized
@@ -218,7 +134,11 @@ function CleanUp!(S::CrystalOperator)
     end
 end
 
-function wrtLattice(S::CrystalOperator{N,T}, A) where {N,T} ### A::Matrix
+function wrtLattice(
+    S::CrystalOperator{N,T},
+    A,
+    _CompatibilityCheckOnly = false,
+) where {N,T} ### A::Matrix
     if A isa Lattice
         A = A.A
     end
@@ -290,6 +210,7 @@ function wrtLattice(S::CrystalOperator{N,T}, A) where {N,T} ### A::Matrix
 
     Cnew = Crystal{N,T}(A, newDomain, newCodomain)
     op = CrystalOperator{N,T}(Cnew)
+    op._CompatibilityCheckOnly = _CompatibilityCheckOnly
     for (it_y, y) in enumerate(Ay_new)
         mm = nothing
         for tiMinustj in tiMinustj_all
@@ -298,11 +219,8 @@ function wrtLattice(S::CrystalOperator{N,T}, A) where {N,T} ### A::Matrix
                 if isapprox(yk, y_test, rtol = alfa_rtol, atol = alfa_atol)
                     matblock = m_old[it_yk].mat
                     if mm == nothing
-                        mm = zeros(
-                            mattype,
-                            Cnew.size_codomain,
-                            Cnew.size_domain,
-                        ) # init new matrix.
+                        mm =
+                            zeros(mattype, Cnew.size_codomain, Cnew.size_domain) # init new matrix.
                     end
                     for (it_ti, it_tj) in [
                         lookup_idxij(x, tiMinustj)
@@ -349,7 +267,7 @@ end
 
 
 function Base.:/(A::CrystalOperator, b::T) where {T<:Number}
-    return A * (1/b)
+    return A * (1 / b)
 end
 function Base.:*(b::T, A::CrystalOperator) where {T<:Number}
     return A * b
@@ -426,17 +344,19 @@ end
 
 function Base.:+(A::CrystalOperator{N,T}, B::CrystalOperator{N,T}) where {N,T}
     if A._CompatibilityCheckOnly || B._CompatibilityCheckOnly
-        @assert A.C.L.A == B.C.L.A && isapprox(
-            A.C.Domain,
-            B.C.Domain,
-            rtol = alfa_rtol,
-            atol = alfa_atol,
-        ) && isapprox(
-            A.C.Codomain,
-            B.C.Codomain,
-            rtol = alfa_rtol,
-            atol = alfa_atol,
-        )
+        @assert A.C.L.A == B.C.L.A &&
+                isapprox(
+                    A.C.Domain,
+                    B.C.Domain,
+                    rtol = alfa_rtol,
+                    atol = alfa_atol,
+                ) &&
+                isapprox(
+                    A.C.Codomain,
+                    B.C.Codomain,
+                    rtol = alfa_rtol,
+                    atol = alfa_atol,
+                )
         AB = CrystalOperator{N,T}(A.C, nothing, true)
         return AB
     else
