@@ -21,16 +21,16 @@ end
 
 
 function _SimplifyAndApply(f::Expr, g::Function = (x) -> x)
-    pulled_reverse_orig = Dict()
+    lookup = Dict()
     pulled = Dict()
     cnt = 0
     f2 = MacroTools.postwalk(f) do x
         if x isa CrystalOperator
-            if x in keys(pulled_reverse_orig)
-                d_x = pulled_reverse_orig[x]
+            if x in keys(lookup)
+                d_x = lookup[x]
             else
                 d_x = Symbol(:var_, cnt, "_")
-                get!(pulled_reverse_orig, x, d_x)
+                get!(lookup, x, d_x)
                 gx = g(x)
                 get!(pulled, d_x, :($d_x = $gx))
                 cnt += 1
