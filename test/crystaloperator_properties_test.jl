@@ -15,8 +15,6 @@ function testit(func::Function, numtests, N, T)
     for i = 1:numtests
         (res, case) = eval(func(N, eval(T)))
         if res == false
-            #return res, case, cnt
-            #cnt = cnt + 1
             errorcase = case
         else
             cnt = cnt + 1
@@ -67,7 +65,7 @@ end
 function distProp1(N, T)
 
     O = rand(alfa.CrystalOperator{N,T})
-    B = O#rand(O, domain_eq_Adomain = true, codomain_eq_Acodomain = true)
+    B = O
     C = rand(O, domain_eq_Adomain = true, codomain_eq_Acodomain = true)
     A = rand(O, domain_eq_Acodomain = true)
 
@@ -85,7 +83,7 @@ end
 
 function distProp2(N, T)
     O = rand(alfa.CrystalOperator{N,T})
-    B = O#rand(O, domain_eq_Adomain = true, codomain_eq_Acodomain = true)
+    B = O
     C = rand(O, domain_eq_Adomain = true, codomain_eq_Acodomain = true)
     D = rand(O, codomain_eq_Adomain = true)
 
@@ -168,14 +166,3 @@ for N in [1,2,3]
         end
     end
 end
-
-
-# macro asdf(x)
-#     quote
-#         @show esc($x)
-#         #local escf = $(esc(func))
-#     end
-# end
-#
-# N = 2
-# @asdf(2)

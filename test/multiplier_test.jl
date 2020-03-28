@@ -12,12 +12,6 @@ using Test
         alfa.Multiplier,
     ) == true
 
-
-    #check if the output of print() can be used as a constructor.
-    io = IOBuffer();
-    print(io, alfa.Multiplier());
-    eval(Meta.parse(String(take!(io)))) == alfa.Multiplier()
-
     m013 = alfa.Multiplier([0 1 4])
     m113 = alfa.Multiplier([1 1 3], [1 2; 3 4; 5 6])
 

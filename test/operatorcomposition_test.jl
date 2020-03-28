@@ -14,7 +14,7 @@ using LinearAlgebra
 
                  f = :(I-$L*inv($L) -I +adjoint($L) + I - transpose($L) + I  - I)
                  oc = alfa.OperatorComposition(f)
-                 @test isapprox(norm(alfa.eigvals(oc,k)),0, atol=1e-20)
+                 @test isapprox(norm(alfa.eigvals(oc,k)),0, atol=1e-14)
 
         end
 end

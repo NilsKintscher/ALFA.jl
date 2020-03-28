@@ -16,8 +16,6 @@ end
 function Multiplier(pos = nothing, mat = nothing)
     if pos == nothing
         pos = MVector{1,Int}(0)
-    # elseif pos isa Matrix || pos isa Vector
-    #     pos = SVector{length(pos),Int}(pos)
     end
     N = length(pos)
     if mat == nothing
