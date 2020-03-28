@@ -12,7 +12,7 @@ using LinearAlgebra
                  @test alfa.symbol(oc,k) ≈ alfa.symbol(LL,k)
                  @test alfa.eigvals(oc,k) ≈ alfa.eigvals(LL,k)
 
-                 f = :(I-$L*inv($L) +adjoint($L) - transpose($L) )
+                 f = :(I-$L*inv($L) -I +adjoint($L) + I - transpose($L) + I  - I)
                  oc = alfa.OperatorComposition(f)
                  @test isapprox(norm(alfa.eigvals(oc,k)),0, atol=1e-20)
 
