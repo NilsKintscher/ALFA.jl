@@ -11,3 +11,7 @@ makedocs(;
     authors="Nils Kintscher, Karsten Kahl",
     assets=String[],
 )
+
+deploydocs(;
+    repo="github.com/NilsKintscher/alfa.jl",
+)
