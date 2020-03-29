@@ -1,25 +1,26 @@
 name = "alfa"
 uuid = "d762b40b-22be-4ced-aa28-a3ac0c9c0493"
-authors = ["Nils Kintscher"]
+authors = ["Nils Kintscher", "Karsten Kahl"]
 version = "0.1.0"
 
 [deps]
-Nemo = "2edaba10-b0f1-5616-af89-8c11ac63239a"
+ColorSchemes = "35d6a980-a343-548e-a6ea-1d62b119f2f4"
+DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
 DataStructures = "864edb3b-99cc-5e75-8d2d-829cb0a9cfe8"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
-ColorSchemes = "35d6a980-a343-548e-a6ea-1d62b119f2f4"
+MacroTools = "1914dd2f-81c6-5fcd-8719-6d5c9610ff09"
+MyPkg = "250d183f-2aeb-4290-9a0e-50de4057a02e"
+Nemo = "2edaba10-b0f1-5616-af89-8c11ac63239a"
 RecipesBase = "3cdcf5f2-1ef4-517c-9805-6587b60abb01"
 StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
-DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
-MacroTools = "1914dd2f-81c6-5fcd-8719-6d5c9610ff09"
 
 [compat]
 julia = "1"
 
 [extras]
+Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 SafeTestsets = "1bc83da4-3b8d-516f-aca4-4fe02f6d838f"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
-Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 
 [targets]
 test = ["Test", "SafeTestsets", "Plots"]
