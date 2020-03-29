@@ -1,0 +1,3 @@
+var documenterSearchIndex = {"docs":
+[{"location":"#alfa.jl-1","page":"Home","title":"alfa.jl","text":"","category":"section"},{"location":"#","page":"Home","title":"Home","text":"","category":"page"},{"location":"#","page":"Home","title":"Home","text":"Modules = [alfa]","category":"page"},{"location":"#Base.lcm-Union{Tuple{T}, Tuple{X}, Tuple{StaticArrays.MArray{X,T,N,L} where L where N,StaticArrays.MArray{X,T,N,L} where L where N}} where T<:Real where X","page":"Home","title":"Base.lcm","text":"lcm(A::Matrix,B::Matrix)\n\nReturns the least common multiple of A and B, i.e. a sub-lattice C (C ⊂ A and C ⊂ B) with |det(C)| as small as possible.\n\n\n\n\n\n","category":"method"}]
+}
