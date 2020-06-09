@@ -2,12 +2,12 @@
 <!---
 tokens which are not needed right now.
 
-[![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://NilsKintscher.github.io/alfa.jl/stable)
-[![Coveralls](https://coveralls.io/repos/github/NilsKintscher/alfa.jl/badge.svg?branch=master)](https://coveralls.io/github/NilsKintscher/alfa.jl?branch=master)
+[![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://NilsKintscher.github.io/ALFA.jl/stable)
+[![Coveralls](https://coveralls.io/repos/github/NilsKintscher/ALFA.jl/badge.svg?branch=master)](https://coveralls.io/github/NilsKintscher/ALFA.jl?branch=master)
 -->
 [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://NilsKintscher.github.io/ALFA.jl/dev)
-[![Build Status](https://travis-ci.com/NilsKintscher/alfa.jl.svg?branch=master)](https://travis-ci.com/NilsKintscher/ALFA.jl)
-[![Build Status](https://ci.appveyor.com/api/projects/status/github/NilsKintscher/alfa.jl?svg=true)](https://ci.appveyor.com/project/NilsKintscher/ALFA-jl)
+[![Build Status](https://travis-ci.com/NilsKintscher/ALFA.jl.svg?branch=master)](https://travis-ci.com/NilsKintscher/ALFA.jl)
+[![Build Status](https://ci.appveyor.com/api/projects/status/github/NilsKintscher/ALFA.jl?svg=true)](https://ci.appveyor.com/project/NilsKintscher/ALFA-jl)
 [![Codecov](https://codecov.io/gh/NilsKintscher/ALFA.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/NilsKintscher/ALFA.jl)
 
 
@@ -17,8 +17,9 @@ This is a Julia implementation of the framework described in
 
 The main purpose of this framework is to enable the reliable and easy-to-use analysis of complex methods on repetitive structures, e.g.,  multigrid methods with complex overlapping block smoothers.
 
-Throughout this framework we refer to definitions, theorem, lemma and algorithms of [1].
+Throughout this framework we refer to definitions, theorems, lemmata and algorithms in [1].
 
 Important remarks:
-- I recommend to read [1] completely, before digging into this framework. The examples in the paper can be found in the documentation of this framework.
-- Some unit tests of this framework are done with randomly generated crystal operators. Sometimes for `N` > 2 these tests fail in case the datatype used for the lattice basis and structure elements is  `T::Float64`. Unfortunately this cannot be avoided when using Float64. Thus, the tests don't throw an error if $95\%$ pass. However, For most real applications this module should still work without any internal errors. When in doubt, I recommend using `T::Rational{BigInt}` when possible as the implemented algorithms seem to be reliable. The downside is the slower runtime in comparison to `T::Float64`.
+- If you only want to use this framework to analyze an operator or a method/composition of operators, you may try to proceed in the same way as in the examples: The examples in [1] can be found in the documentation of this framework.
+- If you are interested in the core algorithms and want to understand this framework completely, I recommend to read [1] completely before digging into the source code of this repository.
+- Some unit tests of this framework are done with randomly generated crystal operators which can lead to very ill-conditioned problems. Thus, these tests may fail in case the datatype used for the lattice basis and structure elements is  `T::Float64`. As this cannot be avoided when using floating-point arithmetic, the tests don't throw an error if at least $95\%$ pass. From my own experience I can say that this is not a problem in actual applications. Nevertheless, there exist rational versions ( `T::Rational{BigInt}`) of these algorithms which are very reliable, but also slower. 
