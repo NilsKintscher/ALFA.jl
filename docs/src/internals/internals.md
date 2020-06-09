@@ -4,5 +4,5 @@
 Pages = ["internals.md"]
 ```
 ```@autodocs
-Modules = [alfa]
+Modules = [ALFA]
 ```

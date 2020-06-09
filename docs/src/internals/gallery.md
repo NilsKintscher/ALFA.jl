@@ -5,5 +5,5 @@
 Pages = ["gallery.md"]
 ```
 ```@autodocs
-Modules = [alfa.gallery]
+Modules = [ALFA.gallery]
 ```

@@ -2,12 +2,12 @@
 
 In here we use this framework to analyze the half hybrid smoother for the curl-curl equation as described in [2] <https://epubs.siam.org/doi/abs/10.1137/S0036142997326203>, and analyzed in [3] <https://epubs.siam.org/doi/abs/10.1137/070679119>.
 
-It corresponds to section 6.2 of [1] Kahl, K., Kintscher, N. Automated local Fourier analysis (aLFA). Bit Numer Math (2020). <https://doi.org/10.1007/s10543-019-00797-w>.
+It corresponds to section 6.2 of [1] Kahl, K., Kintscher, N. Automated local Fourier analysis (ALFA). Bit Numer Math (2020). <https://doi.org/10.1007/s10543-019-00797-w>.
 
 
 ## Definition of the operators
 ```@example curlcurl; continued = true
-using alfa
+using ALFA
 using LinearAlgebra
 using Plots
 using SparseArrays
@@ -15,10 +15,10 @@ using SparseArrays
 #### System & restriction operator
 
 ```@example curlcurl
-L = alfa.gallery.curlcurl(.01)
+L = ALFA.gallery.curlcurl(.01)
 p1 = plot(L, title="L")
 
-R = alfa.gallery.curlcurl_restriction()
+R = ALFA.gallery.curlcurl_restriction()
 p2 = plot(R, title="R")
 
 P = R'
@@ -38,12 +38,12 @@ A = [1 0; 0 1]
 Domain = [[.5, 0],[0, .5]]
 Codomain = [[0,0]]
 
-C = alfa.Crystal{2,Float64}(A, Domain, Codomain)
-Rs = alfa.CrystalOperator{2,Float64}(C)
+C = ALFA.Crystal{2,Float64}(A, Domain, Codomain)
+Rs = ALFA.CrystalOperator{2,Float64}(C)
 
-push!(Rs, alfa.Multiplier([0 0], [-1 -1]))
-push!(Rs, alfa.Multiplier([-1 0], [1 0]))
-push!(Rs, alfa.Multiplier([0 -1], [0 1]))
+push!(Rs, ALFA.Multiplier([0 0], [-1 -1]))
+push!(Rs, ALFA.Multiplier([-1 0], [1 0]))
+push!(Rs, ALFA.Multiplier([0 -1], [0 1]))
 
 Ps = Rs'
 Ls = Rs*L*Ps
@@ -61,7 +61,7 @@ plot(p1, p2, p3, layout=(3,1), size=(w,3h))
 ```@example curlcurl
 
 # We have to change to lexicographic ordering in order to obtain the same operator as described in [3]
-S1 = alfa.CrystalOperatorCopyLowerTriangle(Ls,perm=[2,1])
+S1 = ALFA.CrystalOperatorCopyLowerTriangle(Ls,perm=[2,1])
 plot(S1)
 ```
 
@@ -70,11 +70,11 @@ plot(S1)
 ```@example curlcurl
 # change the structure element in order to obtain the same operator as described in [3]
 s0_lex = [[.5,0],[1,-.5]]
-L_lex = alfa.ChangeStructureElement(L, s0_lex, s0_lex)
-S0 = alfa.CrystalOperatorCopyLowerTriangle(L_lex, perm=[2,1])
+L_lex = ALFA.ChangeStructureElement(L, s0_lex, s0_lex)
+S0 = ALFA.CrystalOperatorCopyLowerTriangle(L_lex, perm=[2,1])
 
 #Now, S0 describes a block-Gauss-Seidel smoother. We need to use the lower triangle of the central multiplier.
-m = alfa.find_multiplier(S0, [0,0])
+m = ALFA.find_multiplier(S0, [0,0])
 m.mat = tril(m.mat)
 
 plot(S0)
@@ -88,7 +88,7 @@ plot(S0)
 f_edge = :(I-pinv($S0)*$L)
 f_node = :(I-$Ps*pinv($S1)*$Rs*$L)
 
-oc_s = alfa.OperatorComposition(f_edge*f_node)
+oc_s = ALFA.OperatorComposition(f_edge*f_node)
 surfacespectrum(oc_s, N=30)
 ```
 
@@ -98,7 +98,7 @@ surfacespectrum(oc_s, N=30)
 ```@example curlcurl
 f_cgc = :(I-$P*inv($Lc)*$R*$L)
 
-oc_tg = alfa.OperatorComposition(f_node*f_edge*f_cgc*f_node*f_edge)
+oc_tg = ALFA.OperatorComposition(f_node*f_edge*f_cgc*f_node*f_edge)
 surfacespectrum(oc_tg, N=30)
 ```
 
@@ -106,15 +106,15 @@ surfacespectrum(oc_tg, N=30)
 ## Double check result with a twogrid implementation
 
 ```@example curlcurl
-wrtL = alfa.Lattice{2,Float64}(30*[1.0 0; 0 1.0])
-Lm = SparseMatrixCSC{Float64,Int}(alfa.construct_matrix(L,wrtL))
-Rm = SparseMatrixCSC{Float64,Int}(alfa.construct_matrix(R,wrtL))
-Pm = SparseMatrixCSC{Float64,Int}(alfa.construct_matrix(P,wrtL))
-Lcm = SparseMatrixCSC{Float64,Int}(alfa.construct_matrix(Lc,wrtL))
-S0m = SparseMatrixCSC{Float64,Int}(alfa.construct_matrix(S0,wrtL))
-S1m = SparseMatrixCSC{Float64,Int}(alfa.construct_matrix(S1,wrtL))
-Rsm = SparseMatrixCSC{Float64,Int}(alfa.construct_matrix(Rs,wrtL))
-Psm = SparseMatrixCSC{Float64,Int}(alfa.construct_matrix(Ps,wrtL))
+wrtL = ALFA.Lattice{2,Float64}(30*[1.0 0; 0 1.0])
+Lm = SparseMatrixCSC{Float64,Int}(ALFA.construct_matrix(L,wrtL))
+Rm = SparseMatrixCSC{Float64,Int}(ALFA.construct_matrix(R,wrtL))
+Pm = SparseMatrixCSC{Float64,Int}(ALFA.construct_matrix(P,wrtL))
+Lcm = SparseMatrixCSC{Float64,Int}(ALFA.construct_matrix(Lc,wrtL))
+S0m = SparseMatrixCSC{Float64,Int}(ALFA.construct_matrix(S0,wrtL))
+S1m = SparseMatrixCSC{Float64,Int}(ALFA.construct_matrix(S1,wrtL))
+Rsm = SparseMatrixCSC{Float64,Int}(ALFA.construct_matrix(Rs,wrtL))
+Psm = SparseMatrixCSC{Float64,Int}(ALFA.construct_matrix(Ps,wrtL))
 
 nothing # hide
 ```
@@ -183,6 +183,6 @@ while resnorm_vec[end] > 1e-200 && num_iter < 175
 end
 
 # plot convergence behavior.
-plot(resnorm_vec, yaxis=:log, xlabel="iteration", ylabel="residual norm", title="measured asymptotic convrate="*string(casym_vec[end])*"\n conv.rate from analysis: "*string(abs(alfa.eigvals(oc_tg,N=30)[end])))
+plot(resnorm_vec, yaxis=:log, xlabel="iteration", ylabel="residual norm", title="measured asymptotic convrate="*string(casym_vec[end])*"\n conv.rate from analysis: "*string(abs(ALFA.eigvals(oc_tg,N=30)[end])))
 
 ```

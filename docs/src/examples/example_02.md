@@ -1,12 +1,12 @@
 # Example 2: Colored overlapping smoother for graphene
 
-In here we use the aLFA framework to analyze a 4 color overlap smoother for the tight-binding Hamiltonian of graphene.
+In here we use the ALFA framework to analyze a 4 color overlap smoother for the tight-binding Hamiltonian of graphene.
 
-It corresponds to section 6.1 of [1] Kahl, K., Kintscher, N. Automated local Fourier analysis (aLFA). Bit Numer Math (2020). <https://doi.org/10.1007/s10543-019-00797-w>.
+It corresponds to section 6.1 of [1] Kahl, K., Kintscher, N. Automated local Fourier analysis (ALFA). Bit Numer Math (2020). <https://doi.org/10.1007/s10543-019-00797-w>.
 
 ## Definition of the operators
 ```@example ex2; continued = true
-using alfa
+using ALFA
 using LinearAlgebra
 using Plots
 ```
@@ -14,13 +14,13 @@ using Plots
 
 
 ```@example ex2
-L = alfa.gallery.graphene_tight_binding()
+L = ALFA.gallery.graphene_tight_binding()
 plot(L)
 ```
 
 #### Restriction operator of the two-grid method
 ```@example ex2
-R = alfa.gallery.graphene_dirac_restriction(wl=.25, wlh=.25)
+R = ALFA.gallery.graphene_dirac_restriction(wl=.25, wlh=.25)
 plot(R)
 ```
 
@@ -41,8 +41,8 @@ plot(p1, p2, layout=(2,1), size=(w,2h))
 We first rewrite the system operator $L$ with respect to the translational invariance 2A, where $A=$``L.C.L.A``
 
 ```@example ex2
-slat = alfa.Lattice{2,Float64}(2*L.C.L.A)
-Ls = alfa.wrtLattice(L,slat)
+slat = ALFA.Lattice{2,Float64}(2*L.C.L.A)
+Ls = ALFA.wrtLattice(L,slat)
 plot(Ls)
 ```
 
@@ -55,8 +55,8 @@ S = []
 p = []
 for (it,x) in enumerate(shifts)
    se = [y + L.C.L.A*x for y in Ls.C.Domain]
-   Ls_tmp = alfa.ChangeStructureElement(Ls, se, se)
-   push!(S, alfa.CrystalOperatorCopyWithMultipliers(Ls_tmp, idx=idx))
+   Ls_tmp = ALFA.ChangeStructureElement(Ls, se, se)
+   push!(S, ALFA.CrystalOperatorCopyWithMultipliers(Ls_tmp, idx=idx))
    push!(p, plot(S[it], title="S[$it]"))
 end
 plot(p..., layout=(2,2), size=(1.5w,1.5h))
@@ -67,7 +67,7 @@ plot(p..., layout=(2,2), size=(1.5w,1.5h))
 ```@example ex2
 p = []
 for (j,s) in enumerate(S)
-   S[j] = alfa.normalize(s)
+   S[j] = ALFA.normalize(s)
    push!(p, plot(S[j], title="S[$j]"))
 end
 plot(p..., layout=(2,2), size=(1.5w,1.5h))
@@ -78,7 +78,7 @@ Now we construct the error propagator of the smoother and plot its spectrum
 
 ```@example ex2
 f_s = prod(:(I-0.5*pinv($s)*$L) for s in S)
-oc_s = alfa.OperatorComposition(f_s)
+oc_s = ALFA.OperatorComposition(f_s)
 surfacespectrum(oc_s, N=41)
 ```
 
@@ -88,6 +88,6 @@ Finally, we analyze the two-grid error propagator
 ```@example ex2
 f_cgc = :(I-$P*inv($Lc)*$R*$L)
 f_tg = f_s*f_cgc*f_s
-oc_tg = alfa.OperatorComposition(f_tg)
+oc_tg = ALFA.OperatorComposition(f_tg)
 surfacespectrum(oc_tg, N=41)
 ```
