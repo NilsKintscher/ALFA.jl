@@ -159,7 +159,9 @@ function CrystalOperatorCopyWithMultipliers(
     if pos == nothing
         pos = zeros(N)
     end
-    P = zeros(T,S.C.size_codomain, S.C.size_domain)
+
+    m = deepcopy(find_multiplier(S, pos))
+    P = zeros(eltype(m.mat), S.C.size_codomain, S.C.size_domain)
     if idx == nothing
         P = I + P
     else
@@ -169,8 +171,7 @@ function CrystalOperatorCopyWithMultipliers(
     end
 
     C = CrystalOperator{N,T}(S.C)
-    m = deepcopy(find_multiplier(S, pos))
-    m.mat = P * m.mat * P
+    m.mat =  P * m.mat * P
     push!(C, m)
     return C
 end
@@ -188,12 +189,12 @@ Returns the CrystalOperator G consisting of the central multiplier of S:
 function CrystalOperatorCopyLowerTriangle(
     S::CrystalOperator{N,T};
     idx = nothing,
-    omega = 1.0,
+    omega = 1,
     perm = 1:N
 ) where {N,T}
     pos = zeros(N)
 
-    P = zeros(T,S.C.size_codomain, S.C.size_domain)
+    P = zeros(eltype(first(S.M).mat),S.C.size_codomain, S.C.size_domain)
     if idx == nothing
         P = I + P
     else
