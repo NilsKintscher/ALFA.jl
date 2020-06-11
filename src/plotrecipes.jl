@@ -434,7 +434,7 @@ end
         maxval = -Inf
         maxx = NaN
 
-        function f(x)
+        function f1d(x)
             dAxy = S.C.L.dA * [x]
             try
                 z = abs(ALFA.eigvals(S, dAxy)[end])
@@ -453,7 +453,7 @@ end
             return z
         end
 
-        zv = [f(xx) for xx in x]
+        zv = [f1d(xx) for xx in x]
 
         seriescolor --> :viridis
         @series begin
@@ -471,11 +471,11 @@ end
         end
     elseif S.C.n == 2
         x = y = range(0, stop = 1, length = N + 1)[1:end-1]
-
         maxval = -Inf
         maxx = NaN
         maxy = NaN
-        function f(x, y)
+
+        function f2d(x, y)
             dAxy = S.C.L.dA * [x, y]
             try
                 z = abs(ALFA.eigvals(S, dAxy)[end])
@@ -495,7 +495,7 @@ end
             return z
         end
 
-        zv = [f(xx, yy) for xx in x for yy in y]
+        zv = [f2d(xx, yy) for xx in x for yy in y]
 
         layout := (1, 2)
         seriescolor --> :viridis
