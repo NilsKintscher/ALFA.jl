@@ -89,7 +89,7 @@ f_edge = :(I-pinv($S0)*$L)
 f_node = :(I-$Ps*pinv($S1)*$Rs*$L)
 
 oc_s = ALFA.OperatorComposition(f_edge*f_node)
-surfacespectrum(oc_s, N=30)
+plotspectrum(oc_s, N=30)
 ```
 
 
@@ -99,7 +99,7 @@ surfacespectrum(oc_s, N=30)
 f_cgc = :(I-$P*inv($Lc)*$R*$L)
 
 oc_tg = ALFA.OperatorComposition(f_node*f_edge*f_cgc*f_node*f_edge)
-surfacespectrum(oc_tg, N=30)
+plotspectrum(oc_tg, N=30)
 ```
 
 

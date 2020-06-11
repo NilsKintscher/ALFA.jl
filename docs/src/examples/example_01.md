@@ -118,7 +118,7 @@ ALFA.eigvals(L,N=10)
 
 We may also save everything in a dataframe via `ALFA.eigvals_df(L,N=N)` or directly produce a plot of the absolut part of the spectrum as follows
 ```@example tutorial
-surfacespectrum(L,N=20)
+plotspectrum(L,N=20)
 ```
 
 ## Obtaining a system matrix $A$ from a multiplication operator $L$
@@ -225,7 +225,7 @@ We analyze the error propagator of the Jacobi method using underrelaxation of .8
 f_jac =:(I-0.8*inv($S_jac)*$L) # construct an expression holding the CrystalOperators S and L.
 oc = ALFA.OperatorComposition(f_jac)
 
-surfacespectrum(oc, 40) # plot the absolute part of the spectrum using 40^2 points.
+plotspectrum(oc, 40) # plot the absolute part of the spectrum using 40^2 points.
 ```
 
 ### Definition of the two-grid error propagator
@@ -294,7 +294,7 @@ ALFA.symbol(oc_tgj, [0,0])
 
 A plot of the absolute part of the spectrum:
 ```@example tutorial
-surfacespectrum(oc_tgj, N=20, zfilter=(0,0.7))
+plotspectrum(oc_tgj, N=20, zfilter=(0,0.7))
 ```
 Note, that the zfilter filters the eigenvalue corresponding to the constant eigenfunction  (``k=(0,0)``) which is in the kernel of ``L``.
 
@@ -341,7 +341,7 @@ plot(S)
 f_gs = :(I-$inv($S)*$L)
 f_tggs = f_cgc*f_gs
 oc_tggs = ALFA.OperatorComposition(f_tggs)
-surfacespectrum(oc_tggs, N=40, zfilter=(0,0.7))
+plotspectrum(oc_tggs, N=40, zfilter=(0,0.7))
 ```
 
 
@@ -408,7 +408,7 @@ fr = :(I-$Rr'*$inv($Sr)*$Rr*$L)
 fb = :(I-$Rb'*$inv($Sb)*$Rb*$L)
 f_tgrb = f_cgc*fb*fr
 oc_tgrb = ALFA.OperatorComposition(f_tgrb)
-surfacespectrum(oc_tgrb, N=40, zfilter=(0,0.7))
+plotspectrum(oc_tgrb, N=40, zfilter=(0,0.7))
 ```
 
 ### Alternative construction and analysis of red-black
@@ -422,7 +422,7 @@ fr = :(I-pinv($Sr)*$L)
 fb = :(I-pinv($Sb)*$L)
 f_tgrb = f_cgc*fb*fr
 oc_tgrb = ALFA.OperatorComposition(f_tgrb)
-surfacespectrum(oc_tgrb, N=40, zfilter=(0,0.7))
+plotspectrum(oc_tgrb, N=40, zfilter=(0,0.7))
 ```
 
 

@@ -79,7 +79,7 @@ Now we construct the error propagator of the smoother and plot its spectrum
 ```@example ex2
 f_s = prod(:(I-0.5*pinv($s)*$L) for s in S)
 oc_s = ALFA.OperatorComposition(f_s)
-surfacespectrum(oc_s, N=41)
+plotspectrum(oc_s, N=41)
 ```
 
 ## Spectrum of the error propagator of the two-grid method
@@ -89,5 +89,5 @@ Finally, we analyze the two-grid error propagator
 f_cgc = :(I-$P*inv($Lc)*$R*$L)
 f_tg = f_s*f_cgc*f_s
 oc_tg = ALFA.OperatorComposition(f_tg)
-surfacespectrum(oc_tg, N=41)
+plotspectrum(oc_tg, N=41)
 ```
