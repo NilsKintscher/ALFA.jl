@@ -148,7 +148,7 @@ end
         s = C.Codomain
     end
 
-    xy = C.L.A * C.L.A * collect(Iterators.flatten(pos_fractional))'
+    xy =  C.L.A * collect(Iterators.flatten(pos_fractional))'
     for pos in s # eachslice(s, dims = 1)
         @series begin
             xy[1, :] .+ pos[1], zeros(size(xy[1, :]))
