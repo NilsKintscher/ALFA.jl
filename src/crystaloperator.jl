@@ -159,7 +159,7 @@ function CrystalOperatorCopyWithMultipliers(
     if pos == nothing
         pos = zeros(N)
     end
-    P = zeros(S.C.size_codomain, S.C.size_domain)
+    P = zeros(T,S.C.size_codomain, S.C.size_domain)
     if idx == nothing
         P = I + P
     else
@@ -193,7 +193,7 @@ function CrystalOperatorCopyLowerTriangle(
 ) where {N,T}
     pos = zeros(N)
 
-    P = zeros(S.C.size_codomain, S.C.size_domain)
+    P = zeros(T,S.C.size_codomain, S.C.size_domain)
     if idx == nothing
         P = I + P
     else
