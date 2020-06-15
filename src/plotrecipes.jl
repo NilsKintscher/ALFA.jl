@@ -466,7 +466,7 @@ end
         @series begin
             seriestype := :scatter
             markercolor := :red
-            label := "max(z) = " * fmt(FormatSpec(".3e"), maxval)
+            label -> "max(z) = " * fmt(FormatSpec(".3e"), maxval)
             [maxx], [maxval]
         end
     elseif S.C.n == 2

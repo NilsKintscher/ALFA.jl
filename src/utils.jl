@@ -9,3 +9,17 @@ function islessapprox(A::AbstractVector, B::AbstractVector)
     end
     return isless(length(A), length(B))
 end
+
+mutable struct Parameter
+    x
+end
+
+
+for op in (:*, :+, :-, :/)
+    eval(quote
+        Base.$op(a, p::Parameter) = $op(a, p.x)
+    end)
+    eval(quote
+        Base.$op(p::Parameter,a) = $op(p.x, a)
+    end)
+end
