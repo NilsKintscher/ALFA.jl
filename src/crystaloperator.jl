@@ -46,7 +46,7 @@ Domain: 1-element Array{StaticArrays.SArray{Tuple{2},Float64,1,2},1}:
  [0.0, 0.0]
 Codomain: 1-element Array{StaticArrays.SArray{Tuple{2},Float64,1,2},1}:
  [0.0, 0.0]
-Multiplier: 0-element Array{ALFA.Multiplier,1}
+Multiplier: ALFA.Multiplier[]
 
 julia> ALFA.CrystalOperator(ALFA.Crystal{2,Float64}(),3*I)
 Lattice Basis: ALFA.Lattice{2,Float64}([1.0 0.0; 0.0 1.0])
@@ -308,7 +308,7 @@ Domain: 1-element Array{StaticArrays.SArray{Tuple{1},Float64,1,1},1}:
  [-0.5]
 Codomain: 1-element Array{StaticArrays.SArray{Tuple{1},Float64,1,1},1}:
  [1.5]
-Multiplier: 0-element Array{ALFA.Multiplier,1}
+Multiplier: ALFA.Multiplier[]
 
 julia> push!(S, ALFA.Multiplier([0], [-2]))
 Lattice Basis: ALFA.Lattice{1,Float64}([1.0])
@@ -438,7 +438,7 @@ Domain: 1-element Array{StaticArrays.SArray{Tuple{2},Float64,1,2},1}:
  [0.0, 0.0]
 Codomain: 1-element Array{StaticArrays.SArray{Tuple{2},Float64,1,2},1}:
  [0.0, 0.0]
-Multiplier: 0-element Array{ALFA.Multiplier,1}
+Multiplier: ALFA.Multiplier[]
 ```
 """
 function CleanUp!(S::CrystalOperator)
