@@ -28,8 +28,8 @@ using LinearAlgebra
         # @test A[1, 2] == 1
         # @test (A[1, 1] = 3) == 3
 
-        @test norm(A.iA * A.A - I) == 0
-        @test norm(A.dA * A.A' - I) == 0
+        @test norm(A.iA * A.A - I) < 1e-14
+        @test norm(A.dA * A.A' - I) < 1e-14
 
         Bm = [7 1; 2 3]
         B = ALFA.Lattice{2,T}(Bm)
@@ -37,11 +37,11 @@ using LinearAlgebra
         @test B.iA * lcm(A, B).A ≈ round.(B.iA * lcm(A, B).A)
         @test A.iA * lcm(A, B).A ≈ round.(A.iA * lcm(A, B).A)
 
-        @test ALFA.hnf(lcm(A,B,A).A) == ALFA.hnf(lcm(A,B).A)
-        @test lcm(A) == A
+        @test ALFA.hnf(lcm(A,B,A).A) ≈ ALFA.hnf(lcm(A,B).A)
+        @test lcm(A) ≈ A
 
-        @test ALFA.hnf(lcm(A.A,B.A,A.A)) == ALFA.hnf(lcm(A.A,B.A))
-        @test lcm(A.A) == A.A
+        @test ALFA.hnf(lcm(A.A,B.A,A.A)) ≈ ALFA.hnf(lcm(A.A,B.A))
+        @test lcm(A.A) ≈ A.A
 
         A = ALFA.Lattice{2,T}([1 -1; 8 -5])
         B = ALFA.Lattice{2,T}([-1 -4; 7 -5])
@@ -75,12 +75,12 @@ using LinearAlgebra
             [0, 9],
             [0, 10],
         ]
-        @test s == ALFA.ElementsInQuotientSpace(A.A, B.A)
-        @test sfrac ==
+        @test s ≈ ALFA.ElementsInQuotientSpace(A.A, B.A)
+        @test sfrac ≈
               ALFA.ElementsInQuotientSpace(A.A, B.A, return_fractional = true)
-        @test s ==
+        @test s ≈
               ALFA.ElementsInQuotientSpace(A.A, B.A, return_diag_hnf = true)[1]
-        @test [1, 11] ==
+        @test [1, 11] ≈
               ALFA.ElementsInQuotientSpace(A.A, B.A, return_diag_hnf = true)[2]
 
         s2 = [
@@ -118,7 +118,7 @@ using LinearAlgebra
             ])
         ]
         p = [9, 6, 3, 11, 8, 5, 2, 10, 7, 4, 1]
-        (s2, y, p) == ALFA.ShiftIntoStandardCell(s, B)
+        (s2, y, p) = ALFA.ShiftIntoStandardCell(s, B)
 
         @test norm([floor.(B.iA * x) for x in s2]) == 0
         @test norm([ss + B.A * ys - s[pp] for (ss, ys, pp) in zip(s2, y, p)]) == 0
