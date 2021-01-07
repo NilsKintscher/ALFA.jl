@@ -28,8 +28,8 @@ using LinearAlgebra
         # @test A[1, 2] == 1
         # @test (A[1, 1] = 3) == 3
 
-        @test norm(A.iA * A.A - I) ≈ 0
-        @test norm(A.dA * A.A' - I) ≈ 0
+        @test norm(A.iA * A.A - I) < 1e-14
+        @test norm(A.dA * A.A' - I) < 1e-14
 
         Bm = [7 1; 2 3]
         B = ALFA.Lattice{2,T}(Bm)

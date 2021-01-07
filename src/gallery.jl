@@ -19,9 +19,9 @@ function Laplace(;N = 2, h=1, T = Float64)
         C = ALFA.Crystal{N,T}(A, Domain, Codomain)
         L = ALFA.CrystalOperator{N,T}(C)
 
-        push!(L, ALFA.Multiplier([0], [-2//h^2]))
-        push!(L, ALFA.Multiplier([-1], [1//h^2]))
-        push!(L, ALFA.Multiplier([1], [1//h^2]))
+        push!(L, ALFA.Multiplier([0], [-2/h^2]))
+        push!(L, ALFA.Multiplier([-1], [1/h^2]))
+        push!(L, ALFA.Multiplier([1], [1/h^2]))
         return L
 
     elseif N == 2
@@ -32,11 +32,11 @@ function Laplace(;N = 2, h=1, T = Float64)
         C = ALFA.Crystal{N,T}(A, Domain, Codomain)
         L = ALFA.CrystalOperator{N,T}(C)
 
-        push!(L, ALFA.Multiplier([0 0], [-4//h^2]))
-        push!(L, ALFA.Multiplier([0 -1], [1//h^2]))
-        push!(L, ALFA.Multiplier([0 1], [1//h^2]))
-        push!(L, ALFA.Multiplier([1 0], [1//h^2]))
-        push!(L, ALFA.Multiplier([-1 0], [1//h^2]))
+        push!(L, ALFA.Multiplier([0 0], [-4/h^2]))
+        push!(L, ALFA.Multiplier([0 -1], [1/h^2]))
+        push!(L, ALFA.Multiplier([0 1], [1/h^2]))
+        push!(L, ALFA.Multiplier([1 0], [1/h^2]))
+        push!(L, ALFA.Multiplier([-1 0], [1/h^2]))
         return L
     end
 end

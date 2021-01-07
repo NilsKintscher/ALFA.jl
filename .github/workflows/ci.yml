@@ -51,7 +51,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: julia-actions/setup-julia@v1
         with:
-          version: '1'
+          version: '1.5'
       - run: |
           julia --project=docs -e '
             using Pkg
@@ -61,7 +61,7 @@ jobs:
           julia --project=docs -e '
             using Documenter: doctest
             using ALFA
-            doctest(ALFA)' # change MYPACKAGE to the name of your package
+            doctest(ALFA)'
       - run: julia --project=docs docs/make.jl
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
