@@ -1,15 +1,31 @@
-mutable struct CrystalVector{N,T}
-    C::Crystal{N,T} # only using domain=codomain.
-    Z::Lattice{N, T} # defines the torus size.
-    coords::Vector{SVector{N,T}} # M::SortedSet{Multiplier}# Array{Multiplier,1}
-    function CrystalVector{N,T}(
-        C::Crystal{N,T},
-        Z::Lattice{N, T},
-    ) where {N,T<:Union{Float64,Rational}}
-        coords = ElementsInQuotientSpace(
-            C.L.A,
-            Z.A
-        )
-        new{N,T}(C, Z, coords)
+mutable struct CrystalVector{N,T,outerdim, innerdim}
+    CT::CrystalTorus{N,T}
+    v::MVector{outerdim, MVector{innerdim, Float64}}
+    function CrystalVector{N,T, outerdim, innerdim}(
+        CT::CrystalTorus{N,T},
+        v::MVector{outerdim, MVector{innerdim, Float64}},
+    ) where {N,T,innerdim, outerdim} # ]{N,T<:Union{Float64,Rational}, innerdim <: Int, outerdim <: Int}
+        new{N,T, outerdim, innerdim}(CT, v)
     end
+end
+
+function CrystalVector(
+    CT::CrystalTorus{N,T},
+    v
+    ) where {N,T}
+
+    outerdim = length(CT.coords)
+    innerdim = length(CT.C.Domain) # Codomain is not used at all.
+
+    if typeof(v) <: Union{Vector, MVector}
+        mv = MVector{outerdim}([
+        MVector{innerdim}(vi) for vi in v
+        ])
+    else
+        mv = MVector{outerdim}([
+        MVector{innerdim}(v(innerdim)) for i in 1:outerdim
+        ])
+    end
+    #return mv
+    CrystalVector{N,T,outerdim, innerdim}(CT, mv)
 end

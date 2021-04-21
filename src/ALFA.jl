@@ -23,8 +23,9 @@ include("operatorcomposition.jl")
 include("analysis.jl")
 include("gallery.jl")
 include("show.jl")
-include("plotrecipes.jl")
+
 include("crystaltorus.jl")
 include("crystalvector.jl")
 
+include("plotrecipes.jl")
 end # module

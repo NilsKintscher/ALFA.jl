@@ -13,3 +13,10 @@ struct CrystalTorus{N,T}
         new{N,T}(C, Z, coords)
     end
 end
+
+function CrystalTorus(
+    C::Crystal{N,T},
+    z::Int) where {N,T}
+    Z = ALFA.Lattice{N,T}(z*C.L.A)
+    CrystalTorus{N,T}(C,Z)
+end

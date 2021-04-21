@@ -1,15 +1,41 @@
 @recipe function f(
-    C::CrystalTorus
+    CV::CrystalVector{N,T,outerdim, innerdim}
+    ) where {N,T,outerdim, innerdim}
+    xy = hcat(vcat([[y+CV.CT.C.L.A*x for y in CV.CT.C.Domain] for x in  CV.CT.coords]...)...)
+    x = xy[1,:]
+    z = vcat(CV.v...)
+    if N==2
+    y = xy[2,:]
+    @series begin
+        seriescolor --> :viridis
+        seriestype := :scatter #:surface
+        linewidth --> 1.0
+        #opacity --> 0.5#
+        marker_z := z
+        x, y#, z
+        # x, y, z  # for surface
+    end
+elseif N==1
+    @series begin
+        x, z
+    end
+end
+end
+
+@recipe function f(
+    CT::CrystalTorus
     )
     @series begin
         xmin := 0
         xmax := 1
-        C.Z
+        CT.Z
     end
-    #@series begin
-#
-    #end
+    @series begin
+        CT.C, CT.coords
+    end
 end
+
+
 @recipe function f(
     L::Lattice{1,T};
     xmin = -3,
