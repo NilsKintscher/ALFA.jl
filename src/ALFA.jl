@@ -24,5 +24,7 @@ include("analysis.jl")
 include("gallery.jl")
 include("show.jl")
 include("plotrecipes.jl")
+include("crystaltorus.jl")
+include("crystalvector.jl")
 
 end # module

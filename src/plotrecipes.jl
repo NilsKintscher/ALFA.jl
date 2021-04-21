@@ -1,4 +1,15 @@
-
+@recipe function f(
+    C::CrystalTorus
+    )
+    @series begin
+        xmin := 0
+        xmax := 1
+        C.Z
+    end
+    #@series begin
+#
+    #end
+end
 @recipe function f(
     L::Lattice{1,T};
     xmin = -3,
