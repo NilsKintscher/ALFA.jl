@@ -24,7 +24,7 @@ function symbol(S::CrystalOperator, k; π = π)
     else
         mat = zeros(eltype(first(S.M).mat), S.C.size_codomain, S.C.size_domain)
         for m in S.M
-            mat += m.mat * exp(im * 2π * dot((S.C.A * m.pos), k))
+            mat += m.mat * exp(im * 2π * ((S.C.A * m.pos)'*k))
         end
     end
     return mat
