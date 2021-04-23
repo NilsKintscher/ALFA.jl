@@ -1,6 +1,7 @@
 using ALFA
 using Test
 using StaticArrays
+using LinearAlgebra
 
 @testset "crystalvector.jl" begin
     for T in [Float64, Rational{BigInt}]
@@ -15,6 +16,31 @@ using StaticArrays
         CT = ALFA.CrystalTorus{2,T}(C,L)
 
 
+        for N in 1:3
+            for j in 1:10
+                C = rand(ALFA.Crystal{N,T}, single_domain=true)
+                M1 = rand(-2:3, N, N)
+                while(abs(det(M1)) < 1)
+                    M1 = rand(-2:3, N, N)
+                end
+                C2 = C.A*M1
+
+                M2 = rand(-2:3, N, N)
+                while(abs(det(M2)) < 1)
+                    M2 = rand(-2:3, N, N)
+                end
+                Z = C2*M2
+
+                CT = ALFA.CrystalTorus(C,Z)
+
+                CV1 = ALFA.CrystalVector(CT, (x) -> rand(1:20, x))
+
+                CV1C2 = ALFA.wrtLattice(CV1, C2)
+                CV1C2Z = ALFA.wrtLattice(CV1C2, Z)
+
+                CV1Z = ALFA.wrtLattice(CV1, Z)
+            end
+        end
         CV = ALFA.CrystalVector(CT, x -> rand(1:20,x))
         @test isa(CV, ALFA.CrystalVector) == true
     end

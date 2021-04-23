@@ -22,6 +22,19 @@ function CrystalTorus(
     CrystalTorus{N,T}(C,Z)
 end
 
+function CrystalTorus(
+    C::Crystal{N,T},
+    Z::X) where {N,T,X<:Matrix}
+    Z = ALFA.Lattice{N,T}(Z)
+    CrystalTorus{N,T}(C,Z)
+end
+
+function CrystalTorus(
+    C::Crystal{N,T},
+    Z::ALFA.Lattice{N,T}) where {N,T}
+    CrystalTorus{N,T}(C,Z)
+end
+
 function wrtLattice(CT::CrystalTorus{N,T}, A) where {N,T}
 
     t = ElementsInQuotientSpace(CT.C.A, A, return_fractional = false)

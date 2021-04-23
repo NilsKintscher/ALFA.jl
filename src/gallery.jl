@@ -246,7 +246,7 @@ function Base.rand(
 
     maxdigits = 2
 
-    C = rand(ALFA.Crystal{N,T}, single_domain)
+    C = rand(ALFA.Crystal{N,T}, single_domain=single_domain)
 
     S = ALFA.CrystalOperator{N,T}(C)
 
