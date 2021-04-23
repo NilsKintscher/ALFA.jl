@@ -2,7 +2,7 @@ using ALFA
 using Test
 using StaticArrays
 
-@testset "crystaltorus.jl" begin
+@testset "crystalvector.jl" begin
     for T in [Float64, Rational{BigInt}]
 
         C = ALFA.Crystal{2,T}(
@@ -13,7 +13,9 @@ using StaticArrays
 
         L = ALFA.Lattice{2,T}([2 0; 0 2])
         CT = ALFA.CrystalTorus{2,T}(C,L)
-        @test isa(CT, ALFA.CrystalTorus) == true
 
+
+        CV = ALFA.CrystalVector(CT, x -> rand(1:20,x))
+        @test isa(CV, ALFA.CrystalVector) == true
     end
 end

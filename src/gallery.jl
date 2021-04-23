@@ -235,16 +235,45 @@ end
 
 
 
+
 function Base.rand(
     ::Type{ALFA.CrystalOperator{N,T}};
+    single_domain = false,
+    ) where {N,T}
+
+    MaxNumMultipliers = 4#10
+    MaxPos = 4# 10
+
+    maxdigits = 2
+
+    C = rand(ALFA.Crystal{N,T}, single_domain)
+
+    S = ALFA.CrystalOperator{N,T}(C)
+
+    M = rand(1:MaxNumMultipliers)
+
+
+    for m in 1:M
+        pos = rand(-MaxPos:MaxPos, N)
+        m =
+            round.(
+                rand(ComplexF64, C.size_codomain, C.size_domain),
+                digits = maxdigits,
+            )
+        push!(S, ALFA.Multiplier(pos, m))
+    end
+
+    return S
+end
+
+
+function Base.rand(
+    ::Type{ALFA.Crystal{N,T}};
     single_domain = false,
 ) where {N,T}
     maxdigits = 2
 
     MaxNumElements = 2 #10
-    MaxNumMultipliers = 4#10
-    MaxPos = 4# 10
-
     if N == 2
         mytol = 0.2
     elseif N == 3
@@ -301,23 +330,8 @@ function Base.rand(
         end
     end
     C = ALFA.Crystal{N,T}(L, domain, codomain)
-    S = ALFA.CrystalOperator{N,T}(C)
-
-    M = rand(1:MaxNumMultipliers)
-
-
-    for m in 1:M
-        pos = rand(-MaxPos:MaxPos, N)
-        m =
-            round.(
-                rand(ComplexF64, C.size_codomain, C.size_domain),
-                digits = maxdigits,
-            )
-        push!(S, ALFA.Multiplier(pos, m))
-    end
-
-    return S
 end
+
 
 function Base.rand(
     A::ALFA.CrystalOperator{N,T};
