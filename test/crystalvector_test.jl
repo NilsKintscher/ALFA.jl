@@ -13,7 +13,7 @@ using LinearAlgebra
         )
 
         L = ALFA.Lattice{2,T}([2 0; 0 2])
-        CT = ALFA.CrystalTorus{2,T}(C,L)
+        CT = ALFA.CrystalTorus(C,L)
 
 
         for N in 1:3
@@ -34,14 +34,10 @@ using LinearAlgebra
                 CT = ALFA.CrystalTorus(C,Z)
 
                 CV1 = ALFA.CrystalVector(CT, (x) -> rand(1:20, x))
-
                 CV1C2 = ALFA.wrtLattice(CV1, C2)
-                CV1C2Z = ALFA.wrtLattice(CV1C2, Z)
 
-                CV1Z = ALFA.wrtLattice(CV1, Z)
+                @test ALFA.IsApproxEquivalent(CV1, CV1C2)
             end
         end
-        CV = ALFA.CrystalVector(CT, x -> rand(1:20,x))
-        @test isa(CV, ALFA.CrystalVector) == true
     end
 end

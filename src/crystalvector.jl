@@ -34,6 +34,9 @@ end
 
 function wrtLattice(CV::CrystalVector{N,T, outerdim, innerdim}, A) where {N,T, outerdim, innerdim}
 
+    if typeof(A) <: ALFA.Lattice
+        A = A.A
+    end
     CT = CV.CT
 
     t = ElementsInQuotientSpace(CT.C.A, A, return_fractional = false)
@@ -44,7 +47,7 @@ function wrtLattice(CV::CrystalVector{N,T, outerdim, innerdim}, A) where {N,T, o
 
     C = Crystal{N,T}(A, newDomain, newCodomain)
 
-    CTnew = CrystalTorus{N,T}(C, CT.Z)
+    CTnew = CrystalTorus(C, CT.Z)
 
     # construct new vector
 
@@ -82,34 +85,39 @@ function wrtLattice(CV::CrystalVector{N,T, outerdim, innerdim}, A) where {N,T, o
     bs = CT.C.size_domain # blocksize
 
     for (it_c, c) in enumerate(CT.coords)
-println("")
-        println("new c:")
+#println("")
+#@show CT.C.A
+#@show A
+#@show A\CT.C.A
+#@show t
+
+        #println("new c:")
 
 
-        @show (it_c, c) # fractional coordinate
+        #@show (it_c, c) # fractional coordinate
         for (it_ti,ti) in enumerate(t)
-            @show (it_ti,ti)
-            y = A\(CT.C.A*(c-ti)) # c and ti are fractional coordinates. transforming them to cart. coord and check if they are element of L(A)
+            #@show (it_ti,ti)
+            y = A\(CT.C.A*c-ti) # c and ti are fractional coordinates. transforming them to cart. coord and check if they are element of L(A)
             yr = round.(y)
-            @show y
+            #@show y
             if isapprox(y, yr, rtol = ALFA_rtol, atol = ALFA_atol)
-                println("found ti")
+                #println("found ti")
                 # find the corresponding coordinate.
                 for (it_cnew, cnew) in enumerate(CTnew.coords)
-                    @show (it_cnew, cnew)
+                    #@show (it_cnew, cnew)
                     # cnew is given in fractional coordinates. transform to cartesian coordinates
                     # given the cartesian coordinate of y, we check if the difference is part of L(Z)
                     x = CTnew.Z.A\(CTnew.C.A*cnew - A*yr)
                     xr = round.(x)
-                    @show x
+                    #@show x
                     if isapprox(x, xr, rtol = ALFA_rtol, atol = ALFA_atol)
-                        println("found also cnew")
+                        #println("found also cnew")
                         # found it.
-                        @show it_cnew, (it_ti-1)*bs+1:it_ti*bs
-                        @show it_c
+                        #@show it_cnew, (it_ti-1)*bs+1:it_ti*bs
+                        #@show it_c
                         v_new[it_cnew][(it_ti-1)*bs+1:it_ti*bs] = CV.v[it_c]
-                        @show "NEXT"
-                        println("")
+                        #@show "NEXT"
+                        #println("")
                         break
                     end
                 end
@@ -119,4 +127,105 @@ println("")
     end
 
     CrystalVector{N,T,outerdim_new, innerdim_new}(CTnew, v_new)
+end
+
+
+function Base.:(≈)(AV::CrystalVector{N,T,outerdim, innerdim}, BV::CrystalVector{N,T,outerdim, innerdim}) where {N,T,outerdim, innerdim}
+    if AV.CT ≈ BV.CT
+        for i in 1:outerdim
+            if !(AV.v[i] ≈ BV.v[i])
+                return false
+            end
+        end
+        return true
+    else
+        return false
+    end
+end
+
+function IsApproxEquivalent(A::CrystalVector, B::CrystalVector)
+    (Anew, Bnew) = wrtSameLatticeAndNormalize(A, B)
+    return Anew ≈ Bnew
+end
+
+
+function wrtSameLatticeAndNormalize(AV::CrystalVector, BV::CrystalVector)
+
+    if AV.CT.C.L.A == BV.CT.C.L.A
+        Anew = AV
+        Bnew = BV
+    else
+        X = lcm(AV.CT.C.L, BV.CT.C.L)
+        
+        Anew = wrtLattice(AV, X)
+        Bnew = wrtLattice(BV, X)
+    end
+    Anew = normalize(Anew)
+    Bnew = normalize(Bnew)
+    return Anew, Bnew
+end
+
+function normalize(CV::CrystalVector{N,T,outerdim, innerdim}) where {N,T,outerdim, innerdim}
+    S = CV.CT
+    if !(S.C._IsNormalized)
+    (dn, ds, dp) = ShiftIntoStandardCell(S.C.Domain, S.C.L)
+
+    CV = ChangeStructureElement(CV, dn)
+    end
+
+    ShiftCoordsIntoStandardCell(CV)
+end
+
+
+
+    function ChangeStructureElement(CV::CrystalVector{N,T,outerdim, innerdim}, Domain) where {N,T, outerdim, innerdim}
+        S = CV.CT
+        (dn_from, ds_from, dp_from) = ShiftIntoStandardCell(S.C.Domain, S.C.L)
+
+        newC = ALFA.Crystal{N,T}(S.C.L, Domain)
+        (dn_to, ds_to, dp_to) = ShiftIntoStandardCell(newC.Domain, S.C.L)
+
+        dn = Domain
+        dp = dp_from[invperm(dp_to)]
+        ds = ds_from-ds_to[invperm(dp_to)]
+
+        for j in 1:length(Domain)
+            @assert dn[j] + S.C.L.A*ds[j] ≈ S.C.Domain[dp[j]] "Domain structure element not compatible?, j= $j"
+        end
+
+
+        Cnew = Crystal{N,T}(S.C.L.A, dn)
+        CTnew = CrystalTorus{N,T}(Cnew, CV.CT.Z, CV.CT.coords)
+        #dn[j] = CT.C.Domain[dp[j]]
+        #Thus, we need vnew[i][j] = v[i][dp[j]]
+        v_new = copy(CV.v)
+        for v in v_new
+            v = v[dp]
+        end
+
+        CrystalVector{N,T,outerdim,innerdim}(CTnew, v_new)
+    end
+
+
+
+# Needed:
+# Given a torus L(A)/L(Z) with coords:
+# Shift coords into Z[0,1)^n
+
+function ShiftCoordsIntoStandardCell(CV::CrystalVector)
+    s = [CV.CT.C.A*x for x in CV.CT.coords]
+
+    t, y, p = ALFA.ShiftIntoStandardCell(s, CV.CT.Z)
+
+    # t[j] + Z*y[j] = s[p[j]]
+    # t[j] is found in the Standard Cell, cartesian coordinates.
+
+    coords_new = [round.(CV.CT.C.A\x) for x in t]
+    #coords_new = round.(CV.CT.C.A.\t) #fractional coordinates.
+
+    v_new = CV.v[p]
+
+    CT_new = CrystalTorus(CV.CT.C, CV.CT.Z, coords_new)
+
+    CrystalVector(CT_new, v_new)
 end

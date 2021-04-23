@@ -28,6 +28,16 @@ end
     include("gallery_test.jl")
 end
 
+
+@safetestset "CrystalTorus" begin
+    include("crystaltorus_test.jl")
+end
+
+@safetestset "CrystalVector" begin
+    include("crystalvector_test.jl")
+end
+
+
 @safetestset "Show" begin
     include("show_test.jl")
 end

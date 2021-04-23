@@ -16,12 +16,13 @@
         # x, y, z  # for surface
     end
 elseif N==1
+    p = sortperm(x)
     @series begin
-        x, z
+        x[p], z[p]
     end
     @series begin
         seriestype := :scatter
-        x, z
+        x[p], z[p]
     end
 end
 end
