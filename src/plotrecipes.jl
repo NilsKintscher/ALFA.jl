@@ -19,6 +19,10 @@ elseif N==1
     @series begin
         x, z
     end
+    @series begin
+        seriestype := :scatter
+        x, z
+    end
 end
 end
 

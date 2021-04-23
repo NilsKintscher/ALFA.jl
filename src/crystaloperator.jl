@@ -503,6 +503,9 @@ function wrtLattice(
         return_fractional = true,
         return_diag_hnf = true,
     )
+    # t are (fractional coordinates of) the elements in the lattice L(S.C.A) / L(A)
+    # This t is going to be added to the structure element.
+
     tiMinustj_all = collect(Iterators.product([-x+1:x-1 for x in dH]...))# all possible combinations of t[i]-t[j]
 
     # helper functions for t and index calculation of t
@@ -530,10 +533,18 @@ function wrtLattice(
     if mattype == Any
         mattype = Number
     end
+
+    # y_old = all positions of the multiplication operator. They are fractional coordinates of the underlying lattice S.C.L.A
+    # The multiplication operator wrt L(S.C.A) will be rewritten to an operator wrt L(A)
+    # Thus, the lattice points t in L(S.C.A)/L(A) are merged into a new structure element.
+    # For each position y_old[i], we have to find the unique correspondance t[j], such that y_old[i] - t[j] is in L(A).
+    #
+
     y_old = [x.pos for x in S.M]#vcat(transpose([x.pos for x in S.M])...)
     Ay_old = [S.C.L.A * x for x in y_old]#transpose(S.C.L.A * transpose(y_old))
 
 
+    # we wirst compute (all the (unique!) possible) positions of the new multiplier and store them.
     SS = SortedSet{Array{Int,1}}()
     if T <: Rational
         for j in Iterators.product(y_old, tiMinustj_all)
@@ -561,7 +572,7 @@ function wrtLattice(
     end
     y_new = collect(SS)
     Ay_new = [A * x for x in y_new]
-    # assign multipliers.
+    # given the new possible positions, we need find the correspondance to the old multipliers in order to construct the new multipliers.
 
     brs = S.C.size_codomain #block row size
     bcs = S.C.size_domain #block column size
@@ -570,16 +581,22 @@ function wrtLattice(
     op = CrystalOperator{N,T}(Cnew)
     op._CompatibilityCheckOnly = _CompatibilityCheckOnly
     for (it_y, y) in enumerate(Ay_new)
+        # we iterate over all new possible positions y[it_y] in L(A) in Cartesian coordinates.
         mm = nothing
         for tiMinustj in tiMinustj_all
+            # given tiMinustj := t[i] - t[j], we compute the lattice position y_test = y - S.C.L.A*(t[i] - t[j]) in L(A):
             y_test = y .- S.C.L.A * [tiMinustj...]
             for (it_yk, yk) in enumerate(Ay_old)
+                # For each old position of the crystal operator yk[it_yk] in L(S.C.L.A),
+                # we check if it corresponds to y_test
+                # if this is the case, we assign the old multiplier  to the corresponding new blockmatrix multiplier
                 if isapprox(yk, y_test, rtol = ALFA_rtol, atol = ALFA_atol)
                     matblock = m_old[it_yk].mat
                     if mm == nothing
                         mm =
                             zeros(mattype, Cnew.size_codomain, Cnew.size_domain) # init new matrix.
                     end
+                    # using the previously helper function we compute the indices it_ti,it_tj such that t[it_ti] - t[it_tj]
                     for (it_ti, it_tj) in [
                         lookup_idxij(x, tiMinustj)
                         for x in RangeOfTi(tiMinustj)
