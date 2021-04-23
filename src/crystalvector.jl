@@ -29,3 +29,25 @@ function CrystalVector(
     #return mv
     CrystalVector{N,T,outerdim, innerdim}(CT, mv)
 end
+
+
+
+function wrtLattice(CV::CrystalVector{N,T, outerdim, innerdim}, A) where {N,T, outerdim, innerdim}
+
+    CT = CV.CT
+
+    t = ElementsInQuotientSpace(CT.C.A, A, return_fractional = false)
+
+    # construct new Torus
+    newDomain = [x + y for x in t for y in CT.C.Domain]
+    newCodomain = [x + y for x in t for y in CT.C.Codomain]
+
+    C = Crystal{N,T}(A, newDomain, newCodomain)
+
+    CTnew = CrystalTorus{N,T}(C, CT.Z)
+
+    # todo: construct vector
+
+    #
+    return 0
+end

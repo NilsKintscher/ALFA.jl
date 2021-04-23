@@ -457,7 +457,7 @@ end
         normalize = true
     ) where {N,T}
 
-Rewrites the crystaloperator S wit hrespect to the translationally invariance A.
+Rewrites the crystaloperator S with respect to the translationally invariance A.
 
 # Example
 ```jldoctest
