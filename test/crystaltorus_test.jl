@@ -12,7 +12,7 @@ using StaticArrays
         )
 
         L = ALFA.Lattice{2,T}([2 0; 0 2])
-        CT = ALFA.CrystalTorus{2,T}(C,L)
+        CT = ALFA.CrystalTorus(C,L)
         @test isa(CT, ALFA.CrystalTorus) == true
 
     end
