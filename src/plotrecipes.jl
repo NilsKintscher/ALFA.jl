@@ -3,7 +3,7 @@
     ) where {N,T,outerdim, innerdim}
     xy = hcat(vcat([[y+CV.CT.C.L.A*x for y in CV.CT.C.Domain] for x in  CV.CT.coords]...)...)
     x = xy[1,:]
-    z = vcat(CV.v...)
+    z = transpose(CV.v)[:] #hcat(CV.v...)
     if N==2
     y = xy[2,:]
     @series begin

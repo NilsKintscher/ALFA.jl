@@ -1,13 +1,26 @@
 mutable struct CrystalVector{N,T,outerdim, innerdim}
     CT::CrystalTorus{N,T}
-    v::MVector{outerdim, MVector{innerdim, Float64}}
+    #v::SizedVector{outerdim, SizedVector{innerdim}}
+    v::SizedMatrix{outerdim, innerdim}
     function CrystalVector{N,T, outerdim, innerdim}(
         CT::CrystalTorus{N,T},
-        v::MVector{outerdim, MVector{innerdim, Float64}},
-    ) where {N,T,innerdim, outerdim} # ]{N,T<:Union{Float64,Rational}, innerdim <: Int, outerdim <: Int}
+        v::SizedMatrix{outerdim, innerdim},#SizedVector{outerdim, SizedVector{innerdim}},
+        #v::SizedVector{outerdim, SizedVector{innerdim, Vector{Float64}}, Vector{SizedVector{innerdim, Vector{Float64}}}}
+        #v
+    ) where {N,T,outerdim, innerdim} # ]{N,T<:Union{Float64,Rational}, innerdim <: Int, outerdim <: Int}
         new{N,T, outerdim, innerdim}(CT, v)
     end
 end
+
+function Base.getproperty(CV::CrystalVector{N,T,outerdim, innerdim}, sym::Symbol) where {N,T,outerdim, innerdim}
+    if sym == :parameters
+        (N,T,outerdim, innerdim)
+    else
+        # fallback to getfield
+        getfield(CV, sym)
+    end
+end
+
 
 function CrystalVector(
     CT::CrystalTorus{N,T},
@@ -17,14 +30,16 @@ function CrystalVector(
     outerdim = length(CT.coords)
     innerdim = length(CT.C.Domain) # Codomain is not used at all.
 
-    if typeof(v) <: Union{Vector, MVector}
-        mv = MVector{outerdim}([
-        MVector{innerdim, Float64}(vi) for vi in v
-        ])
+    if typeof(v) <: Union{Matrix, SizedMatrix}
+        mv = SizedMatrix{outerdim, innerdim}(v)
+        #SizedVector{outerdim}([
+        #SizedVector{innerdim}(vi) for vi in v
+        #])
     else
-        mv = MVector{outerdim}([
-        MVector{innerdim,Float64}(v(innerdim)) for i in 1:outerdim
-        ])
+        mv = SizedMatrix{outerdim, innerdim}(v(outerdim, innerdim))
+        #SizedVector{outerdim}([
+        #SizedVector{innerdim}(v(innerdim)) for i in 1:outerdim
+        #])
     end
     #return mv
     CrystalVector{N,T,outerdim, innerdim}(CT, mv)
@@ -74,50 +89,47 @@ function wrtLattice(CV::CrystalVector{N,T, outerdim, innerdim}, A) where {N,T, o
     # For c[2]=1 we find c[2] - t[2] =x_2 in L(A)
     #
     # Thus, v[1] and v[2] are merged into one new vector vnew[j]=[c[1], c[2]] which corresponds to a single new coord cnj = CTnew.coords[j].
-    # cnj are fractional coordinates in L(A)/L(Z)
+    # cnj are given in fractional coordinates in L(A)/L(Z)
     # the index j fulfils cnj - x_1 in L(Z)
 
     # construct new vector
     innerdim_new = innerdim*length(t)
     outerdim_new = length(CTnew.coords)
-    v_new = MVector{outerdim_new,MVector{innerdim_new,Float64}}([MVector{innerdim_new,Float64}(undef) for i in 1:outerdim_new])
+    v_new = SizedMatrix{outerdim_new, innerdim_new, typeof(CV.v).parameters[2]}(undef)
+    #v_new[1,1] = 0
+
+    #@show typeof(v_new)
+     # typeof(CV.v).parameters[2]
+    #SizedVector{outerdim_new,SizedVector{innerdim_new}}([SizedVector{innerdim_new}(undef) for i in 1:outerdim_new])
+
+    #@show typeof(v_new)
 
     bs = CT.C.size_domain # blocksize
 
     for (it_c, c) in enumerate(CT.coords)
-#println("")
-#@show CT.C.A
-#@show A
-#@show A\CT.C.A
-#@show t
-
-        #println("new c:")
-
-
-        #@show (it_c, c) # fractional coordinate
+        #@show "NEW COORD"
         for (it_ti,ti) in enumerate(t)
-            #@show (it_ti,ti)
             y = A\(CT.C.A*c-ti) # c and ti are fractional coordinates. transforming them to cart. coord and check if they are element of L(A)
             yr = round.(y)
-            #@show y
             if isapprox(y, yr, rtol = ALFA_rtol, atol = ALFA_atol)
-                #println("found ti")
                 # find the corresponding coordinate.
                 for (it_cnew, cnew) in enumerate(CTnew.coords)
-                    #@show (it_cnew, cnew)
                     # cnew is given in fractional coordinates. transform to cartesian coordinates
                     # given the cartesian coordinate of y, we check if the difference is part of L(Z)
                     x = CTnew.Z.A\(CTnew.C.A*cnew - A*yr)
                     xr = round.(x)
-                    #@show x
                     if isapprox(x, xr, rtol = ALFA_rtol, atol = ALFA_atol)
-                        #println("found also cnew")
-                        # found it.
+                        #@show "FOUND"
+                        #@show CV.v[it_c,:]
+                        #@show v_new[it_cnew, (it_ti-1)*bs+1:it_ti*bs]
+                        #v_new[1,1] = 0
+                        #for i in 1:bs
+                    #        v_new[it_cnew, (it_ti-1)*bs+i ] = 1.0 # CV.v[it_c,i] #1:it_ti*bs]
+                #        end
                         #@show it_cnew, (it_ti-1)*bs+1:it_ti*bs
-                        #@show it_c
-                        v_new[it_cnew][(it_ti-1)*bs+1:it_ti*bs] = CV.v[it_c]
-                        #@show "NEXT"
-                        #println("")
+                        v_new[it_cnew, (it_ti-1)*bs+1:it_ti*bs] = CV.v[it_c,:]
+                        #@show CV.v[it_c,:]
+                        #@show v_new[it_cnew, (it_ti-1)*bs+1:it_ti*bs]
                         break
                     end
                 end
@@ -125,22 +137,18 @@ function wrtLattice(CV::CrystalVector{N,T, outerdim, innerdim}, A) where {N,T, o
             end
         end
     end
-
+    #@show typeof(v_new)
+    #@show v_new[1]
+    #return v_new
+    #@show v_new
     CrystalVector{N,T,outerdim_new, innerdim_new}(CTnew, v_new)
+    #println("a")
+    #return 0
 end
 
 
 function Base.:(≈)(AV::CrystalVector{N,T,outerdim, innerdim}, BV::CrystalVector{N,T,outerdim, innerdim}) where {N,T,outerdim, innerdim}
-    if AV.CT ≈ BV.CT
-        for i in 1:outerdim
-            if !(AV.v[i] ≈ BV.v[i])
-                return false
-            end
-        end
-        return true
-    else
-        return false
-    end
+    return AV.CT ≈ BV.CT && AV.v ≈ BV.v
 end
 
 function IsApproxEquivalent(A::CrystalVector, B::CrystalVector)
@@ -148,6 +156,24 @@ function IsApproxEquivalent(A::CrystalVector, B::CrystalVector)
     return Anew ≈ Bnew
 end
 
+function wrtSameLatticeAndNormalize(A::CrystalOperator, B::CrystalVector)
+    B, A = wrtSameLatticeAndNormalize(B, A)
+    return A, B
+end
+function wrtSameLatticeAndNormalize(AV::CrystalVector, S::CrystalOperator)
+    if AV.CT.C.L.A == S.C.L.A
+        Anew = AV
+        Bnew = S
+    else
+        X = lcm(AV.CT.C.L, S.C.L)
+
+        Anew = wrtLattice(AV, X)
+        Bnew = wrtLattice(S, X)
+    end
+    Anew = normalize(Anew)
+    Bnew = normalize(Bnew)
+    return Anew, Bnew
+end
 
 function wrtSameLatticeAndNormalize(AV::CrystalVector, BV::CrystalVector)
 
@@ -156,7 +182,7 @@ function wrtSameLatticeAndNormalize(AV::CrystalVector, BV::CrystalVector)
         Bnew = BV
     else
         X = lcm(AV.CT.C.L, BV.CT.C.L)
-        
+
         Anew = wrtLattice(AV, X)
         Bnew = wrtLattice(BV, X)
     end
@@ -197,11 +223,12 @@ end
         Cnew = Crystal{N,T}(S.C.L.A, dn)
         CTnew = CrystalTorus{N,T}(Cnew, CV.CT.Z, CV.CT.coords)
         #dn[j] = CT.C.Domain[dp[j]]
-        #Thus, we need vnew[i][j] = v[i][dp[j]]
-        v_new = copy(CV.v)
-        for v in v_new
-            v = v[dp]
-        end
+        #Thus, we need vnew[i, j] = v[i, dp[j]]
+        #v_new = copy(CV.v)
+        v_new = SizedMatrix{outerdim, innerdim}(CV.v[:,dp])
+        #for v in v_new
+        #    v = v[dp]
+        #end
 
         CrystalVector{N,T,outerdim,innerdim}(CTnew, v_new)
     end
@@ -212,7 +239,7 @@ end
 # Given a torus L(A)/L(Z) with coords:
 # Shift coords into Z[0,1)^n
 
-function ShiftCoordsIntoStandardCell(CV::CrystalVector)
+function ShiftCoordsIntoStandardCell(CV::CrystalVector{N,T,outerdim, innerdim}) where {N,T,outerdim, innerdim}
     s = [CV.CT.C.A*x for x in CV.CT.coords]
 
     t, y, p = ALFA.ShiftIntoStandardCell(s, CV.CT.Z)
@@ -223,9 +250,163 @@ function ShiftCoordsIntoStandardCell(CV::CrystalVector)
     coords_new = [round.(CV.CT.C.A\x) for x in t]
     #coords_new = round.(CV.CT.C.A.\t) #fractional coordinates.
 
-    v_new = CV.v[p]
+    v_new = CV.v[p,:] # SizedVector{outerdim}(CV.v[p])
 
     CT_new = CrystalTorus(CV.CT.C, CV.CT.Z, coords_new)
 
+    #@show typeof(v_new)
+    #return v_new
     CrystalVector(CT_new, v_new)
 end
+#SizedVector{9, SizedVector{4, TData} where TData<:AbstractVector{Float64}, Vector{SizedVector{4, TData} where TData<:AbstractVector{Float64}}}
+
+
+function ChangeTorusCoords(CV::CrystalVector{N,T}, coords; fractional=true) where {N,T}
+    # coords given in fractional coordinates?
+    if(fractional)
+        s_new_cart = [CV.CT.C.A*x for x in coords]
+        s_new_fract = coords
+    else
+        s_new_cart = coords
+        s_new_fract = [round.(CV.CT.C.A\x) for x in coords]
+    end
+
+    s_old_cart = [CV.CT.C.A*x for x in CV.CT.coords]
+
+    (_, _, p_from) = ShiftIntoStandardCell(s_old_cart, CV.CT.Z)
+    (_, _, p_to) = ShiftIntoStandardCell(s_new_cart, CV.CT.Z)
+
+
+    v_new = CV.v[p_from[invperm(p_to)], :]
+    CT_new = CrystalTorus(CV.CT.C, CV.CT.Z, s_new_fract)
+    CrystalVector(CT_new, v_new)
+end
+
+
+# mathematical operations
+function LinearAlgebra.norm(A::CrystalVector{N,T,outerdim, innerdim}) where {N,T,outerdim, innerdim}
+    norm(A.v)
+    #sum = 0
+    #for vi in A.v
+    #    sum += norm(vi)
+    #end
+    #sum/outerdim
+end
+
+# standalone
+function Base.:-(A::CrystalVector)
+    Ac = deepcopy(A)
+    Ac.v = -Ac.v
+    return Ac
+end
+
+# scalar:
+
+function Base.:/(A::CrystalVector, b::T) where {T<:Number}
+    return A * (1 / b)
+end
+
+function Base.:*(A::CrystalVector, b::T) where {T<:Number}
+    Ac = deepcopy(A)
+    Ac.v = Ac.v * b
+    return Ac
+end
+
+function Base.:*(b::T, A::CrystalVector) where {T<:Number}
+    return A*b
+end
+
+function Base.:+(b::T, A::CrystalVector) where {T<:Number}
+    return A+b
+end
+
+
+function Base.:-(b::T, A::CrystalVector) where {T<:Number}
+    return b+(-A)
+end
+
+
+
+function Base.:-(A::CrystalVector, b::T) where {T<:Number}
+    return A+(-b)
+end
+
+
+function Base.:+(A::CrystalVector, b::T) where {T<:Number}
+    Ac = deepcopy(A)
+    Ac.v .+= b # = SizedVector([x.+b for x in Ac.v])
+    return Ac
+end
+
+# vector with vector
+
+function Base.:+(AV::CrystalVector, BV::CrystalVector)
+    AV1, BV1 = wrtSameLatticeAndNormalize(AV,BV)
+    @assert AV1.CT ≈ BV1.CT "Crystal Tori not equivalent."
+
+    vnew = AV1.v + BV1.v
+    CrystalVector(AV.CT, vnew)
+end
+
+function Base.:-(AV::CrystalVector, BV::CrystalVector)
+    AV+(-BV)
+end
+
+function LinearAlgebra.dot(AV::CrystalVector, BV::CrystalVector)
+    AV1, BV1 = wrtSameLatticeAndNormalize(AV,BV)
+    @assert AV1.CT ≈ BV1.CT "Crystal Tori not equivalent."
+
+    dot(AV1.v, BV1.v)
+end
+
+# CrystalOperator with vector
+function Base.:*(A::CrystalOperator{N,T}, CV::CrystalVector{N,T,outerdim, innerdim}) where {N,T, outerdim, innerdim}
+    # compute A*f = sum_{y in A.M} y.mat * f(x + y.pos)
+    # todo
+    A, CV = wrtSameLatticeAndNormalize(A,CV)
+    @assert A.C.L ≈ CV.CT.C.L "Lattices not equivalent."
+    @assert A.C.Domain ≈ CV.CT.C.Domain "Domains not equivalent."
+    #
+    Cnew = Crystal{N,T}(CV.CT.C.L, A.C.Codomain)
+    CTnew = CrystalTorus(Cnew,CV.CT.Z, CV.CT.coords)
+
+    outerdim_new = CV.parameters[3] # outerdim
+    innerdim_new = length(A.C.Codomain)
+
+
+    #v_new = SizedVector{outerdim_new,SizedVector{innerdim_new}}([SizedVector{innerdim_new}(zeros(innerdim_new)) for i in 1:outerdim_new])
+    v_new = SizedMatrix{outerdim_new, innerdim_new}(zeros(outerdim_new, innerdim_new))
+
+    for (v_pos_frac_it, v_pos_frac) in  enumerate(CV.CT.coords)
+        #vi = zeros(innerdim_new)
+        for am in A.M
+            # m_pos = am.pos
+            # m_mat = am.mat
+
+            # find x = v_pos_frac + y.pos in coords.
+            # x is given in fractional coordinates.
+            pos_frac = v_pos_frac + am.pos
+            #@show pos_frac
+            found = false
+            for (v_from_pos_frac_it, v_from_pos_frac) in enumerate(CV.CT.coords)
+                x = CV.CT.Z.A\(A.C.L.A*(pos_frac - v_from_pos_frac))
+                xr = round.(x)
+                if isapprox(x, xr, rtol = ALFA_rtol, atol = ALFA_atol)
+                    #@show CV.v[v_from_pos_frac_it]
+                    #@show am.mat
+                    #@show typeof(am.mat*CV.v[v_from_pos_frac_it])
+                    #vi += am.mat*CV.v[v_from_pos_frac_it]
+                    v_new[v_pos_frac_it,:] += am.mat*CV.v[v_from_pos_frac_it,:]
+                    found = true
+                    break
+                end
+            end
+            @assert found "No corresponding position found. Something must be wrong."
+        end
+    end
+    #return CTnew, v_new
+    CrystalVector(CTnew, v_new)
+end
+
+
+#

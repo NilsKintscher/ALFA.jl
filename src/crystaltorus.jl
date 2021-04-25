@@ -42,7 +42,7 @@ end
 
 function CrystalTorus(
     C::Crystal{N,T},
-    Z::X) where {N,T,X<:Matrix}
+    Z::X) where {N,T,X<:Union{Matrix, MMatrix}}
     Z = ALFA.Lattice{N,T}(Z)
     CrystalTorus(C,Z)
 end

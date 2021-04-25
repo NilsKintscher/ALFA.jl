@@ -132,7 +132,6 @@ function adjointProp(N, T)
 end
 
 
-
 macro check(func::Symbol, numtests, N, T)
     quote
         local escf = $(esc(func))
