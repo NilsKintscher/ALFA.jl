@@ -237,7 +237,7 @@ end
 
         newC = ALFA.Crystal{N,T}(S.C.L, Domain)
         (dn_to, ds_to, dp_to) = ShiftIntoStandardCell(newC.Domain, S.C.L)
-
+        # dn_to in in unit cell, ds_to = shift.
         dn = Domain
         dp = dp_from[invperm(dp_to)]
         ds = ds_from-ds_to[invperm(dp_to)]
@@ -249,14 +249,29 @@ end
 
         Cnew = Crystal{N,T}(S.C.L.A, dn)
         CTnew = CrystalTorus{N,T}(Cnew, CV.CT.Z, CV.CT.coords)
-        #dn[j] = CT.C.Domain[dp[j]]
-        #Thus, we need vnew[i, j] = v[i, dp[j]]
-        #v_new = copy(CV.v)
-        v_new = SizedMatrix{outerdim, innerdim}(CV.v[:,dp])
-        #for v in v_new
-        #    v = v[dp]
-        #end
 
+        v_new = deepcopy(CV.v)
+
+        rowperm(x) = [mod(y-1+(x-1), outerdim)+1 for y in 1:outerdim]
+        #@show rowperm(1)
+        for (it,x) in enumerate(ds_to)
+            # find CT
+            for (it_c, c) in enumerate(CV.CT.coords)
+                y = CV.CT.Z.A\(CV.CT.C.L.A*(x-c))
+                yr = round.(y)
+                if isapprox(y, yr, rtol = ALFA_rtol, atol = ALFA_atol)
+                    #@show it
+                    #@show it_c
+                    #@show rowperm(it_c)
+                    #@show v_new[:, it]
+                    #@show v_new[:, it]
+                    #@show "permute..:"
+                    v_new[:, it] = v_new[rowperm(it_c), it]
+                    #@show v_new[:, it]
+                end
+            end
+        end
+        v_new[:,:] = v_new[:,dp]
         CrystalVector{N,T,outerdim,innerdim}(CTnew, v_new)
     end
 
