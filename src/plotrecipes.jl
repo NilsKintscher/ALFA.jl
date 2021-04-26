@@ -466,7 +466,7 @@ end
 
 @userplot plotSpectrum
 
-@recipe function f(h::plotSpectrum; N = 20, zfilter = nothing)
+@recipe function f(h::plotSpectrum; N = 20, zfilter = nothing, zmod=real)
 
     @assert h.args[1] isa CrystalOperator || h.args[1] isa OperatorComposition "input must be a CrystalOperator or OperatorComposition"
     S = h.args[1]
@@ -479,7 +479,7 @@ end
         function f1d(x)
             dAxy = S.C.L.dA * [x]
             try
-                z = abs(ALFA.eigvals(S, dAxy)[end])
+                z = zmod(ALFA.eigvals(S, dAxy)[end])
             catch
                 z = NaN
             end
@@ -520,7 +520,7 @@ end
         function f2d(x, y)
             dAxy = S.C.L.dA * [x, y]
             try
-                z = abs(ALFA.eigvals(S, dAxy)[end])
+                z = zmod(ALFA.eigvals(S, dAxy)[end])
             catch
                 z = NaN
             end

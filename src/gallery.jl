@@ -41,6 +41,16 @@ function Laplace(;N = 2, h=1, T = Float64)
     end
 end
 
+function Helmholtz(k=0;N = 2, h=1, T = Float64)
+    L = Laplace(;N = N, h=h, T = T)
+    for m in L.M
+        if norm(m.pos) == 0
+            m.mat .+= k^2/h^2
+            break
+        end
+    end
+    return L
+end
 """
     fw_restriction(;m=1, N = 2, T = Float64)
 
