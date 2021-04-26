@@ -4,6 +4,11 @@
     xy = hcat(vcat([[y+CV.CT.C.L.A*x for y in CV.CT.C.Domain] for x in  CV.CT.coords]...)...)
     x = xy[1,:]
     z = transpose(CV.v)[:] #hcat(CV.v...)
+
+    @series begin
+        seriesalpha --> 0.5
+        CV.CT
+    end
     if N==2
     y = xy[2,:]
     @series begin
@@ -181,9 +186,9 @@ end
 ) where {T}
 
     seriestype --> :scatter
-    markercolor --> :orange
+    markercolor --> :blue
     label := ""
-    markershape --> :dtriangle
+    #markershape --> :dtriangle
     if plot_domain
         s = C.Domain
     else
@@ -191,8 +196,13 @@ end
     end
 
     xy =  C.L.A * collect(Iterators.flatten(pos_fractional))'
-    for pos in s # eachslice(s, dims = 1)
+
+    shapes_vec = [:xcross, :circle, :rect, :star5, :diamond, :hexagon, :cross, :utriangle, :dtriangle, :rtriangle, :ltriangle, :pentagon, :heptagon,:octagon, :star4, :star6, :star7, :star8, :vline]
+
+
+    for (it,pos) in enumerate(s) # eachslice(s, dims = 1)
         @series begin
+            markershape --> shapes_vec[mod(it, length(shapes_vec) ) + 1]
             xy[1, :] .+ pos[1], zeros(size(xy[1, :]))
         end
     end
@@ -206,7 +216,7 @@ end
     seriestype --> :scatter
     markercolor --> :orange
     label := ""
-    markershape --> :dtriangle
+    # markershape --> :dtriangle
     if plot_domain
         s = C.Domain
     else
@@ -214,8 +224,12 @@ end
     end
 
     xy = C.L.A * reshape(collect(Iterators.flatten(pos_fractional)), 2, :)
-    for pos in s # eachslice(s, dims = 1)
+
+    shapes_vec = [:xcross, :circle, :rect, :star5, :diamond, :hexagon, :cross, :utriangle, :dtriangle, :rtriangle, :ltriangle, :pentagon, :heptagon,:octagon, :star4, :star6, :star7, :star8, :vline]
+
+    for (it,pos) in enumerate(s) # eachslice(s, dims = 1)
         @series begin
+            markershape --> shapes_vec[mod(it, length(shapes_vec) ) +1 ]
             xy[1, :] .+ pos[1], xy[2, :] .+ pos[2]
         end
     end

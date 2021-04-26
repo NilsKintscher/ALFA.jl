@@ -61,7 +61,7 @@ function wrtLattice(CT::CrystalTorus{N,T}, A) where {N,T}
 
     C = Crystal{N,T}(A, newDomain, newCodomain)
 
-    return CrystalTorus{N,T}(C, CT.Z)
+    return CrystalTorus(C, CT.Z)
 end
 
 
@@ -76,5 +76,16 @@ end
 
 function normalize(CT::CrystalTorus{N,T}) where {N,T}
     CTnC = normalize(CT.C)
-    return ALFA.CrystalTorus(CTnC, CT.Z)
+    return ShiftCoordsIntoStandardCell(ALFA.CrystalTorus(CTnC, CT.Z))
+end
+
+function ShiftCoordsIntoStandardCell(CT::CrystalTorus{N,T}) where {N,T}
+    s = [CT.C.A*x for x in CT.coords]
+
+    t, y, p = ALFA.ShiftIntoStandardCell(s, CT.Z)
+
+    coords_new = [round.(CT.C.A\x) for x in t]
+
+    CrystalTorus(CT.C, CT.Z, coords_new)
+
 end
