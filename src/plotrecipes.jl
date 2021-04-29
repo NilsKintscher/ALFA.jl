@@ -493,38 +493,45 @@ end
         function f1d(x)
             dAxy = S.C.L.dA * [x]
             try
-                z = zmod(ALFA.eigvals(S, dAxy)[end])
-            catch
-                z = NaN
-            end
-            if zfilter != nothing
-                if z < zfilter[1] || z > zfilter[2]
-                    z = NaN
+                z = zmod.(ALFA.eigvals(S, dAxy))
+                for (zi_it,zi) in enumerate(z)
+                    if zfilter != nothing
+                        if zi < zfilter[1] || zi > zfilter[2]
+                            z[zi_it] = NaN
+                        end
+                    end
+                    if zi > maxval
+                        maxval = zi
+                        maxx = x
+                    end
                 end
+                return z
+                #@show
+            catch
+                z = [NaN for i in 1:S.C.size_domain]
+                return z
             end
-            if z > maxval
-                maxval = z
-                maxx = x
-            end
-            return z
         end
 
-        zv = [f1d(xx) for xx in x]
-
-        seriescolor --> :viridis
-        @series begin
-            #seriestype := :surface
-            label := ""
-            title := ""
-            x, zv
-
-        end
+        zv = hcat([f1d(xx) for xx in x]...)
         @series begin
             seriestype := :scatter
             markercolor := :red
-            label -> "max(z) = " * fmt(FormatSpec(".3e"), maxval)
+            label := "max(z) = " * fmt(FormatSpec(".3e"), maxval)
             [maxx], [maxval]
         end
+        for i in 1:S.C.size_domain
+            #seriescolor --> :viridis
+            @series begin
+                #seriestype := :surface
+                label := ""
+                title := ""
+                x, zv[i,:]
+
+            end
+end
+
+
     elseif S.C.n == 2
         x = y = range(0, stop = 1, length = N + 1)[1:end-1]
         maxval = -Inf

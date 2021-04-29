@@ -28,4 +28,6 @@ include("crystaltorus.jl")
 include("crystalvector.jl")
 
 include("plotrecipes.jl")
+
+include("helmholtz_test.jl")
 end # module

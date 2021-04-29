@@ -66,8 +66,8 @@ function fw_restriction(;m=1, N = 2, T = Float64)
         C = ALFA.Crystal{1,T}(A, Domain, Codomain)
         L = ALFA.CrystalOperator{1,T}(C)
 
-        push!(L, ALFA.Multiplier([0], [1 1//2]))
-        push!(L, ALFA.Multiplier([-1], [0 1//2]))
+        push!(L, ALFA.Multiplier([0], [1 1/2]))
+        push!(L, ALFA.Multiplier([-1], [0 1/2]))
         return L
     elseif N == 2
         A = 2^m * [1 0; 0 1]
