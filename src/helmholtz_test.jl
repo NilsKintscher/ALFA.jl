@@ -30,9 +30,10 @@ end
 
 
 
-function all_combs(CV::CrystalVector{N,T, outerdim, innerdim}, CT::CrystalTorus{N,T}) where {N,T, outerdim, innerdim}
+function all_combs(CV::CrystalVector{N,T, outerdim, innerdim}, n::Int) where {N,T, outerdim, innerdim}
 
-CT4 = wrtLattice(CT, CT.C.L.A*4)
+CT4 = wrtLattice(CT, CT.C.L.A*n)
+
 xZ4 = ALFA.wrtCrystalReverse(xZ, CT4)
 xZ4_all = [ALFA.ChangeStructureElement(xZ4, [y .+ x for y in CT4.C.Domain])  for x in CT4.C.Domain ]
 

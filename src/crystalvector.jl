@@ -1,13 +1,10 @@
 mutable struct CrystalVector{N,T,outerdim, innerdim}
     CT::CrystalTorus{N,T}
-    #v::SizedVector{outerdim, SizedVector{innerdim}}
     v::SizedMatrix{outerdim, innerdim}
     function CrystalVector{N,T, outerdim, innerdim}(
         CT::CrystalTorus{N,T},
-        v::SizedMatrix{outerdim, innerdim},#SizedVector{outerdim, SizedVector{innerdim}},
-        #v::SizedVector{outerdim, SizedVector{innerdim, Vector{Float64}}, Vector{SizedVector{innerdim, Vector{Float64}}}}
-        #v
-    ) where {N,T,outerdim, innerdim} # ]{N,T<:Union{Float64,Rational}, innerdim <: Int, outerdim <: Int}
+        v::SizedMatrix{outerdim, innerdim},
+    ) where {N,T,outerdim, innerdim}
         new{N,T, outerdim, innerdim}(CT, v)
     end
 end

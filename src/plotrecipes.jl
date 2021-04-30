@@ -41,7 +41,7 @@ end
         CT.Z
     end
     @series begin
-        CT.C, CT.coords
+        CT.C, hcat(CT.coords...)
     end
 end
 
@@ -196,6 +196,7 @@ end
     end
 
     xy =  C.L.A * collect(Iterators.flatten(pos_fractional))'
+    #xy = [C.L.A * x for x in pos_fractional]
 
     shapes_vec = [:xcross, :circle, :rect, :star5, :diamond, :hexagon, :cross, :utriangle, :dtriangle, :rtriangle, :ltriangle, :pentagon, :heptagon,:octagon, :star4, :star6, :star7, :star8, :vline]
 
@@ -229,7 +230,7 @@ end
 
     for (it,pos) in enumerate(s) # eachslice(s, dims = 1)
         @series begin
-            markershape --> shapes_vec[mod(it, length(shapes_vec) ) +1 ]
+            markershape --> shapes_vec[mod(it,length(shapes_vec))+1]
             xy[1, :] .+ pos[1], xy[2, :] .+ pos[2]
         end
     end
