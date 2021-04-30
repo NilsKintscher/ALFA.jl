@@ -397,16 +397,11 @@ function Base.:*(A::CrystalOperator{N,T}, CV::CrystalVector{N,T,outerdim, innerd
             # find x = v_pos_frac + y.pos in coords.
             # x is given in fractional coordinates.
             pos_frac = v_pos_frac + am.pos
-            #@show pos_frac
             found = false
             for (v_from_pos_frac_it, v_from_pos_frac) in enumerate(CV.CT.coords)
                 x = CV.CT.Z.A\(A.C.L.A*(pos_frac - v_from_pos_frac))
                 xr = round.(x)
                 if isapprox(x, xr, rtol = ALFA_rtol, atol = ALFA_atol)
-                    #@show CV.v[v_from_pos_frac_it]
-                    #@show am.mat
-                    #@show typeof(am.mat*CV.v[v_from_pos_frac_it])
-                    #vi += am.mat*CV.v[v_from_pos_frac_it]
                     v_new[v_pos_frac_it,:] += am.mat*CV.v[v_from_pos_frac_it,:]
                     found = true
                     break
