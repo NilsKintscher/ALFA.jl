@@ -16,7 +16,7 @@ StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 
 [compat]
 ColorSchemes = "3.9"
-DataFrames = "0.22"
+DataFrames = "0.22, 1.0"
 DataStructures = "0.18"
 Formatting = "0.4"
 MacroTools = "0.5"
