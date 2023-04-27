@@ -443,7 +443,7 @@ end
             catch
                 z = NaN
             end
-            if zfilter != nothing
+            if zfilter !== nothing
                 if z < zfilter[1] || z > zfilter[2]
                     z = NaN
                 end
@@ -503,7 +503,7 @@ end
             catch
                 z = NaN
             end 
-            if zfilter != nothing
+            if zfilter !== nothing
                 if z < zfilter[1] || z > zfilter[2]
                     z = NaN
                 end

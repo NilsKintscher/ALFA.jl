@@ -44,7 +44,7 @@ ERROR: AssertionError: Basis must be nonsingular
 ```
 """
 function Lattice{N,T}(A = nothing) where {N,T<:Union{Float64,Rational}}
-    if A == nothing
+    if A === nothing
         A = MMatrix{N,N,T}(I) # identity matrix.
     elseif A isa Matrix
         @assert size(A, 1) == size(A, 2) "Matrix must be square."

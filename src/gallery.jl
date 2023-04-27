@@ -84,7 +84,7 @@ See [Section 6.1, 1] Kahl, K., Kintscher, N. Automated local Fourier analysis (A
 
 """
 function graphene_tight_binding(;t = nothing, T=Float64)
-    if t == nothing
+    if t === nothing
         t = [0, -1, 0, 0]
     end
     A = 1 // 2 * [3 3; sqrt(3) -sqrt(3)]

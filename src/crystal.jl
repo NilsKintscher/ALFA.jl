@@ -43,7 +43,7 @@ Codomain: 1-element Vector{StaticArraysCore.SVector{2, Float64}}:
 ```
 """
 function Crystal{N,T}(L = nothing, Domain = nothing, Codomain = nothing) where {N,T<:Union{Float64, Rational}}
-    if L == nothing
+    if L === nothing
         L = Lattice{N,T}()
     elseif !isa(L, Lattice) #typeof(L) != Lattice
         L = Lattice{N,T}(L)
@@ -51,7 +51,7 @@ function Crystal{N,T}(L = nothing, Domain = nothing, Codomain = nothing) where {
 
     #N = L.dim# typeof(L).parameters[1] # dimension
 
-    if Domain == nothing # put a point at the origin.
+    if Domain === nothing # put a point at the origin.
         Domain = [zeros(SVector{N,T})]
     elseif typeof(Domain) <: Vector{Vector{T}} where {T<:Real} ||
            Domain isa Vector{Matrix{T}} where {T<:Real} #  turn Vector of Vector into Vector of SVector
@@ -66,7 +66,7 @@ function Crystal{N,T}(L = nothing, Domain = nothing, Codomain = nothing) where {
         Domain = [SVector{N,T}(x) for x in eachrow(Domain)]
     end
 
-    if Codomain == nothing # put a point at the origin.
+    if Codomain === nothing # put a point at the origin.
         Codomain = Domain
     elseif typeof(Codomain) <: Vector{Vector{T}} where {T<:Real} ||
            Codomain isa Vector{Matrix{T}} where {T<:Real}# turn Vector into Matrix with 1 Column

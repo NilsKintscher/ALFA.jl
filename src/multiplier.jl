@@ -35,11 +35,11 @@ function Multiplier{N}(pos = nothing, mat = nothing) where {N}
 end
 
 function Multiplier(pos = nothing, mat = nothing)
-    if pos == nothing
+    if pos === nothing
         pos = MVector{1,Int}(0)
     end
     N = length(pos)
-    if mat == nothing
+    if mat === nothing
         mat = Matrix{Complex}(I, 0, 0)
     elseif typeof(mat) <: Vector
         mat = reshape(mat, length(mat), 1)

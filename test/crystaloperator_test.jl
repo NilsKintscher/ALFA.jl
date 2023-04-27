@@ -66,7 +66,7 @@ const atol = 1e-14
 
 
         # test find_multiplier
-        @test ALFA.find_multiplier(O, [12, 12]) == nothing
+        @test ALFA.find_multiplier(O, [12, 12]) === nothing
         @test ALFA.find_multiplier(O, [0, 0]) isa ALFA.Multiplier
 
 

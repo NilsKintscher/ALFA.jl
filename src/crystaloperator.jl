@@ -77,10 +77,10 @@ function CrystalOperator{N,T}(
     M = nothing,
     _CompatibilityCheckOnly = false,
 ) where {N,T<:Union{Float64,Rational}}
-    if C == nothing
+    if C === nothing
         C = Crystal{N,T}()
     end
-    if M == nothing
+    if M === nothing
         M = SortedSet{Multiplier}()
     end
     return CrystalOperator{N,T}(C, M, _CompatibilityCheckOnly)
@@ -156,13 +156,13 @@ function CrystalOperatorCopyWithMultipliers(
     pos = nothing,
     idx = nothing,
 ) where {N,T}
-    if pos == nothing
+    if pos === nothing
         pos = zeros(N)
     end
 
     m = deepcopy(find_multiplier(S, pos))
     P = zeros(eltype(m.mat), S.C.size_codomain, S.C.size_domain)
-    if idx == nothing
+    if idx === nothing
         P = I + P
     else
         for j in idx
@@ -195,7 +195,7 @@ function CrystalOperatorCopyLowerTriangle(
     pos = zeros(N)
 
     P = zeros(eltype(first(S.M).mat),S.C.size_codomain, S.C.size_domain)
-    if idx == nothing
+    if idx === nothing
         P = I + P
     else
         P[idx, idx] .= 1
@@ -279,7 +279,7 @@ Multiplier: 5-element Vector{ALFA.Multiplier}:
 function Base.push!(S::CrystalOperator, m::Multiplier, add_to_existing = false)
     if add_to_existing
         m_old = find_multiplier(S, m.pos)
-        if m_old == nothing
+        if m_old === nothing
             _sanitycheck(S.C, m)
             push!(S.M, m)
         else
@@ -395,14 +395,14 @@ function _ModifyStructureElementCore(S::CrystalOperator{N,T}, dn, ds, dp, cn, cs
         mat = nothing  # allocate new matrix.
         for (k, i, j) in idxset
             if m_old[k].mat[cp[i], dp[j]] != 0
-                if mat == nothing
+                if mat === nothing
                     mat = zeros(mattype, size(m_old[1].mat)...) #0 * m_old[1].mat
                 end
                 mat[i, j] = m_old[k].mat[cp[i], dp[j]]
             end
         end
 
-        if mat != nothing
+        if mat !== nothing
             push!(op, Multiplier(y_new, mat))
         end
     end
@@ -576,7 +576,7 @@ function wrtLattice(
             for (it_yk, yk) in enumerate(Ay_old)
                 if isapprox(yk, y_test, rtol = ALFA_rtol, atol = ALFA_atol)
                     matblock = m_old[it_yk].mat
-                    if mm == nothing
+                    if mm === nothing
                         mm =
                             zeros(mattype, Cnew.size_codomain, Cnew.size_domain) # init new matrix.
                     end
@@ -595,7 +595,7 @@ function wrtLattice(
                 #end
             end
         end
-        if mm != nothing
+        if mm !== nothing
             push!(op, Multiplier(y_new[it_y], mm))
         end
     end
