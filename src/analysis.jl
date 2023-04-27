@@ -55,7 +55,7 @@ function eigvals(
 }
     symb = ComplexF64.(symbol(S, k))
     ev = LinearAlgebra.eigvals(symb)
-    if by == nothing
+    if by === nothing
         return ev
     else
         return sort(ev, by = by)
