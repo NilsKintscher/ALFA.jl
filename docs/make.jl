@@ -1,6 +1,6 @@
 using Documenter, ALFA, ALFA.gallery
 
-makedocs(;
+makedocs(doctest = false;
     modules=[ALFA, ALFA.gallery],
     format=Documenter.HTML(),
     pages=[
