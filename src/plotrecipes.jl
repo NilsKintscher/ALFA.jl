@@ -424,7 +424,7 @@ end
 
 @userplot plotSpectrum
 
-@recipe function f(h::plotSpectrum; N = 20, zfilter = nothing)
+@recipe function f(h::plotSpectrum; N = 20, zfilter = nothing, modifier = abs, surfaceIndexFirst = lastindex, surfaceIndexSecond = lastindex )
 
     @assert h.args[1] isa CrystalOperator || h.args[1] isa OperatorComposition "input must be a CrystalOperator or OperatorComposition"
     S = h.args[1]
@@ -433,11 +433,13 @@ end
         x = range(0, stop = 1, length = N + 1)[1:end-1]
         maxval = -Inf
         maxx = NaN
-
-        function f1d(x)
+        
+        function f1d(x, surfaceIdx = surfaceIdx)
             dAxy = S.C.L.dA * [x]
             try
-                z = abs(ALFA.eigvals(S, dAxy)[end])
+                evals = sort(modifier.(ALFA.eigvals(S, dAxy)))
+
+                z =  evals[surfaceIdx]
             catch
                 z = NaN
             end
@@ -453,7 +455,24 @@ end
             return z
         end
 
-        zv = [f1d(xx) for xx in x]
+          
+        num_evals = 1:S.C.size_codomain
+
+        if typeof(surfaceIndexFirst) <: Int 
+            idxRangeStart = surfaceIndexFirst
+        else
+            idxRangeStart = surfaceIndexFirst(num_evals)
+        end
+        if typeof(surfaceIndexSecond) <: Int 
+            idxRangeEnd = surfaceIndexSecond
+        else
+            idxRangeEnd = surfaceIndexSecond(num_evals)
+        end
+
+        for idx in idxRangeStart:idxRangeEnd
+
+
+        zv = [f1d(xx, idx) for xx in x]
 
         seriescolor --> :viridis
         @series begin
@@ -469,19 +488,21 @@ end
             label -> "max(z) = " * fmt(FormatSpec(".3e"), maxval)
             [maxx], [maxval]
         end
+    end 
     elseif S.C.n == 2
         x = y = range(0, stop = 1, length = N + 1)[1:end-1]
         maxval = -Inf
         maxx = NaN
         maxy = NaN
-
-        function f2d(x, y)
+        function f2d(x, y, surfaceIdx = surfaceIdx)
             dAxy = S.C.L.dA * [x, y]
             try
-                z = abs(ALFA.eigvals(S, dAxy)[end])
+                evals = sort(modifier.(ALFA.eigvals(S, dAxy)))
+
+                z =  evals[surfaceIdx]
             catch
                 z = NaN
-            end
+            end 
             if zfilter != nothing
                 if z < zfilter[1] || z > zfilter[2]
                     z = NaN
@@ -494,30 +515,99 @@ end
             end
             return z
         end
+        
+        num_evals = 1:S.C.size_codomain
 
-        zv = [f2d(xx, yy) for xx in x for yy in y]
+        if typeof(surfaceIndexFirst) <: Int 
+            idxRangeStart = surfaceIndexFirst
+        else
+            idxRangeStart = surfaceIndexFirst(num_evals)
+        end
+        if typeof(surfaceIndexSecond) <: Int 
+            idxRangeEnd = surfaceIndexSecond
+        else
+            idxRangeEnd = surfaceIndexSecond(num_evals)
+        end
 
-        layout := (1, 2)
-        seriescolor --> :viridis
-        @series begin
-            subplot := 1
-            seriestype := :surface
-            title := ""
-            x, y, zv
+        for idx in idxRangeStart:idxRangeEnd
 
-        end
-        @series begin
-            subplot := 2
-            seriestype := :contourf
-            x, y, zv
-        end
-        @series begin
-            subplot := 2
-            seriestype := :scatter
-            markercolor := :red
-            markersize := 4
-            label := "max(z) = " * fmt(FormatSpec(".3e"), maxval)
-            [maxx], [maxy]
-        end
+            zv = [f2d(xx, yy, idx) for xx in x for yy in y]
+
+            layout := (1, 2)
+            seriescolor --> :viridis
+            @series begin
+                subplot := 1
+                seriestype := :surface
+                title := ""
+                x, y, zv
+
+            end
+
+            @series begin
+                subplot := 2
+                seriestype := :contourf
+                x, y, zv
+            end
+
+            @series begin
+                subplot := 2
+                seriestype := :scatter
+                markercolor := :red
+                markersize := 4
+                label := "max(z) = " * fmt(FormatSpec(".3e"), maxval)
+                [maxx], [maxy]
+            end
+     end
+
     end
 end
+
+
+"""
+plotspectrum(L, N = 20, zfilter = nothing, modifier = abs, surfaceIndexFirst = lastindex, surfaceIndexSecond = lastindex )
+
+Plots the spectrum of L along its dual lattice with N points in each direction.
+- Implemented only for 1d and 2d.
+
+For each dual lattice point you may have multiple complex eigenvalues. In order to plot them, you need to modify them by taking for example the absolute part of the eigenvalues.
+Furthermore, if you have multiple eigenvalues per dual lattice point, you are able to control what surfaces you want to plot via the arguuments surfaceIndexFirst and surfaceIndexSecond.
+
+You can use zfilter in order to show only the part of the plot between zfilter[1] and zfilter[2]
+# Example
+```jldoctest
+julia> using ALFA
+julia> using Plots
+
+julia> L = ALFA.gallery.graphene_tight_binding()
+Lattice Basis: ALFA.Lattice{2, Float64}([1.5 1.5; 0.8660254037844386 -0.8660254037844386])
+Domain: 2-element Vector{StaticArraysCore.SVector{2, Float64}}:
+ [1.0, 0.0]
+ [2.0, 0.0]
+Codomain: 2-element Vector{StaticArraysCore.SVector{2, Float64}}:
+ [1.0, 0.0]
+ [2.0, 0.0]
+Multiplier: 9-element Vector{ALFA.Multiplier}:
+ ALFA.Multiplier{2}([-1, -1], [0 0; 0 0])
+ ALFA.Multiplier{2}([-1, 0], [0 -1; 0 0])
+ ALFA.Multiplier{2}([-1, 1], [0 0; 0 0])
+ ALFA.Multiplier{2}([0, -1], [0 -1; 0 0])
+ ALFA.Multiplier{2}([0, 0], [0 -1; -1 0])
+ ALFA.Multiplier{2}([0, 1], [0 0; -1 0])
+ ALFA.Multiplier{2}([1, -1], [0 0; 0 0])
+ ALFA.Multiplier{2}([1, 0], [0 0; -1 0])
+ ALFA.Multiplier{2}([1, 1], [0 0; 0 0])
+
+# we have two eigenvalues per dual lattice point.
+julia> plotspectrum(L) # plots the absolute part of the largest absolute eigenvalue
+
+julia> plotspectrum(L, modifier=real, surfaceIndexFirst=firstindex, surfaceIndexSecond=lastindex) # plots the real part of all eigenvalues
+julia> plotspectrum(L, modifier=real, surfaceIndexFirst=1, surfaceIndexSecond=2) # equivalent to the functioncall above
+
+julia> plotspectrum(L, modifier=real, surfaceIndexFirst=firstindex, surfaceIndexSecond=firstindex) # plots the real part of the smallest eigenvalues
+
+julia> plotspectrum(L, zfilter=[2, 3], modifier=abs, surfaceIndexFirst=lastindex, surfaceIndexSecond=lastindex) # plots the abs part of largest eigenvalues that lie between 2 and 3.
+
+julia> plotspectrum(L, zfilter=[-1,1], modifier=imag, surfaceIndexFirst=1, surfaceIndexSecond=2, zlim=[-1,1]) # modifying z axis of the plot is also possible.
+
+"""
+plotspectrum

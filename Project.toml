@@ -1,7 +1,7 @@
 name = "ALFA"
 uuid = "f8dd4131-4bab-4a89-9326-aead9c214d0d"
 authors = ["Nils Kintscher", "Karsten Kahl"]
-version = "0.1.0"
+version = "0.2.0"
 
 [deps]
 ColorSchemes = "35d6a980-a343-548e-a6ea-1d62b119f2f4"
