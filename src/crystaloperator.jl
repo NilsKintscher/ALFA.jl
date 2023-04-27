@@ -41,21 +41,21 @@ julia> using ALFA
 julia> using LinearAlgebra
 
 julia> ALFA.CrystalOperator{2,Float64}()
-Lattice Basis: ALFA.Lattice{2,Float64}([1.0 0.0; 0.0 1.0])
-Domain: 1-element Array{StaticArrays.SArray{Tuple{2},Float64,1,2},1}:
+Lattice Basis: ALFA.Lattice{2, Float64}([1.0 0.0; 0.0 1.0])
+Domain: 1-element Vector{StaticArraysCore.SVector{2, Float64}}:
  [0.0, 0.0]
-Codomain: 1-element Array{StaticArrays.SArray{Tuple{2},Float64,1,2},1}:
+Codomain: 1-element Vector{StaticArraysCore.SVector{2, Float64}}:
  [0.0, 0.0]
 Multiplier: ALFA.Multiplier[]
 
 julia> ALFA.CrystalOperator(ALFA.Crystal{2,Float64}(),3*I)
-Lattice Basis: ALFA.Lattice{2,Float64}([1.0 0.0; 0.0 1.0])
-Domain: 1-element Array{StaticArrays.SArray{Tuple{2},Float64,1,2},1}:
+Lattice Basis: ALFA.Lattice{2, Float64}([1.0 0.0; 0.0 1.0])
+Domain: 1-element Vector{StaticArraysCore.SVector{2, Float64}}:
  [0.0, 0.0]
-Codomain: 1-element Array{StaticArrays.SArray{Tuple{2},Float64,1,2},1}:
+Codomain: 1-element Vector{StaticArraysCore.SVector{2, Float64}}:
  [0.0, 0.0]
-Multiplier: 1-element Array{ALFA.Multiplier,1}:
- ALFA.Multiplier{2}([0, 0], [3])
+Multiplier: 1-element Vector{ALFA.Multiplier}:
+ ALFA.Multiplier{2}([0, 0], [3;;])
 
 ```
 """
@@ -111,23 +111,23 @@ Returns the multiplier at pos if existent (in S.M).
 julia> using ALFA
 
 julia> S = ALFA.gallery.Laplace()
-Lattice Basis: ALFA.Lattice{2,Float64}([1.0 0.0; 0.0 1.0])
-Domain: 1-element Array{StaticArrays.SArray{Tuple{2},Float64,1,2},1}:
+Lattice Basis: ALFA.Lattice{2, Float64}([1.0 0.0; 0.0 1.0])
+Domain: 1-element Vector{StaticArraysCore.SVector{2, Float64}}:
  [0.0, 0.0]
-Codomain: 1-element Array{StaticArrays.SArray{Tuple{2},Float64,1,2},1}:
+Codomain: 1-element Vector{StaticArraysCore.SVector{2, Float64}}:
  [0.0, 0.0]
-Multiplier: 5-element Array{ALFA.Multiplier,1}:
- ALFA.Multiplier{2}([-1, 0], [1.0])
- ALFA.Multiplier{2}([0, -1], [1.0])
- ALFA.Multiplier{2}([0, 0], [-4.0])
- ALFA.Multiplier{2}([0, 1], [1.0])
- ALFA.Multiplier{2}([1, 0], [1.0])
+Multiplier: 5-element Vector{ALFA.Multiplier}:
+ ALFA.Multiplier{2}([-1, 0], [1.0;;])
+ ALFA.Multiplier{2}([0, -1], [1.0;;])
+ ALFA.Multiplier{2}([0, 0], [-4.0;;])
+ ALFA.Multiplier{2}([0, 1], [1.0;;])
+ ALFA.Multiplier{2}([1, 0], [1.0;;])
 
 julia> ALFA.find_multiplier(S, [0, 0])
-Position: 2-element StaticArrays.MArray{Tuple{2},Int64,1,2} with indices SOneTo(2):
+Position: 2-element StaticArraysCore.MVector{2, Int64} with indices SOneTo(2):
  0
  0
-Multiplier: 1×1 Array{Float64,2}:
+Multiplier: 1×1 Matrix{Float64}:
  -4.0
 
 ```
@@ -229,50 +229,50 @@ Adds a multiplier to S.M. If there is a multiplier m2 in S.M with m2.pos == m.po
 julia> using ALFA
 
 julia> S = ALFA.gallery.Laplace()
-Lattice Basis: ALFA.Lattice{2,Float64}([1.0 0.0; 0.0 1.0])
-Domain: 1-element Array{StaticArrays.SArray{Tuple{2},Float64,1,2},1}:
+Lattice Basis: ALFA.Lattice{2, Float64}([1.0 0.0; 0.0 1.0])
+Domain: 1-element Vector{StaticArraysCore.SVector{2, Float64}}:
  [0.0, 0.0]
-Codomain: 1-element Array{StaticArrays.SArray{Tuple{2},Float64,1,2},1}:
+Codomain: 1-element Vector{StaticArraysCore.SVector{2, Float64}}:
  [0.0, 0.0]
-Multiplier: 5-element Array{ALFA.Multiplier,1}:
- ALFA.Multiplier{2}([-1, 0], [1.0])
- ALFA.Multiplier{2}([0, -1], [1.0])
- ALFA.Multiplier{2}([0, 0], [-4.0])
- ALFA.Multiplier{2}([0, 1], [1.0])
- ALFA.Multiplier{2}([1, 0], [1.0])
+Multiplier: 5-element Vector{ALFA.Multiplier}:
+ ALFA.Multiplier{2}([-1, 0], [1.0;;])
+ ALFA.Multiplier{2}([0, -1], [1.0;;])
+ ALFA.Multiplier{2}([0, 0], [-4.0;;])
+ ALFA.Multiplier{2}([0, 1], [1.0;;])
+ ALFA.Multiplier{2}([1, 0], [1.0;;])
 
 julia> m = ALFA.Multiplier{2}([0, 0], [1])
-Position: 2-element StaticArrays.MArray{Tuple{2},Int64,1,2} with indices SOneTo(2):
+Position: 2-element StaticArraysCore.MVector{2, Int64} with indices SOneTo(2):
  0
  0
-Multiplier: 1×1 Array{Int64,2}:
+Multiplier: 1×1 Matrix{Int64}:
  1
 
 julia> push!(S,m)
-Lattice Basis: ALFA.Lattice{2,Float64}([1.0 0.0; 0.0 1.0])
-Domain: 1-element Array{StaticArrays.SArray{Tuple{2},Float64,1,2},1}:
+Lattice Basis: ALFA.Lattice{2, Float64}([1.0 0.0; 0.0 1.0])
+Domain: 1-element Vector{StaticArraysCore.SVector{2, Float64}}:
  [0.0, 0.0]
-Codomain: 1-element Array{StaticArrays.SArray{Tuple{2},Float64,1,2},1}:
+Codomain: 1-element Vector{StaticArraysCore.SVector{2, Float64}}:
  [0.0, 0.0]
-Multiplier: 5-element Array{ALFA.Multiplier,1}:
- ALFA.Multiplier{2}([-1, 0], [1.0])
- ALFA.Multiplier{2}([0, -1], [1.0])
- ALFA.Multiplier{2}([0, 0], [1])
- ALFA.Multiplier{2}([0, 1], [1.0])
- ALFA.Multiplier{2}([1, 0], [1.0])
+Multiplier: 5-element Vector{ALFA.Multiplier}:
+ ALFA.Multiplier{2}([-1, 0], [1.0;;])
+ ALFA.Multiplier{2}([0, -1], [1.0;;])
+ ALFA.Multiplier{2}([0, 0], [1;;])
+ ALFA.Multiplier{2}([0, 1], [1.0;;])
+ ALFA.Multiplier{2}([1, 0], [1.0;;])
 
 julia> push!(S,m, true)
-Lattice Basis: ALFA.Lattice{2,Float64}([1.0 0.0; 0.0 1.0])
-Domain: 1-element Array{StaticArrays.SArray{Tuple{2},Float64,1,2},1}:
+Lattice Basis: ALFA.Lattice{2, Float64}([1.0 0.0; 0.0 1.0])
+Domain: 1-element Vector{StaticArraysCore.SVector{2, Float64}}:
  [0.0, 0.0]
-Codomain: 1-element Array{StaticArrays.SArray{Tuple{2},Float64,1,2},1}:
+Codomain: 1-element Vector{StaticArraysCore.SVector{2, Float64}}:
  [0.0, 0.0]
-Multiplier: 5-element Array{ALFA.Multiplier,1}:
- ALFA.Multiplier{2}([-1, 0], [1.0])
- ALFA.Multiplier{2}([0, -1], [1.0])
- ALFA.Multiplier{2}([0, 0], [2])
- ALFA.Multiplier{2}([0, 1], [1.0])
- ALFA.Multiplier{2}([1, 0], [1.0])
+Multiplier: 5-element Vector{ALFA.Multiplier}:
+ ALFA.Multiplier{2}([-1, 0], [1.0;;])
+ ALFA.Multiplier{2}([0, -1], [1.0;;])
+ ALFA.Multiplier{2}([0, 0], [2;;])
+ ALFA.Multiplier{2}([0, 1], [1.0;;])
+ ALFA.Multiplier{2}([1, 0], [1.0;;])
 
 ```
 """
@@ -303,30 +303,30 @@ Normalizes the crystaloperator, i.e., returns an crystaloperator isomorphic to S
 julia> using ALFA
 
 julia> S = ALFA.CrystalOperator{1,Float64}(ALFA.Crystal{1,Float64}([1], [-.5], [1.5]))
-Lattice Basis: ALFA.Lattice{1,Float64}([1.0])
-Domain: 1-element Array{StaticArrays.SArray{Tuple{1},Float64,1,1},1}:
+Lattice Basis: ALFA.Lattice{1, Float64}([1.0;;])
+Domain: 1-element Vector{StaticArraysCore.SVector{1, Float64}}:
  [-0.5]
-Codomain: 1-element Array{StaticArrays.SArray{Tuple{1},Float64,1,1},1}:
+Codomain: 1-element Vector{StaticArraysCore.SVector{1, Float64}}:
  [1.5]
 Multiplier: ALFA.Multiplier[]
 
 julia> push!(S, ALFA.Multiplier([0], [-2]))
-Lattice Basis: ALFA.Lattice{1,Float64}([1.0])
-Domain: 1-element Array{StaticArrays.SArray{Tuple{1},Float64,1,1},1}:
+Lattice Basis: ALFA.Lattice{1, Float64}([1.0;;])
+Domain: 1-element Vector{StaticArraysCore.SVector{1, Float64}}:
  [-0.5]
-Codomain: 1-element Array{StaticArrays.SArray{Tuple{1},Float64,1,1},1}:
+Codomain: 1-element Vector{StaticArraysCore.SVector{1, Float64}}:
  [1.5]
-Multiplier: 1-element Array{ALFA.Multiplier,1}:
- ALFA.Multiplier{1}([0], [-2])
+Multiplier: 1-element Vector{ALFA.Multiplier}:
+ ALFA.Multiplier{1}([0], [-2;;])
 
 julia> ALFA.normalize(S)
-Lattice Basis: ALFA.Lattice{1,Float64}([1.0])
-Domain: 1-element Array{StaticArrays.SArray{Tuple{1},Float64,1,1},1}:
+Lattice Basis: ALFA.Lattice{1, Float64}([1.0;;])
+Domain: 1-element Vector{StaticArraysCore.SVector{1, Float64}}:
  [0.5]
-Codomain: 1-element Array{StaticArrays.SArray{Tuple{1},Float64,1,1},1}:
+Codomain: 1-element Vector{StaticArraysCore.SVector{1, Float64}}:
  [0.5]
-Multiplier: 1-element Array{ALFA.Multiplier,1}:
- ALFA.Multiplier{1}([-2], [-2])
+Multiplier: 1-element Vector{ALFA.Multiplier}:
+ ALFA.Multiplier{1}([-2], [-2;;])
 
 ```
 """
@@ -422,21 +422,21 @@ julia> using ALFA
 julia> using LinearAlgebra
 
 julia> S = ALFA.CrystalOperator(ALFA.Crystal{2,Float64}(),0*I)
-Lattice Basis: ALFA.Lattice{2,Float64}([1.0 0.0; 0.0 1.0])
-Domain: 1-element Array{StaticArrays.SArray{Tuple{2},Float64,1,2},1}:
+Lattice Basis: ALFA.Lattice{2, Float64}([1.0 0.0; 0.0 1.0])
+Domain: 1-element Vector{StaticArraysCore.SVector{2, Float64}}:
  [0.0, 0.0]
-Codomain: 1-element Array{StaticArrays.SArray{Tuple{2},Float64,1,2},1}:
+Codomain: 1-element Vector{StaticArraysCore.SVector{2, Float64}}:
  [0.0, 0.0]
-Multiplier: 1-element Array{ALFA.Multiplier,1}:
- ALFA.Multiplier{2}([0, 0], [0])
+Multiplier: 1-element Vector{ALFA.Multiplier}:
+ ALFA.Multiplier{2}([0, 0], [0;;])
 
 julia> ALFA.CleanUp!(S)
 
 julia> S
-Lattice Basis: ALFA.Lattice{2,Float64}([1.0 0.0; 0.0 1.0])
-Domain: 1-element Array{StaticArrays.SArray{Tuple{2},Float64,1,2},1}:
+Lattice Basis: ALFA.Lattice{2, Float64}([1.0 0.0; 0.0 1.0])
+Domain: 1-element Vector{StaticArraysCore.SVector{2, Float64}}:
  [0.0, 0.0]
-Codomain: 1-element Array{StaticArrays.SArray{Tuple{2},Float64,1,2},1}:
+Codomain: 1-element Vector{StaticArraysCore.SVector{2, Float64}}:
  [0.0, 0.0]
 Multiplier: ALFA.Multiplier[]
 ```
@@ -464,25 +464,25 @@ Rewrites the crystaloperator S wit hrespect to the translationally invariance A.
 julia> using ALFA
 
 julia> L = ALFA.gallery.Laplace(N=1)
-Lattice Basis: ALFA.Lattice{1,Float64}([1.0])
-Domain: 1-element Array{StaticArrays.SArray{Tuple{1},Float64,1,1},1}:
+Lattice Basis: ALFA.Lattice{1, Float64}([1.0;;])
+Domain: 1-element Vector{StaticArraysCore.SVector{1, Float64}}:
  [0.0]
-Codomain: 1-element Array{StaticArrays.SArray{Tuple{1},Float64,1,1},1}:
+Codomain: 1-element Vector{StaticArraysCore.SVector{1, Float64}}:
  [0.0]
-Multiplier: 3-element Array{ALFA.Multiplier,1}:
- ALFA.Multiplier{1}([-1], [1.0])
- ALFA.Multiplier{1}([0], [-2.0])
- ALFA.Multiplier{1}([1], [1.0])
+Multiplier: 3-element Vector{ALFA.Multiplier}:
+ ALFA.Multiplier{1}([-1], [1.0;;])
+ ALFA.Multiplier{1}([0], [-2.0;;])
+ ALFA.Multiplier{1}([1], [1.0;;])
 
 julia> ALFA.wrtLattice(L, L.C.L.A*2)
-Lattice Basis: ALFA.Lattice{1,Float64}([2.0])
-Domain: 2-element Array{StaticArrays.SArray{Tuple{1},Float64,1,1},1}:
+Lattice Basis: ALFA.Lattice{1, Float64}([2.0;;])
+Domain: 2-element Vector{StaticArraysCore.SVector{1, Float64}}:
  [0.0]
  [1.0]
-Codomain: 2-element Array{StaticArrays.SArray{Tuple{1},Float64,1,1},1}:
+Codomain: 2-element Vector{StaticArraysCore.SVector{1, Float64}}:
  [0.0]
  [1.0]
-Multiplier: 3-element Array{ALFA.Multiplier,1}:
+Multiplier: 3-element Vector{ALFA.Multiplier}:
  ALFA.Multiplier{1}([-1], [0.0 1.0; 0.0 0.0])
  ALFA.Multiplier{1}([0], [-2.0 1.0; 1.0 -2.0])
  ALFA.Multiplier{1}([1], [0.0 0.0; 1.0 0.0])
@@ -616,50 +616,50 @@ Finds a least common multiple translationally invariance C and rewrites both ope
 julia> using ALFA
 
 julia> A = ALFA.gallery.Laplace(N=1)
-Lattice Basis: ALFA.Lattice{1,Float64}([1.0])
-Domain: 1-element Array{StaticArrays.SArray{Tuple{1},Float64,1,1},1}:
+Lattice Basis: ALFA.Lattice{1, Float64}([1.0;;])
+Domain: 1-element Vector{StaticArraysCore.SVector{1, Float64}}:
  [0.0]
-Codomain: 1-element Array{StaticArrays.SArray{Tuple{1},Float64,1,1},1}:
+Codomain: 1-element Vector{StaticArraysCore.SVector{1, Float64}}:
  [0.0]
-Multiplier: 3-element Array{ALFA.Multiplier,1}:
- ALFA.Multiplier{1}([-1], [1.0])
- ALFA.Multiplier{1}([0], [-2.0])
- ALFA.Multiplier{1}([1], [1.0])
+Multiplier: 3-element Vector{ALFA.Multiplier}:
+ ALFA.Multiplier{1}([-1], [1.0;;])
+ ALFA.Multiplier{1}([0], [-2.0;;])
+ ALFA.Multiplier{1}([1], [1.0;;])
 
 julia> B = ALFA.gallery.fw_restriction(N=1)
-Lattice Basis: ALFA.Lattice{1,Float64}([2.0])
-Domain: 2-element Array{StaticArrays.SArray{Tuple{1},Float64,1,1},1}:
+Lattice Basis: ALFA.Lattice{1, Float64}([2.0;;])
+Domain: 2-element Vector{StaticArraysCore.SVector{1, Float64}}:
  [0.0]
  [1.0]
-Codomain: 1-element Array{StaticArrays.SArray{Tuple{1},Float64,1,1},1}:
+Codomain: 1-element Vector{StaticArraysCore.SVector{1, Float64}}:
  [0.0]
-Multiplier: 2-element Array{ALFA.Multiplier,1}:
+Multiplier: 2-element Vector{ALFA.Multiplier}:
  ALFA.Multiplier{1}([-1], Rational{Int64}[0//1 1//2])
  ALFA.Multiplier{1}([0], Rational{Int64}[1//1 1//2])
 
 julia> (A2,B2) = ALFA.wrtSameLatticeAndNormalize(A,B);
 
 julia> A2
-Lattice Basis: ALFA.Lattice{1,Float64}([2.0])
-Domain: 2-element Array{StaticArrays.SArray{Tuple{1},Float64,1,1},1}:
+Lattice Basis: ALFA.Lattice{1, Float64}([2.0;;])
+Domain: 2-element Vector{StaticArraysCore.SVector{1, Float64}}:
  [0.0]
  [1.0]
-Codomain: 2-element Array{StaticArrays.SArray{Tuple{1},Float64,1,1},1}:
+Codomain: 2-element Vector{StaticArraysCore.SVector{1, Float64}}:
  [0.0]
  [1.0]
-Multiplier: 3-element Array{ALFA.Multiplier,1}:
+Multiplier: 3-element Vector{ALFA.Multiplier}:
  ALFA.Multiplier{1}([-1], [0.0 1.0; 0.0 0.0])
  ALFA.Multiplier{1}([0], [-2.0 1.0; 1.0 -2.0])
  ALFA.Multiplier{1}([1], [0.0 0.0; 1.0 0.0])
 
 julia> B2
-Lattice Basis: ALFA.Lattice{1,Float64}([2.0])
-Domain: 2-element Array{StaticArrays.SArray{Tuple{1},Float64,1,1},1}:
+Lattice Basis: ALFA.Lattice{1, Float64}([2.0;;])
+Domain: 2-element Vector{StaticArraysCore.SVector{1, Float64}}:
  [0.0]
  [1.0]
-Codomain: 1-element Array{StaticArrays.SArray{Tuple{1},Float64,1,1},1}:
+Codomain: 1-element Vector{StaticArraysCore.SVector{1, Float64}}:
  [0.0]
-Multiplier: 2-element Array{ALFA.Multiplier,1}:
+Multiplier: 2-element Vector{ALFA.Multiplier}:
  ALFA.Multiplier{1}([-1], Rational{Int64}[0//1 1//2])
  ALFA.Multiplier{1}([0], Rational{Int64}[1//1 1//2])
 ```
@@ -701,26 +701,26 @@ with
 julia> using ALFA
 
 julia> L = ALFA.gallery.Laplace(N=1)
-Lattice Basis: ALFA.Lattice{1,Float64}([1.0])
-Domain: 1-element Array{StaticArrays.SArray{Tuple{1},Float64,1,1},1}:
+Lattice Basis: ALFA.Lattice{1, Float64}([1.0;;])
+Domain: 1-element Vector{StaticArraysCore.SVector{1, Float64}}:
  [0.0]
-Codomain: 1-element Array{StaticArrays.SArray{Tuple{1},Float64,1,1},1}:
+Codomain: 1-element Vector{StaticArraysCore.SVector{1, Float64}}:
  [0.0]
-Multiplier: 3-element Array{ALFA.Multiplier,1}:
- ALFA.Multiplier{1}([-1], [1.0])
- ALFA.Multiplier{1}([0], [-2.0])
- ALFA.Multiplier{1}([1], [1.0])
+Multiplier: 3-element Vector{ALFA.Multiplier}:
+ ALFA.Multiplier{1}([-1], [1.0;;])
+ ALFA.Multiplier{1}([0], [-2.0;;])
+ ALFA.Multiplier{1}([1], [1.0;;])
 
 julia> L/2
-Lattice Basis: ALFA.Lattice{1,Float64}([1.0])
-Domain: 1-element Array{StaticArrays.SArray{Tuple{1},Float64,1,1},1}:
+Lattice Basis: ALFA.Lattice{1, Float64}([1.0;;])
+Domain: 1-element Vector{StaticArraysCore.SVector{1, Float64}}:
  [0.0]
-Codomain: 1-element Array{StaticArrays.SArray{Tuple{1},Float64,1,1},1}:
+Codomain: 1-element Vector{StaticArraysCore.SVector{1, Float64}}:
  [0.0]
-Multiplier: 3-element Array{ALFA.Multiplier,1}:
- ALFA.Multiplier{1}([-1], [0.5])
- ALFA.Multiplier{1}([0], [-1.0])
- ALFA.Multiplier{1}([1], [0.5])
+Multiplier: 3-element Vector{ALFA.Multiplier}:
+ ALFA.Multiplier{1}([-1], [0.5;;])
+ ALFA.Multiplier{1}([0], [-1.0;;])
+ ALFA.Multiplier{1}([1], [0.5;;])
 
 ```
 """
@@ -745,26 +745,26 @@ with
 julia> using ALFA
 
 julia> L = ALFA.gallery.Laplace(N=1)
-Lattice Basis: ALFA.Lattice{1,Float64}([1.0])
-Domain: 1-element Array{StaticArrays.SArray{Tuple{1},Float64,1,1},1}:
+Lattice Basis: ALFA.Lattice{1, Float64}([1.0;;])
+Domain: 1-element Vector{StaticArraysCore.SVector{1, Float64}}:
  [0.0]
-Codomain: 1-element Array{StaticArrays.SArray{Tuple{1},Float64,1,1},1}:
+Codomain: 1-element Vector{StaticArraysCore.SVector{1, Float64}}:
  [0.0]
-Multiplier: 3-element Array{ALFA.Multiplier,1}:
- ALFA.Multiplier{1}([-1], [1.0])
- ALFA.Multiplier{1}([0], [-2.0])
- ALFA.Multiplier{1}([1], [1.0])
+Multiplier: 3-element Vector{ALFA.Multiplier}:
+ ALFA.Multiplier{1}([-1], [1.0;;])
+ ALFA.Multiplier{1}([0], [-2.0;;])
+ ALFA.Multiplier{1}([1], [1.0;;])
 
 julia> 2L
-Lattice Basis: ALFA.Lattice{1,Float64}([1.0])
-Domain: 1-element Array{StaticArrays.SArray{Tuple{1},Float64,1,1},1}:
+Lattice Basis: ALFA.Lattice{1, Float64}([1.0;;])
+Domain: 1-element Vector{StaticArraysCore.SVector{1, Float64}}:
  [0.0]
-Codomain: 1-element Array{StaticArrays.SArray{Tuple{1},Float64,1,1},1}:
+Codomain: 1-element Vector{StaticArraysCore.SVector{1, Float64}}:
  [0.0]
-Multiplier: 3-element Array{ALFA.Multiplier,1}:
- ALFA.Multiplier{1}([-1], [2.0])
- ALFA.Multiplier{1}([0], [-4.0])
- ALFA.Multiplier{1}([1], [2.0])
+Multiplier: 3-element Vector{ALFA.Multiplier}:
+ ALFA.Multiplier{1}([-1], [2.0;;])
+ ALFA.Multiplier{1}([0], [-4.0;;])
+ ALFA.Multiplier{1}([1], [2.0;;])
 
 ```
 """
@@ -806,35 +806,35 @@ with
 julia> using ALFA
 
 julia> A = ALFA.gallery.Laplace(N=1)
-Lattice Basis: ALFA.Lattice{1,Float64}([1.0])
-Domain: 1-element Array{StaticArrays.SArray{Tuple{1},Float64,1,1},1}:
+Lattice Basis: ALFA.Lattice{1, Float64}([1.0;;])
+Domain: 1-element Vector{StaticArraysCore.SVector{1, Float64}}:
  [0.0]
-Codomain: 1-element Array{StaticArrays.SArray{Tuple{1},Float64,1,1},1}:
+Codomain: 1-element Vector{StaticArraysCore.SVector{1, Float64}}:
  [0.0]
-Multiplier: 3-element Array{ALFA.Multiplier,1}:
- ALFA.Multiplier{1}([-1], [1.0])
- ALFA.Multiplier{1}([0], [-2.0])
- ALFA.Multiplier{1}([1], [1.0])
+Multiplier: 3-element Vector{ALFA.Multiplier}:
+ ALFA.Multiplier{1}([-1], [1.0;;])
+ ALFA.Multiplier{1}([0], [-2.0;;])
+ ALFA.Multiplier{1}([1], [1.0;;])
 
 julia> R = ALFA.gallery.fw_restriction(N=1)
-Lattice Basis: ALFA.Lattice{1,Float64}([2.0])
-Domain: 2-element Array{StaticArrays.SArray{Tuple{1},Float64,1,1},1}:
+Lattice Basis: ALFA.Lattice{1, Float64}([2.0;;])
+Domain: 2-element Vector{StaticArraysCore.SVector{1, Float64}}:
  [0.0]
  [1.0]
-Codomain: 1-element Array{StaticArrays.SArray{Tuple{1},Float64,1,1},1}:
+Codomain: 1-element Vector{StaticArraysCore.SVector{1, Float64}}:
  [0.0]
-Multiplier: 2-element Array{ALFA.Multiplier,1}:
+Multiplier: 2-element Vector{ALFA.Multiplier}:
  ALFA.Multiplier{1}([-1], Rational{Int64}[0//1 1//2])
  ALFA.Multiplier{1}([0], Rational{Int64}[1//1 1//2])
 
 julia> R*A
-Lattice Basis: ALFA.Lattice{1,Float64}([2.0])
-Domain: 2-element Array{StaticArrays.SArray{Tuple{1},Float64,1,1},1}:
+Lattice Basis: ALFA.Lattice{1, Float64}([2.0;;])
+Domain: 2-element Vector{StaticArraysCore.SVector{1, Float64}}:
  [0.0]
  [1.0]
-Codomain: 1-element Array{StaticArrays.SArray{Tuple{1},Float64,1,1},1}:
+Codomain: 1-element Vector{StaticArraysCore.SVector{1, Float64}}:
  [0.0]
-Multiplier: 3-element Array{ALFA.Multiplier,1}:
+Multiplier: 3-element Vector{ALFA.Multiplier}:
  ALFA.Multiplier{1}([-1], [0.5 0.0])
  ALFA.Multiplier{1}([0], [-1.0 0.0])
  ALFA.Multiplier{1}([1], [0.5 0.0])
@@ -914,26 +914,26 @@ with
 julia> using ALFA
 
 julia> A = ALFA.gallery.Laplace(N=1)
-Lattice Basis: ALFA.Lattice{1,Float64}([1.0])
-Domain: 1-element Array{StaticArrays.SArray{Tuple{1},Float64,1,1},1}:
+Lattice Basis: ALFA.Lattice{1, Float64}([1.0;;])
+Domain: 1-element Vector{StaticArraysCore.SVector{1, Float64}}:
  [0.0]
-Codomain: 1-element Array{StaticArrays.SArray{Tuple{1},Float64,1,1},1}:
+Codomain: 1-element Vector{StaticArraysCore.SVector{1, Float64}}:
  [0.0]
-Multiplier: 3-element Array{ALFA.Multiplier,1}:
- ALFA.Multiplier{1}([-1], [1.0])
- ALFA.Multiplier{1}([0], [-2.0])
- ALFA.Multiplier{1}([1], [1.0])
+Multiplier: 3-element Vector{ALFA.Multiplier}:
+ ALFA.Multiplier{1}([-1], [1.0;;])
+ ALFA.Multiplier{1}([0], [-2.0;;])
+ ALFA.Multiplier{1}([1], [1.0;;])
 
 julia> A+A
-Lattice Basis: ALFA.Lattice{1,Float64}([1.0])
-Domain: 1-element Array{StaticArrays.SArray{Tuple{1},Float64,1,1},1}:
+Lattice Basis: ALFA.Lattice{1, Float64}([1.0;;])
+Domain: 1-element Vector{StaticArraysCore.SVector{1, Float64}}:
  [0.0]
-Codomain: 1-element Array{StaticArrays.SArray{Tuple{1},Float64,1,1},1}:
+Codomain: 1-element Vector{StaticArraysCore.SVector{1, Float64}}:
  [0.0]
-Multiplier: 3-element Array{ALFA.Multiplier,1}:
- ALFA.Multiplier{1}([-1], [2.0])
- ALFA.Multiplier{1}([0], [-4.0])
- ALFA.Multiplier{1}([1], [2.0])
+Multiplier: 3-element Vector{ALFA.Multiplier}:
+ ALFA.Multiplier{1}([-1], [2.0;;])
+ ALFA.Multiplier{1}([0], [-4.0;;])
+ ALFA.Multiplier{1}([1], [2.0;;])
 
 ```
 """

@@ -31,13 +31,13 @@ See Definition 2.1 in [1].
 julia> using ALFA
 
 julia> L = ALFA.Lattice{3,Float64}()
-ALFA.Lattice{3,Float64}([1.0 0.0 0.0; 0.0 1.0 0.0; 0.0 0.0 1.0])
+ALFA.Lattice{3, Float64}([1.0 0.0 0.0; 0.0 1.0 0.0; 0.0 0.0 1.0])
 
 julia> L = ALFA.Lattice{2,Rational{BigInt}}()
-ALFA.Lattice{2,Rational{BigInt}}(Rational{BigInt}[1//1 0//1; 0//1 1//1])
+ALFA.Lattice{2, Rational{BigInt}}(Rational{BigInt}[1//1 0//1; 0//1 1//1])
 
 julia> L = ALFA.Lattice{2,Rational{BigInt}}([1 2; 3 4])
-ALFA.Lattice{2,Rational{BigInt}}(Rational{BigInt}[1//1 2//1; 3//1 4//1])
+ALFA.Lattice{2, Rational{BigInt}}(Rational{BigInt}[1//1 2//1; 3//1 4//1])
 
 julia> L = ALFA.Lattice{2,Rational{BigInt}}([1 2; 1 2])
 ERROR: AssertionError: Basis must be nonsingular
@@ -67,8 +67,8 @@ Returns the dimension of the lattice basis: size(L.A,1).
 ```jldoctest
 julia> using ALFA
 
-julia> L = ALFA.Lattice{2,Float64}([1 2; 3 4])
-ALFA.Lattice{2,Float64}([1.0 2.0; 3.0 4.0])
+julia> L = ALFA.Lattice{2, Float64}([1 2; 3 4])
+ALFA.Lattice{2, Float64}([1.0 2.0; 3.0 4.0])
 julia> size(L) == size(L.A) == (2,2)
 true
 ```
@@ -84,8 +84,8 @@ simply wrapping getindex(L.A, y...).
 ```jldoctest
 julia> using ALFA
 
-julia> L = ALFA.Lattice{2,Float64}([1 2; 3 4])
-ALFA.Lattice{2,Float64}([1.0 2.0; 3.0 4.0])
+julia> L = ALFA.Lattice{2, Float64}([1 2; 3 4])
+ALFA.Lattice{2, Float64}([1.0 2.0; 3.0 4.0])
 julia> L[1,2] == L.A[1,2]
 true
 ```
@@ -104,8 +104,9 @@ Get properties of Lattice{N,T}. Let ``A=``L.A, i.e., ``A ∈ T^{N × N}``, then
 ```jldoctest
 julia> using ALFA
 
-julia> L = ALFA.Lattice{2,Float64}([1 2; 3 4])
-ALFA.Lattice{2,Float64}([1.0 2.0; 3.0 4.0])
+julia> L = ALFA.Lattice{2, Float64}([1 2; 3 4])
+ALFA.Lattice{2, Float64}([1.0 2.0; 3.0 4.0])
+
 julia> L.n == L.dim == typeof(L).parameters[1] == 2
 true
 julia> L[2,1]
@@ -146,8 +147,8 @@ See Algorithm B.7, Theorem 5.1 in [1].
 ```jldoctest
 julia> using ALFA
 
-julia> L = ALFA.Lattice{2,Float64}([1 2; 3 4])
-ALFA.Lattice{2,Float64}([1.0 2.0; 3.0 4.0])
+julia> L = ALFA.Lattice{2, Float64}([1 2; 3 4])
+ALFA.Lattice{2, Float64}([1.0 2.0; 3.0 4.0])
 
 julia> ALFA.lcm(L) == L
 true
@@ -156,10 +157,10 @@ julia> ALFA.lcm(L.A) == L.A
 true
 
 julia> ALFA.lcm(ALFA.Lattice{1,Float64}([2]), ALFA.Lattice{1,Float64}([3]), ALFA.Lattice{1,Float64}([6]))
-ALFA.Lattice{1,Float64}([6.0])
+ALFA.Lattice{1, Float64}([6.0;;])
 
 julia> ALFA.lcm(ALFA.Lattice{2,Rational{BigInt}}([1 1; -1 1]), ALFA.Lattice{2,Rational{BigInt}}([1 2; 2 1]))
-ALFA.Lattice{2,Rational{BigInt}}(Rational{BigInt}[-3//1 1//1; -3//1 -1//1])
+ALFA.Lattice{2, Rational{BigInt}}(Rational{BigInt}[-3//1 1//1; -3//1 -1//1])
 ```
 """
 function Base.lcm(A::MArray{X,T}, B::MArray{X,T}) where {X,T<:Real}
@@ -220,12 +221,12 @@ See Algorithm B.3, Theorem 2.3 in [1].
 ```jldoctest
 julia> using ALFA
 
-julia> A = ALFA.Lattice{2,Float64}([1 0; 0 1]);
+julia> A = ALFA.Lattice{2, Float64}([1 0; 0 1]);
 
-julia> B = ALFA.Lattice{2,Float64}([2 0; 0 2]);
+julia> B = ALFA.Lattice{2, Float64}([2 0; 0 2]);
 
 julia> ALFA.ElementsInQuotientSpace(A.A,B.A)
-4-element Array{StaticArrays.SArray{Tuple{2},Float64,1,2},1}:
+4-element Vector{StaticArraysCore.SVector{2, Float64}}:
  [0.0, 0.0]
  [1.0, 0.0]
  [0.0, 1.0]
@@ -284,32 +285,32 @@ julia> using ALFA
 
 julia> using LinearAlgebra
 
-julia> L = ALFA.Lattice{2,Float64}([1 0; 0 1]);
+julia> L = ALFA.Lattice{2, Float64}([1 0; 0 1]);
 
 julia> s = [[-1/2,0], [1/4,2]]
-2-element Array{Array{Float64,1},1}:
+2-element Vector{Vector{Float64}}:
  [-0.5, 0.0]
  [0.25, 2.0]
 
 julia> (t, y, p) = ALFA.ShiftIntoStandardCell(s,L);
 
 julia> t
-2-element Array{StaticArrays.SArray{Tuple{2},Float64,1,2},1}:
+2-element Vector{StaticArraysCore.MVector{2, Float64}}:
  [0.25, 0.0]
  [0.5, 0.0]
 
 julia> y
-2-element Array{StaticArrays.MArray{Tuple{2},Float64,1,2},1}:
+2-element Vector{StaticArraysCore.MVector{2, Float64}}:
  [0.0, 2.0]
  [-1.0, 0.0]
 
 julia> p
-2-element Array{Int64,1}:
+2-element Vector{Int64}:
  2
  1
 
 julia> [t[j] + L.A*y[j] - s[p[j]] for j in [1,2]]
-2-element Array{StaticArrays.SArray{Tuple{2},Float64,1,2},1}:
+2-element Vector{StaticArraysCore.MVector{2, Float64}}:
  [0.0, 0.0]
  [0.0, 0.0]
 ```
@@ -369,10 +370,10 @@ julia> using ALFA
 
 julia> using LinearAlgebra
 
-julia> L = ALFA.Lattice{2,Float64}([1 0; 0 1]);
+julia> L = ALFA.Lattice{2, Float64}([1 0; 0 1]);
 
 julia> s = [[-1/2,0], [1/4,2]]
-2-element Array{Array{Float64,1},1}:
+2-element Vector{Vector{Float64}}:
  [-0.5, 0.0]
  [0.25, 2.0]
 
@@ -380,7 +381,7 @@ julia>  ALFA.CheckIfNormal(s,L)
 false
 
 julia> t = [[1/4,0], [1/2,0]]
-2-element Array{Array{Float64,1},1}:
+2-element Vector{Vector{Float64}}:
  [0.25, 0.0]
  [0.5, 0.0]
 

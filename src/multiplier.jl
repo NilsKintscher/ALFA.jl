@@ -21,10 +21,10 @@ The position is given in fractional coordinates and thus (converted to) integral
 julia> using ALFA
 
 julia> ALFA.Multiplier([0 0], [1 2 3; 4 5 6])
-Position: 2-element StaticArrays.MArray{Tuple{2},Int64,1,2} with indices SOneTo(2):
+Position: 2-element StaticArraysCore.MVector{2, Int64} with indices SOneTo(2):
  0
  0
-Multiplier: 2×3 Array{Int64,2}:
+Multiplier: 2×3 Matrix{Int64}:
  1  2  3
  4  5  6
 

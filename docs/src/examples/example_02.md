@@ -41,7 +41,7 @@ plot(p1, p2, layout=(2,1), size=(w,2h))
 We first rewrite the system operator $L$ with respect to the translational invariance 2A, where $A=$``L.C.L.A``
 
 ```@example ex2
-slat = ALFA.Lattice{2,Float64}(2*L.C.L.A)
+slat = ALFA.Lattice{2, Float64}(2*L.C.L.A)
 Ls = ALFA.wrtLattice(L,slat)
 plot(Ls)
 ```

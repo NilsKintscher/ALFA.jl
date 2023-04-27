@@ -42,7 +42,7 @@ A = h*[1 0; 0 1]  # 2x2 identity matrix scaled with h
 #In the constructor we need to specify the size/dimensionality (N=2)
 # and the datatype of the lattice basis (T=Float64)
 #  (the alternative to Float is Rational{BigInt})
-LA = ALFA.Lattice{2,Float64}(A)  
+LA = ALFA.Lattice{2, Float64}(A)  
 
 ```
 We can plot a section of the lattice. Black arrows correspond to the primitive vectors $a_1$ and $a_2$
@@ -134,7 +134,7 @@ Due to the fact that we find $1/h^2 = 100$ lattice points in $Z[0,1)^2 \cap \mat
 ```
 ```@example tutorial
 using SparseArrays
-tA = ALFA.wrtLattice(L,ALFA.Lattice{2,Float64}([1 0; 0 1]))
+tA = ALFA.wrtLattice(L,ALFA.Lattice{2, Float64}([1 0; 0 1]))
 tA = ALFA.normalize(tA); # make sure all points of the structure elements are within [0,1)^2 and lexicographically ordered.
 nothing # hide
 ```
@@ -236,7 +236,7 @@ $KG_1 = (I-P L_c^{-1} RL)\cdot G_1$ with $R=P^T$, $L_c = RLP$. Thus, we only hav
 We use the following coarse grid: $\mathbb{L}^{t}(2\mathcal{A})$, $t=(0,0)$:
 
 ```@example tutorial
-plot(ALFA.Lattice{2,Float64}(2*L.C.A))
+plot(ALFA.Lattice{2, Float64}(2*L.C.A))
 ```
 
 The so-called 'full weighting' prolongation operator $P$ has a translational invariance of $2\mathcal{A}$. Thus we can define it within this framework as
@@ -432,7 +432,7 @@ By rewriting all operators with respect to a shared *large* translationally inva
 
 
 ```@example tutorial
-wrtL = ALFA.Lattice{2,Float64}([1 0; 0 1])
+wrtL = ALFA.Lattice{2, Float64}([1 0; 0 1])
 Lm = SparseMatrixCSC(ALFA.construct_matrix(L,wrtL))
 Rm = SparseMatrixCSC(ALFA.construct_matrix(R,wrtL))
 Pm = SparseMatrixCSC(ALFA.construct_matrix(P,wrtL))

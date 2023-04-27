@@ -106,7 +106,7 @@ plotspectrum(oc_tg, N=30)
 ## Double check result with a twogrid implementation
 
 ```@example curlcurl
-wrtL = ALFA.Lattice{2,Float64}(30*[1.0 0; 0 1.0])
+wrtL = ALFA.Lattice{2, Float64}(30*[1.0 0; 0 1.0])
 Lm = SparseMatrixCSC{Float64,Int}(ALFA.construct_matrix(L,wrtL))
 Rm = SparseMatrixCSC{Float64,Int}(ALFA.construct_matrix(R,wrtL))
 Pm = SparseMatrixCSC{Float64,Int}(ALFA.construct_matrix(P,wrtL))

@@ -35,10 +35,10 @@ where ``s=(s_1,s_2,\\ldots,s_m) ∈ \\{\\text{Domain,Codomain}\\}`` is the *stru
 julia> using ALFA
 
 julia> ALFA.Crystal{2,Float64}()
-Lattice Basis: ALFA.Lattice{2,Float64}([1.0 0.0; 0.0 1.0])
-Domain: 1-element Array{StaticArrays.SArray{Tuple{2},Float64,1,2},1}:
+Lattice Basis: ALFA.Lattice{2, Float64}([1.0 0.0; 0.0 1.0])
+Domain: 1-element Vector{StaticArraysCore.SVector{2, Float64}}:
  [0.0, 0.0]
-Codomain: 1-element Array{StaticArrays.SArray{Tuple{2},Float64,1,2},1}:
+Codomain: 1-element Vector{StaticArraysCore.SVector{2, Float64}}:
  [0.0, 0.0]
 ```
 """
@@ -109,21 +109,21 @@ Normalizes the crystal, i.e., shifts the structure elements Domain and Codomain 
 julia> using ALFA
 
 julia> C = ALFA.Crystal{1,Float64}([2], [[-1],[-.5],[-1.5]], [[0]])
-Lattice Basis: ALFA.Lattice{1,Float64}([2.0])
-Domain: 3-element Array{StaticArrays.SArray{Tuple{1},Float64,1,1},1}:
+Lattice Basis: ALFA.Lattice{1, Float64}([2.0;;])
+Domain: 3-element Vector{StaticArraysCore.SVector{1, Float64}}:
  [-1.0]
  [-0.5]
  [-1.5]
-Codomain: 1-element Array{StaticArrays.SArray{Tuple{1},Float64,1,1},1}:
+Codomain: 1-element Vector{StaticArraysCore.SVector{1, Float64}}:
  [0.0]
 
 julia> ALFA.normalize(C)
-Lattice Basis: ALFA.Lattice{1,Float64}([2.0])
-Domain: 3-element Array{StaticArrays.SArray{Tuple{1},Float64,1,1},1}:
+Lattice Basis: ALFA.Lattice{1, Float64}([2.0;;])
+Domain: 3-element Vector{StaticArraysCore.SVector{1, Float64}}:
  [0.5]
  [1.0]
  [1.5]
-Codomain: 1-element Array{StaticArrays.SArray{Tuple{1},Float64,1,1},1}:
+Codomain: 1-element Vector{StaticArraysCore.SVector{1, Float64}}:
  [0.0]
 
 ```
@@ -148,23 +148,23 @@ julia> using ALFA
 julia> using LinearAlgebra
 
 julia> C = ALFA.Crystal{2,Float64}()
-Lattice Basis: ALFA.Lattice{2,Float64}([1.0 0.0; 0.0 1.0])
-Domain: 1-element Array{StaticArrays.SArray{Tuple{2},Float64,1,2},1}:
+Lattice Basis: ALFA.Lattice{2, Float64}([1.0 0.0; 0.0 1.0])
+Domain: 1-element Vector{StaticArraysCore.SVector{2, Float64}}:
  [0.0, 0.0]
-Codomain: 1-element Array{StaticArrays.SArray{Tuple{2},Float64,1,2},1}:
+Codomain: 1-element Vector{StaticArraysCore.SVector{2, Float64}}:
  [0.0, 0.0]
 
-julia> L = ALFA.Lattice{2,Float64}(2*I)
-ALFA.Lattice{2,Float64}([2.0 0.0; 0.0 2.0])
+julia> L = ALFA.Lattice{2, Float64}(2*I)
+ALFA.Lattice{2, Float64}([2.0 0.0; 0.0 2.0])
 
 julia> ALFA.wrtLattice(C,L)
-Lattice Basis: ALFA.Lattice{2,Float64}([2.0 0.0; 0.0 2.0])
-Domain: 4-element Array{StaticArrays.SArray{Tuple{2},Float64,1,2},1}:
+Lattice Basis: ALFA.Lattice{2, Float64}([2.0 0.0; 0.0 2.0])
+Domain: 4-element Vector{StaticArraysCore.SVector{2, Float64}}:
  [0.0, 0.0]
  [1.0, 0.0]
  [0.0, 1.0]
  [1.0, 1.0]
-Codomain: 4-element Array{StaticArrays.SArray{Tuple{2},Float64,1,2},1}:
+Codomain: 4-element Vector{StaticArraysCore.SVector{2, Float64}}:
  [0.0, 0.0]
  [1.0, 0.0]
  [0.0, 1.0]
